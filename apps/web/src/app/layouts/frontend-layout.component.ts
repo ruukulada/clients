@@ -23,7 +23,7 @@ export class FrontendLayoutComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.year = new Date().getFullYear().toString();
     this.version = await this.platformUtilsService.getApplicationVersion();
-    this.euServerFlagEnabled = await this.configService.getFeatureFlagBool(
+    this.euServerFlagEnabled = await this.configService.getFeatureFlag<boolean>(
       FeatureFlag.DisplayEuEnvironmentFlag
     );
     this.isEuServer = Utils.getDomain(window.location.href).includes(".eu");

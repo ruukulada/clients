@@ -32,13 +32,7 @@ export const canAccessFeature = (
     let flagValue: FlagValue;
 
     try {
-      if (typeof requiredFlagValue === "boolean") {
-        flagValue = await configService.getFeatureFlagBool(featureFlag);
-      } else if (typeof requiredFlagValue === "number") {
-        flagValue = await configService.getFeatureFlagNumber(featureFlag);
-      } else if (typeof requiredFlagValue === "string") {
-        flagValue = await configService.getFeatureFlagString(featureFlag);
-      }
+      flagValue = await configService.getFeatureFlag(featureFlag);
 
       if (flagValue === requiredFlagValue) {
         return true;

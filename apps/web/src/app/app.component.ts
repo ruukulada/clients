@@ -138,7 +138,7 @@ export class AppComponent implements OnDestroy, OnInit {
           case "syncStarted":
             break;
           case "syncCompleted":
-            await this.configService.fetchServerConfig();
+            this.configService.fetchServerConfig();
             break;
           case "upgradeOrganization": {
             const upgradeConfirmed = await this.dialogService.openSimpleDialog({

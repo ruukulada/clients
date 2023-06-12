@@ -1,5 +1,17 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { BehaviorSubject, Subject, concatMap, from, takeUntil, timer } from "rxjs";
+import {
+  BehaviorSubject,
+  Subject,
+  filter,
+  firstValueFrom,
+  from,
+  map,
+  merge,
+  switchMap,
+  takeUntil,
+  tap,
+  timer,
+} from "rxjs";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -16,23 +28,37 @@ export class ConfigService implements ConfigServiceAbstraction, OnDestroy {
   protected _serverConfig = new BehaviorSubject<ServerConfig | null>(null);
   serverConfig$ = this._serverConfig.asObservable();
   private destroy$ = new Subject<void>();
+  private _forceFetchConfig = new Subject<void>();
 
   constructor(
     private stateService: StateService,
     private configApiService: ConfigApiServiceAbstraction,
     private authService: AuthService,
-    private environmentService: EnvironmentService
+    environmentService: EnvironmentService
   ) {
-    // Re-fetch the server config every hour
-    timer(0, 1000 * 3600)
-      .pipe(concatMap(() => from(this.fetchServerConfig())))
-      .subscribe((serverConfig) => {
-        this._serverConfig.next(serverConfig);
-      });
+    // Get config from storage on initial load
+    from(this.stateService.getServerConfig())
+      .pipe(
+        filter((data) => data != null && this._serverConfig.getValue() == null),
+        map((data) => new ServerConfig(data))
+      )
+      .subscribe(this._serverConfig);
 
-    this.environmentService.urls.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.fetchServerConfig();
-    });
+    // Fetch config from server
+    merge(
+      timer(0, 1000 * 3600), // immediately, then every hour
+      environmentService.urls, // when environment URLs change
+      this._forceFetchConfig // manual
+    )
+      .pipe(
+        switchMap(() => this.configApiService.get()),
+        filter((response) => response != null),
+        map((response) => new ServerConfigData(response)),
+        tap((data) => this.saveConfig(data)),
+        map((data) => new ServerConfig(data)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(this._serverConfig);
   }
 
   ngOnDestroy(): void {
@@ -40,57 +66,35 @@ export class ConfigService implements ConfigServiceAbstraction, OnDestroy {
     this.destroy$.complete();
   }
 
-  async fetchServerConfig(): Promise<ServerConfig> {
-    try {
-      const response = await this.configApiService.get();
-
-      if (response != null) {
-        const data = new ServerConfigData(response);
-        const serverConfig = new ServerConfig(data);
-        this._serverConfig.next(serverConfig);
-        if ((await this.authService.getAuthStatus()) === AuthenticationStatus.LoggedOut) {
-          return serverConfig;
+  getFeatureFlag$<T>(key: FeatureFlag, defaultValue?: T) {
+    return this.serverConfig$.pipe(
+      map((serverConfig) => {
+        if (serverConfig?.featureStates == null || serverConfig.featureStates[key] == null) {
+          return defaultValue;
         }
-        await this.stateService.setServerConfig(data);
-      }
-    } catch {
-      return null;
-    }
+
+        return serverConfig.featureStates[key] as T;
+      })
+    );
   }
 
-  async getFeatureFlagBool(key: FeatureFlag, defaultValue = false): Promise<boolean> {
-    return await this.getFeatureFlag(key, defaultValue);
+  async getFeatureFlag<T>(key: FeatureFlag, defaultValue?: T) {
+    return await firstValueFrom(this.getFeatureFlag$(key, defaultValue));
   }
 
-  async getFeatureFlagString(key: FeatureFlag, defaultValue = ""): Promise<string> {
-    return await this.getFeatureFlag(key, defaultValue);
+  /**
+   * Force the service to fetch an updated config from the server, usually on some event like a completed sync
+   * If this event has an observable related to it, add that observable to the subscription in the constructor instead
+   */
+  fetchServerConfig() {
+    this._forceFetchConfig.next();
   }
 
-  async getFeatureFlagNumber(key: FeatureFlag, defaultValue = 0): Promise<number> {
-    return await this.getFeatureFlag(key, defaultValue);
-  }
-
-  private async getFeatureFlag<T>(key: FeatureFlag, defaultValue: T): Promise<T> {
-    const serverConfig = await this.buildServerConfig();
-    if (
-      serverConfig == null ||
-      serverConfig.featureStates == null ||
-      serverConfig.featureStates[key] == null
-    ) {
-      return defaultValue;
-    }
-    return serverConfig.featureStates[key] as T;
-  }
-
-  private async buildServerConfig(): Promise<ServerConfig> {
-    const data = await this.stateService.getServerConfig();
-    const domain = data ? new ServerConfig(data) : this._serverConfig.getValue();
-
-    if (domain == null || !domain.isValid() || domain.expiresSoon()) {
-      const value = await this.fetchServerConfig();
-      return value ?? domain;
+  private async saveConfig(data: ServerConfigData) {
+    if ((await this.authService.getAuthStatus()) === AuthenticationStatus.LoggedOut) {
+      return;
     }
 
-    return domain;
+    await this.stateService.setServerConfig(data);
   }
 }

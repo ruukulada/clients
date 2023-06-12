@@ -83,7 +83,7 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
   }
 
   async updateEnvironmentInfo() {
-    this.euServerFlagEnabled = await this.configService.getFeatureFlagBool(
+    this.euServerFlagEnabled = await this.configService.getFeatureFlag<boolean>(
       FeatureFlag.DisplayEuEnvironmentFlag
     );
     const webvaultUrl = this.environmentService.getWebVaultUrl();
