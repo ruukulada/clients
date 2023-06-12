@@ -1,4 +1,3 @@
-import { Injectable, OnDestroy } from "@angular/core";
 import {
   BehaviorSubject,
   Subject,
@@ -8,7 +7,6 @@ import {
   map,
   merge,
   switchMap,
-  takeUntil,
   tap,
   timer,
 } from "rxjs";
@@ -23,11 +21,9 @@ import { EnvironmentService } from "../../abstractions/environment.service";
 import { StateService } from "../../abstractions/state.service";
 import { ServerConfigData } from "../../models/data/server-config.data";
 
-@Injectable()
-export class ConfigService implements ConfigServiceAbstraction, OnDestroy {
+export class ConfigService implements ConfigServiceAbstraction {
   protected _serverConfig = new BehaviorSubject<ServerConfig | null>(null);
   serverConfig$ = this._serverConfig.asObservable();
-  private destroy$ = new Subject<void>();
   private _forceFetchConfig = new Subject<void>();
 
   constructor(
@@ -55,15 +51,9 @@ export class ConfigService implements ConfigServiceAbstraction, OnDestroy {
         filter((response) => response != null),
         map((response) => new ServerConfigData(response)),
         tap((data) => this.saveConfig(data)),
-        map((data) => new ServerConfig(data)),
-        takeUntil(this.destroy$)
+        map((data) => new ServerConfig(data))
       )
       .subscribe(this._serverConfig);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   getFeatureFlag$<T>(key: FeatureFlag, defaultValue?: T) {
