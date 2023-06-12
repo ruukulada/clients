@@ -38,7 +38,7 @@ export class ConfigService implements ConfigServiceAbstraction {
         filter((data) => data != null && this._serverConfig.getValue() == null),
         map((data) => new ServerConfig(data))
       )
-      .subscribe(this._serverConfig);
+      .subscribe((config) => this._serverConfig.next(config));
 
     // Fetch config from server
     merge(
@@ -53,7 +53,7 @@ export class ConfigService implements ConfigServiceAbstraction {
         tap((data) => this.saveConfig(data)),
         map((data) => new ServerConfig(data))
       )
-      .subscribe(this._serverConfig);
+      .subscribe((config) => this._serverConfig.next(config));
   }
 
   getFeatureFlag$<T>(key: FeatureFlag, defaultValue?: T) {
