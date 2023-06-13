@@ -24,8 +24,6 @@ describe("ConfigService", () => {
 
   let serverResponseCount: number; // increments to track distinct responses received from server
 
-  const storedConfigData = serverConfigDataFactory("storedConfig");
-
   // Observables will start emitting as soon as this is created, so only create it
   // after everything is mocked
   const configServiceFactory = () =>
@@ -51,11 +49,12 @@ describe("ConfigService", () => {
   });
 
   it("Loads config from storage", (done) => {
+    const storedConfigData = serverConfigDataFactory("storedConfig");
     stateService.getServerConfig.mockResolvedValueOnce(storedConfigData);
 
     const configService = configServiceFactory();
 
-    // skip the initial null value
+    // skip initial null value
     configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
       expect(config).toEqual(new ServerConfig(storedConfigData));
       expect(stateService.getServerConfig).toHaveBeenCalledTimes(1);
@@ -72,6 +71,7 @@ describe("ConfigService", () => {
     it("when the service is created", (done) => {
       const configService = configServiceFactory();
 
+      // skip initial null value
       configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
         try {
           expect(config.gitHash).toEqual("server1");
@@ -89,7 +89,7 @@ describe("ConfigService", () => {
       (hours: number, done: jest.DoneCallback) => {
         const configService = configServiceFactory();
 
-        // Skipping hours + 1 will skip initial null value, plus first fetch on 0ms, plus previous hours (if any)
+        // skip initial null value, plus first fetch on 0ms, plus previous hours (if any)
         configService.serverConfig$.pipe(skip(hours + 1), take(1)).subscribe((config) => {
           try {
             expect(config.gitHash).toEqual("server" + (hours + 1));
@@ -107,7 +107,7 @@ describe("ConfigService", () => {
     it("when environment URLs change", (done) => {
       const configService = configServiceFactory();
 
-      // Skip initial null value
+      // skip initial null value
       configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
         try {
           expect(config.gitHash).toEqual("server1");
@@ -123,7 +123,7 @@ describe("ConfigService", () => {
     it("when fetchServerConfig() is called", (done) => {
       const configService = configServiceFactory();
 
-      // Skip null value, storage load, first server response
+      // skip initial null value
       configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
         try {
           expect(config.gitHash).toEqual("server1");
@@ -142,6 +142,7 @@ describe("ConfigService", () => {
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
     const configService = configServiceFactory();
 
+    // skip initial null value
     configService.serverConfig$.pipe(skip(1), take(1)).subscribe(() => {
       try {
         expect(stateService.setServerConfig).toHaveBeenCalledWith(
