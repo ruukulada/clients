@@ -93,6 +93,7 @@ describe("ConfigService", () => {
         configService.serverConfig$.pipe(skip(hours + 1), take(1)).subscribe((config) => {
           try {
             expect(config.gitHash).toEqual("server" + (hours + 1));
+            expect(configApiService.get).toHaveBeenCalledTimes(hours + 1);
             done();
           } catch (e) {
             done(e);
