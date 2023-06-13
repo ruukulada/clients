@@ -4,7 +4,7 @@ import { Subject, skip, take } from "rxjs";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ServerConfig } from "../../abstractions/config/server-config";
-import { EnvironmentService } from "../../abstractions/environment.service";
+import { EnvironmentService, Urls } from "../../abstractions/environment.service";
 import { StateService } from "../../abstractions/state.service";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import {
@@ -14,6 +14,7 @@ import {
 } from "../../models/response/server-config.response";
 
 import { ConfigService } from "./config.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 
 describe("ConfigService", () => {
   let stateService: MockProxy<StateService>;
@@ -25,6 +26,11 @@ describe("ConfigService", () => {
 
   const storedConfigData = serverConfigDataFactory("storedConfig");
 
+  // Observables will start emitting as soon as this is created, so only create it
+  // after everything is mocked
+  const configServiceFactory = () =>
+    new ConfigService(stateService, configApiService, authService, environmentService);
+
   beforeEach(() => {
     stateService = mock();
     configApiService = mock();
@@ -33,9 +39,8 @@ describe("ConfigService", () => {
     environmentService.urls = new Subject();
 
     serverResponseCount = 1;
-    stateService.getServerConfig.mockResolvedValueOnce(storedConfigData);
     configApiService.get.mockImplementation(() =>
-      Promise.resolve(serverConfigResponseFactory("server" + serverResponseCount))
+      Promise.resolve(serverConfigResponseFactory("server" + serverResponseCount++))
     );
 
     jest.useFakeTimers();
@@ -45,12 +50,7 @@ describe("ConfigService", () => {
     jest.useRealTimers();
   });
 
-  // Observables will start emitting as soon as this is created, so only create it
-  // after everything is mocked
-  const configServiceFactory = () =>
-    new ConfigService(stateService, configApiService, authService, environmentService);
-
-  it("Emits config from storage on initial load", (done) => {
+  it("Loads config from storage", (done) => {
     stateService.getServerConfig.mockResolvedValueOnce(storedConfigData);
 
     const configService = configServiceFactory();
@@ -58,15 +58,21 @@ describe("ConfigService", () => {
     // skip the initial null value
     configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
       expect(config).toEqual(new ServerConfig(storedConfigData));
+      expect(stateService.getServerConfig).toHaveBeenCalledTimes(1);
+      expect(stateService.setServerConfig).not.toHaveBeenCalled();
       done();
     });
   });
 
   describe("Fetches config from server", () => {
-    it("on initial load", (done) => {
+    beforeEach(() => {
+      stateService.getServerConfig.mockResolvedValueOnce(null);
+    });
+
+    it("when the service is created", (done) => {
       const configService = configServiceFactory();
 
-      configService.serverConfig$.pipe(skip(2), take(1)).subscribe((config) => {
+      configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
         try {
           expect(config.gitHash).toEqual("server1");
           done();
@@ -77,11 +83,60 @@ describe("ConfigService", () => {
 
       jest.advanceTimersByTime(1);
     });
+
     it.todo("every hour");
-    it.todo("when environment URLs change");
-    it.todo("when fetchServerConfig() is called");
+
+    it("when environment URLs change", (done) => {
+      const configService = configServiceFactory();
+
+      // Skip initial null value
+      configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
+        try {
+          expect(config.gitHash).toEqual("server1");
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+
+      (environmentService.urls as Subject<Urls>).next({});
+    });
+
+    it("when fetchServerConfig() is called", (done) => {
+      const configService = configServiceFactory();
+
+      // Skip null value, storage load, first server response
+      configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
+        try {
+          expect(config.gitHash).toEqual("server1");
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+
+      configService.fetchServerConfig();
+    });
   });
-  it.todo("Saves config to storage each time it's updated");
+
+  it("Saves server config to storage when the user is logged in", (done) => {
+    stateService.getServerConfig.mockResolvedValueOnce(null);
+    authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
+    const configService = configServiceFactory();
+
+    configService.serverConfig$.pipe(skip(1), take(1)).subscribe(() => {
+      try {
+        expect(stateService.setServerConfig).toHaveBeenCalledWith(
+          expect.objectContaining({ gitHash: "server1" })
+        );
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+
+    jest.advanceTimersByTime(1);
+  });
 });
 
 function serverConfigDataFactory(gitHash: string) {
