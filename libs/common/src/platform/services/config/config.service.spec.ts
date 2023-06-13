@@ -1,5 +1,5 @@
 import { MockProxy, mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { skip, take } from "rxjs";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
@@ -14,15 +14,11 @@ import {
 
 import { ConfigService } from "./config.service";
 
-
-
 describe("ConfigService", () => {
   let stateService: MockProxy<StateService>;
   let configApiService: MockProxy<ConfigApiServiceAbstraction>;
   let authService: MockProxy<AuthService>;
   let environmentService: MockProxy<EnvironmentService>;
-
-  let configService: ConfigService;
 
   const storedConfigData = serverConfigDataFactory();
 
@@ -31,20 +27,23 @@ describe("ConfigService", () => {
     configApiService = mock();
     authService = mock();
     environmentService = mock();
-
-    stateService.getServerConfig.mockResolvedValueOnce(storedConfigData);
-
-    configService = new ConfigService(
-      stateService,
-      configApiService,
-      authService,
-      environmentService
-    );
   });
 
-  it("Emits config from storage on initial load", async () => {
-    const result = await firstValueFrom(configService.serverConfig$);
-    expect(result).toEqual(new ServerConfig(storedConfigData));
+  // Observables will start emitting as soon as this is created, so only create it
+  // after everything is mocked
+  const configServiceFactory = () =>
+    new ConfigService(stateService, configApiService, authService, environmentService);
+
+  it("Emits config from storage on initial load", (done) => {
+    stateService.getServerConfig.mockResolvedValueOnce(storedConfigData);
+
+    const configService = configServiceFactory();
+
+    // skip the initial null value
+    configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
+      expect(config).toEqual(new ServerConfig(storedConfigData));
+      done();
+    });
   });
 
   describe("Fetches config from server", () => {
