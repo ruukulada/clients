@@ -2,6 +2,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { Subject, skip, take } from "rxjs";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { EnvironmentService, Urls } from "../../abstractions/environment.service";
@@ -14,7 +15,6 @@ import {
 } from "../../models/response/server-config.response";
 
 import { ConfigService } from "./config.service";
-import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 
 describe("ConfigService", () => {
   let stateService: MockProxy<StateService>;
@@ -84,7 +84,25 @@ describe("ConfigService", () => {
       jest.advanceTimersByTime(1);
     });
 
-    it.todo("every hour");
+    it.each<number | jest.DoneCallback>([1, 2, 3])(
+      "after %p hour/s",
+      (hours: number, done: jest.DoneCallback) => {
+        const configService = configServiceFactory();
+
+        // Skipping hours + 1 will skip initial null value, plus first fetch on 0ms, plus previous hours (if any)
+        configService.serverConfig$.pipe(skip(hours + 1), take(1)).subscribe((config) => {
+          try {
+            expect(config.gitHash).toEqual("server" + (hours + 1));
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+
+        const oneHourInMs = 1000 * 3600;
+        jest.advanceTimersByTime(oneHourInMs * hours + 10);
+      }
+    );
 
     it("when environment URLs change", (done) => {
       const configService = configServiceFactory();
