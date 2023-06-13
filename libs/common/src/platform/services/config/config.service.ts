@@ -2,12 +2,12 @@ import {
   BehaviorSubject,
   Subject,
   concatMap,
+  delayWhen,
   filter,
   firstValueFrom,
   from,
   map,
   merge,
-  tap,
   timer,
 } from "rxjs";
 
@@ -50,7 +50,7 @@ export class ConfigService implements ConfigServiceAbstraction {
         concatMap(() => this.configApiService.get()),
         filter((response) => response != null),
         map((response) => new ServerConfigData(response)),
-        tap((data) => this.saveConfig(data)),
+        delayWhen((data) => this.saveConfig(data)),
         map((data) => new ServerConfig(data))
       )
       .subscribe((config) => this._serverConfig.next(config));
