@@ -21,6 +21,8 @@ describe("ConfigService", () => {
   let authService: MockProxy<AuthService>;
   let environmentService: MockProxy<EnvironmentService>;
 
+  let serverResponseCount: number; // increments to track distinct responses received from server
+
   const storedConfigData = serverConfigDataFactory("storedConfig");
 
   beforeEach(() => {
@@ -29,6 +31,12 @@ describe("ConfigService", () => {
     authService = mock();
     environmentService = mock();
     environmentService.urls = new Subject();
+
+    serverResponseCount = 1;
+    stateService.getServerConfig.mockResolvedValueOnce(storedConfigData);
+    configApiService.get.mockImplementation(() =>
+      Promise.resolve(serverConfigResponseFactory("server" + serverResponseCount))
+    );
 
     jest.useFakeTimers();
   });
@@ -56,9 +64,6 @@ describe("ConfigService", () => {
 
   describe("Fetches config from server", () => {
     it("on initial load", (done) => {
-      stateService.getServerConfig.mockResolvedValueOnce(storedConfigData);
-      configApiService.get.mockResolvedValue(serverConfigResponseFactory("server1"));
-
       const configService = configServiceFactory();
 
       configService.serverConfig$.pipe(skip(2), take(1)).subscribe((config) => {
@@ -70,7 +75,7 @@ describe("ConfigService", () => {
         }
       });
 
-      jest.advanceTimersByTime(100);
+      jest.advanceTimersByTime(1);
     });
     it.todo("every hour");
     it.todo("when environment URLs change");
