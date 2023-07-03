@@ -57,7 +57,7 @@ export class ConfigService implements ConfigServiceAbstraction {
       .subscribe((config) => this._serverConfig.next(config));
   }
 
-  getFeatureFlag$<T>(key: FeatureFlag, defaultValue?: T) {
+  getFeatureFlag$<T extends boolean | number | string>(key: FeatureFlag, defaultValue?: T) {
     return this.serverConfig$.pipe(
       map((serverConfig) => {
         if (serverConfig?.featureStates == null || serverConfig.featureStates[key] == null) {
@@ -69,7 +69,7 @@ export class ConfigService implements ConfigServiceAbstraction {
     );
   }
 
-  async getFeatureFlag<T>(key: FeatureFlag, defaultValue?: T) {
+  async getFeatureFlag<T extends boolean | number | string>(key: FeatureFlag, defaultValue?: T) {
     return await firstValueFrom(this.getFeatureFlag$(key, defaultValue));
   }
 

@@ -6,8 +6,14 @@ import { ServerConfig } from "./server-config";
 
 export abstract class ConfigServiceAbstraction {
   serverConfig$: Observable<ServerConfig | null>;
-  getFeatureFlag$: <T>(key: FeatureFlag, defaultValue?: T) => Observable<T>;
-  getFeatureFlag: <T>(key: FeatureFlag, defaultValue?: T) => Promise<T>;
+  getFeatureFlag$: <T extends boolean | number | string>(
+    key: FeatureFlag,
+    defaultValue?: T
+  ) => Observable<T>;
+  getFeatureFlag: <T extends boolean | number | string>(
+    key: FeatureFlag,
+    defaultValue?: T
+  ) => Promise<T>;
 
   /**
    * Force ConfigService to fetch an updated config from the server and emit it from serverConfig$
