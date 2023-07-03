@@ -121,7 +121,7 @@ describe("ConfigService", () => {
       (environmentService.urls as Subject<Urls>).next({});
     });
 
-    it("when fetchServerConfig() is called", (done) => {
+    it("when triggerServerConfigFetch() is called", (done) => {
       const configService = configServiceFactory();
 
       // skip initial null value
@@ -134,7 +134,7 @@ describe("ConfigService", () => {
         }
       });
 
-      configService.fetchServerConfig();
+      configService.triggerServerConfigFetch();
     });
   });
 

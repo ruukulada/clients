@@ -98,7 +98,7 @@ export default class RuntimeBackground {
             await this.main.refreshMenu();
           }, 2000);
           this.main.avatarUpdateService.loadColorFromState();
-          this.configService.fetchServerConfig();
+          this.configService.triggerServerConfigFetch();
         }
         break;
       case "openPopup":

@@ -8,5 +8,5 @@ export abstract class ConfigServiceAbstraction {
   serverConfig$: Observable<ServerConfig | null>;
   getFeatureFlag$: <T>(key: FeatureFlag, defaultValue?: T) => Observable<T>;
   getFeatureFlag: <T>(key: FeatureFlag, defaultValue?: T) => Promise<T>;
-  fetchServerConfig: () => void;
+  triggerServerConfigFetch: () => void;
 }

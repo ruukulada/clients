@@ -76,7 +76,7 @@ export class ConfigService implements ConfigServiceAbstraction {
    * Force the service to fetch an updated config from the server, usually on some event like a completed sync
    * If this event has an observable related to it, add that observable to the subscription in the constructor instead
    */
-  fetchServerConfig() {
+  triggerServerConfigFetch() {
     this._forceFetchConfig.next();
   }
 
