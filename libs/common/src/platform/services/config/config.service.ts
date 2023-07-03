@@ -41,6 +41,7 @@ export class ConfigService implements ConfigServiceAbstraction {
       .subscribe((config) => this._serverConfig.next(config));
 
     // Fetch config from server
+    // If you need to fetch a new config when an event occurs, add an observable that emits on that event here
     merge(
       timer(0, 1000 * 3600), // immediately, then every hour
       environmentService.urls, // when environment URLs change
@@ -72,10 +73,6 @@ export class ConfigService implements ConfigServiceAbstraction {
     return await firstValueFrom(this.getFeatureFlag$(key, defaultValue));
   }
 
-  /**
-   * Force the service to fetch an updated config from the server, usually on some event like a completed sync
-   * If this event has an observable related to it, add that observable to the subscription in the constructor instead
-   */
   triggerServerConfigFetch() {
     this._forceFetchConfig.next();
   }
