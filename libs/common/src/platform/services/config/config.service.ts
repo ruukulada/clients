@@ -1,6 +1,7 @@
 import {
-  BehaviorSubject,
+  ReplaySubject,
   Subject,
+  concat,
   concatMap,
   delayWhen,
   filter,
@@ -8,6 +9,7 @@ import {
   from,
   map,
   merge,
+  takeWhile,
   timer,
 } from "rxjs";
 
@@ -22,7 +24,7 @@ import { StateService } from "../../abstractions/state.service";
 import { ServerConfigData } from "../../models/data/server-config.data";
 
 export class ConfigService implements ConfigServiceAbstraction {
-  protected _serverConfig = new BehaviorSubject<ServerConfig | null>(null);
+  protected _serverConfig = new ReplaySubject<ServerConfig | null>(1);
   serverConfig$ = this._serverConfig.asObservable();
   private _forceFetchConfig = new Subject<void>();
 
@@ -33,28 +35,28 @@ export class ConfigService implements ConfigServiceAbstraction {
     environmentService: EnvironmentService
   ) {
     // Get config from storage on initial load
-    from(this.stateService.getServerConfig())
-      .pipe(
-        filter((data) => data != null && this._serverConfig.getValue() == null),
-        map((data) => new ServerConfig(data))
-      )
-      .subscribe((config) => this._serverConfig.next(config));
+    const configFromStorage$ = from(this.stateService.getServerConfig()).pipe(
+      takeWhile((data) => data != null),
+      map((data) => new ServerConfig(data))
+    );
 
     // Fetch config from server
     // If you need to fetch a new config when an event occurs, add an observable that emits on that event here
-    merge(
+    const configFromServer$ = merge(
       timer(0, 1000 * 3600), // immediately, then every hour
       environmentService.urls, // when environment URLs change
       this._forceFetchConfig // manual
-    )
-      .pipe(
-        concatMap(() => this.configApiService.get()),
-        filter((response) => response != null),
-        map((response) => new ServerConfigData(response)),
-        delayWhen((data) => this.saveConfig(data)),
-        map((data) => new ServerConfig(data))
-      )
-      .subscribe((config) => this._serverConfig.next(config));
+    ).pipe(
+      concatMap(() => this.configApiService.get()),
+      filter((response) => response != null),
+      map((response) => new ServerConfigData(response)),
+      delayWhen((data) => this.saveConfig(data)),
+      map((data) => new ServerConfig(data))
+    );
+
+    concat(configFromStorage$, configFromServer$).subscribe((config) =>
+      this._serverConfig.next(config)
+    );
   }
 
   getFeatureFlag$<T extends boolean | number | string>(key: FeatureFlag, defaultValue?: T) {
