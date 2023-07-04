@@ -32,8 +32,14 @@ export class ConfigService implements ConfigServiceAbstraction {
     private stateService: StateService,
     private configApiService: ConfigApiServiceAbstraction,
     private authService: AuthService,
-    environmentService: EnvironmentService
+    environmentService: EnvironmentService,
+    subscribe = true
   ) {
+    // Used to avoid duplicate subscriptions, e.g. in browser between the background and popup
+    if (!subscribe) {
+      return;
+    }
+
     // Get config from storage on initial load
     from(this.stateService.getServerConfig())
       .pipe(

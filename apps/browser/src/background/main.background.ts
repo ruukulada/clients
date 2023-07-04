@@ -46,7 +46,7 @@ import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/pla
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
+import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
@@ -115,6 +115,7 @@ import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
 import { BrowserStateService as StateServiceAbstraction } from "../platform/services/abstractions/browser-state.service";
+import { BrowserConfigService } from "../platform/services/browser-config.service";
 import { BrowserCryptoService } from "../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import { BrowserI18nService } from "../platform/services/browser-i18n.service";
@@ -506,11 +507,14 @@ export default class MainBackground {
       this.userVerificationApiService
     );
 
-    this.configService = new ConfigService(
+    this.configApiService = new ConfigApiService(this.apiService, this.authService);
+
+    this.configService = new BrowserConfigService(
       this.stateService,
       this.configApiService,
       this.authService,
-      this.environmentService
+      this.environmentService,
+      true
     );
 
     const systemUtilsServiceReloadCallback = () => {
