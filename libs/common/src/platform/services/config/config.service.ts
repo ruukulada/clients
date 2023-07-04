@@ -32,7 +32,7 @@ export class ConfigService implements ConfigServiceAbstraction {
     private stateService: StateService,
     private configApiService: ConfigApiServiceAbstraction,
     private authService: AuthService,
-    environmentService: EnvironmentService,
+    private environmentService: EnvironmentService,
     subscribe = true
   ) {
     // Used to avoid duplicate subscriptions, e.g. in browser between the background and popup
@@ -91,5 +91,6 @@ export class ConfigService implements ConfigServiceAbstraction {
     }
 
     await this.stateService.setServerConfig(data);
+    this.environmentService.setCloudWebVaultUrl(data.environment?.cloudRegion);
   }
 }
