@@ -21,6 +21,8 @@ import { EnvironmentService } from "../../abstractions/environment.service";
 import { StateService } from "../../abstractions/state.service";
 import { ServerConfigData } from "../../models/data/server-config.data";
 
+const ONE_HOUR_IN_MILLISECONDS = 1000 * 3600;
+
 export class ConfigService implements ConfigServiceAbstraction {
   protected _serverConfig = new BehaviorSubject<ServerConfig | null>(null);
   serverConfig$ = this._serverConfig.asObservable();
@@ -43,7 +45,7 @@ export class ConfigService implements ConfigServiceAbstraction {
     // Fetch config from server
     // If you need to fetch a new config when an event occurs, add an observable that emits on that event here
     merge(
-      timer(0, 1000 * 3600), // immediately, then every hour
+      timer(0, ONE_HOUR_IN_MILLISECONDS), // immediately, then every hour
       environmentService.urls, // when environment URLs change
       this._forceFetchConfig // manual
     )
