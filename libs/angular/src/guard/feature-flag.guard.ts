@@ -29,10 +29,8 @@ export const canAccessFeature = (
     const i18nService = inject(I18nService);
     const logService = inject(LogService);
 
-    let flagValue: FlagValue;
-
     try {
-      flagValue = await configService.getFeatureFlag(featureFlag);
+      const flagValue = await configService.getFeatureFlag(featureFlag);
 
       if (flagValue === requiredFlagValue) {
         return true;
