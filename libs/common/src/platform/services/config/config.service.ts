@@ -13,7 +13,7 @@ import {
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { FeatureFlag, FeatureFlagValue } from "../../../enums/feature-flag.enum";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ConfigServiceAbstraction } from "../../abstractions/config/config.service.abstraction";
 import { ServerConfig } from "../../abstractions/config/server-config";
@@ -65,7 +65,7 @@ export class ConfigService implements ConfigServiceAbstraction {
       .subscribe((config) => this._serverConfig.next(config));
   }
 
-  getFeatureFlag$<T extends boolean | number | string>(key: FeatureFlag, defaultValue?: T) {
+  getFeatureFlag$<T extends FeatureFlagValue>(key: FeatureFlag, defaultValue?: T) {
     return this.serverConfig$.pipe(
       map((serverConfig) => {
         if (serverConfig?.featureStates == null || serverConfig.featureStates[key] == null) {
@@ -77,7 +77,7 @@ export class ConfigService implements ConfigServiceAbstraction {
     );
   }
 
-  async getFeatureFlag<T extends boolean | number | string>(key: FeatureFlag, defaultValue?: T) {
+  async getFeatureFlag<T extends FeatureFlagValue>(key: FeatureFlag, defaultValue?: T) {
     return await firstValueFrom(this.getFeatureFlag$(key, defaultValue));
   }
 

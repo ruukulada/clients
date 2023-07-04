@@ -5,7 +5,7 @@ import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ServerConfig } from "../../abstractions/config/server-config";
-import { EnvironmentService, Urls } from "../../abstractions/environment.service";
+import { EnvironmentService } from "../../abstractions/environment.service";
 import { StateService } from "../../abstractions/state.service";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import {
@@ -118,7 +118,7 @@ describe("ConfigService", () => {
         }
       });
 
-      (environmentService.urls as Subject<Urls>).next({});
+      (environmentService.urls as Subject<void>).next();
     });
 
     it("when triggerServerConfigFetch() is called", (done) => {
