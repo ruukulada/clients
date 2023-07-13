@@ -22,10 +22,11 @@
 <ng-template
   cdkConnectedOverlay
   [cdkConnectedOverlayOrigin]="trigger"
-  (backdropClick)="close()"
-  (detach)="close()"
   [cdkConnectedOverlayOpen]="isOpen"
   [cdkConnectedOverlayPositions]="overlayPostition"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  (backdropClick)="close()"
+  (detach)="close()"
 >
   <div class="box-content">
     <div
