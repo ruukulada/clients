@@ -28,7 +28,14 @@
   [cdkConnectedOverlayPositions]="overlayPostition"
 >
   <div class="box-content">
-    <div class="environment-selector-dialog" [@transformPanel]="'open'" role="dialog">
+    <div
+      class="environment-selector-dialog"
+      [@transformPanel]="'open'"
+      cdkTrapFocus
+      cdkTrapFocusAutoCapture
+      role="dialog"
+      aria-modal="true"
+    >
       <button
         type="button"
         class="environment-selector-dialog-item"
