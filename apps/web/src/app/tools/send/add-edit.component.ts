@@ -1,5 +1,6 @@
+import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { DatePipe } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 
 import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
@@ -31,7 +32,8 @@ export class AddEditComponent extends BaseAddEditComponent {
     policyService: PolicyService,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogServiceAbstraction,
+    @Inject(DIALOG_DATA) params: { sendId: string }
   ) {
     super(
       i18nService,
@@ -46,6 +48,8 @@ export class AddEditComponent extends BaseAddEditComponent {
       sendApiService,
       dialogService
     );
+
+    this.sendId = params.sendId;
   }
 
   async copyLinkToClipboard(link: string): Promise<void | boolean> {
