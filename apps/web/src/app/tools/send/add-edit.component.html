@@ -95,29 +95,23 @@
           </div>
         </div>
       </ng-container>
-      <h5 bitTypography="h5" class="tw-mt-5">{{ "share" | i18n }}</h5>
-      <div class="form-group" *ngIf="link">
-        <label for="link">{{ "sendLinkLabel" | i18n }}</label>
-        <input type="text" readonly id="link" name="Link" [ngModel]="link" class="form-control" />
-      </div>
-      <div class="form-group">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            [(ngModel)]="copyLink"
-            id="copy-link"
-            name="CopyLink"
-          />
-          <label class="form-check-label" for="copy-link">{{ "copySendLinkOnSave" | i18n }}</label>
-        </div>
-      </div>
+      <h4 bitTypography="h4" class="tw-mt-5">{{ "share" | i18n }}</h4>
+
+      <bit-form-field *ngIf="link">
+        <bit-label for="link">{{ "sendLinkLabel" | i18n }}</bit-label>
+        <input bitInput type="text" readonly id="link" name="Link" [ngModel]="link" />
+      </bit-form-field>
+
+      <bit-form-control>
+        <input bitCheckbox type="checkbox" [(ngModel)]="copyLink" id="copy-link" name="CopyLink" />
+        <bit-label>{{ "copySendLinkOnSave" | i18n }}</bit-label>
+      </bit-form-control>
       <div
         id="options-header"
         class="section-header d-flex flex-row align-items-center mt-5"
         (click)="toggleOptions()"
       >
-        <h3 class="mb-0 mr-2">
+        <h4 bitTypography="h4" class="tw-mb-0 tw-mr-2">
           <button type="button" appStopClick class="header-expandable">
             <i
               class="bwi"
@@ -126,7 +120,7 @@
             ></i>
             {{ "options" | i18n }}
           </button>
-        </h3>
+        </h4>
       </div>
       <div id="options" [hidden]="!showOptions">
         <app-send-efflux-dates
@@ -137,66 +131,53 @@
           (datesChanged)="setDates($event)"
         >
         </app-send-efflux-dates>
-        <div class="row">
-          <div class="col-6 form-group">
-            <label for="maxAccessCount">{{ "maxAccessCount" | i18n }}</label>
+        <div class="tw-flex">
+          <bit-form-field class="tw-w-1/2 tw-pr-3">
+            <bit-label for="maxAccessCount">{{ "maxAccessCount" | i18n }}</bit-label>
             <input
+              bitInput
               id="maxAccessCount"
-              class="form-control"
               type="number"
               name="MaxAccessCount"
               [(ngModel)]="send.maxAccessCount"
               min="1"
               [readOnly]="disableSend"
             />
-            <div class="form-text text-muted small">{{ "maxAccessCountDesc" | i18n }}</div>
-          </div>
-          <div class="col-6 form-group" *ngIf="editMode">
-            <label for="accessCount">{{ "currentAccessCount" | i18n }}</label>
+            <bit-hint>{{ "maxAccessCountDesc" | i18n }}</bit-hint>
+          </bit-form-field>
+          <bit-form-field class="tw-w-1/2 tw-pl-3" *ngIf="editMode">
+            <bit-label for="accessCount">{{ "currentAccessCount" | i18n }}</bit-label>
             <input
+              bitInput
               id="accessCount"
-              class="form-control"
               type="text"
               name="AccessCount"
               readonly
               [(ngModel)]="send.accessCount"
             />
-          </div>
+          </bit-form-field>
         </div>
-        <div class="row">
-          <div class="col-6 form-group">
-            <label for="password" *ngIf="!hasPassword">{{ "password" | i18n }}</label>
-            <label for="password" *ngIf="hasPassword">{{ "newPassword" | i18n }}</label>
-            <div class="input-group">
-              <input
-                id="password"
-                class="form-control text-monospace"
-                type="{{ showPassword ? 'text' : 'password' }}"
-                name="Password"
-                [(ngModel)]="password"
-                [readOnly]="disableSend"
-              />
-              <div class="input-group-append">
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  appA11yTitle="{{ 'toggleVisibility' | i18n }}"
-                  (click)="togglePasswordVisible()"
-                >
-                  <i
-                    class="bwi bwi-lg"
-                    aria-hidden="true"
-                    [ngClass]="{ 'bwi-eye': !showPassword, 'bwi-eye-slash': showPassword }"
-                  ></i>
-                </button>
-              </div>
-            </div>
-            <div class="form-text text-muted small">{{ "sendPasswordDesc" | i18n }}</div>
-          </div>
+        <div class="tw-flex">
+          <bit-form-field class="tw-w-1/2 tw-pr-3">
+            <bit-label for="password" *ngIf="!hasPassword">{{ "password" | i18n }}</bit-label>
+            <bit-label for="password" *ngIf="hasPassword">{{ "newPassword" | i18n }}</bit-label>
+
+            <input
+              bitInput
+              id="password"
+              type="password"
+              name="Password"
+              [(ngModel)]="password"
+              [readOnly]="disableSend"
+            />
+            <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+            <bit-hint>{{ "sendPasswordDesc" | i18n }}</bit-hint>
+          </bit-form-field>
         </div>
-        <div class="form-group">
-          <label for="notes">{{ "notes" | i18n }}</label>
+        <bit-form-field>
+          <bit-label>{{ "notes" | i18n }}</bit-label>
           <textarea
+            bitInput
             id="notes"
             name="Notes"
             rows="6"
@@ -204,36 +185,32 @@
             class="form-control"
             [readOnly]="disableSend"
           ></textarea>
-          <div class="form-text text-muted small">{{ "sendNotesDesc" | i18n }}</div>
-        </div>
-        <div class="form-group">
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [(ngModel)]="send.hideEmail"
-              id="hideEmail"
-              name="HideEmail"
-              [disabled]="(disableHideEmail && !send.hideEmail) || disableSend"
-            />
-            <label class="form-check-label" for="hideEmail">
-              {{ "hideEmail" | i18n }}
-            </label>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              [(ngModel)]="send.disabled"
-              id="disabled"
-              name="Disabled"
-              [disabled]="disableSend"
-            />
-            <label class="form-check-label" for="disabled">{{ "disableThisSend" | i18n }}</label>
-          </div>
-        </div>
+          <bit-hint>{{ "sendNotesDesc" | i18n }}</bit-hint>
+        </bit-form-field>
+
+        <bit-form-control>
+          <input
+            bitCheckbox
+            type="checkbox"
+            [(ngModel)]="send.hideEmail"
+            id="hideEmail"
+            name="HideEmail"
+            [disabled]="(disableHideEmail && !send.hideEmail) || disableSend"
+          />
+          <bit-label>{{ "hideEmail" | i18n }}</bit-label>
+        </bit-form-control>
+
+        <bit-form-control>
+          <input
+            bitCheckbox
+            type="checkbox"
+            [(ngModel)]="send.disabled"
+            id="disabled"
+            name="Disabled"
+            [disabled]="disableSend"
+          />
+          <bit-label>{{ "disableThisSend" | i18n }}</bit-label>
+        </bit-form-control>
       </div>
     </span>
     <span bitDialogFooter>
