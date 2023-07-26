@@ -1,4 +1,4 @@
-import { DIALOG_DATA } from "@angular/cdk/dialog";
+import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { DatePipe } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
@@ -33,6 +33,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     logService: LogService,
     sendApiService: SendApiService,
     dialogService: DialogServiceAbstraction,
+    protected dialogRef: DialogRef,
     @Inject(DIALOG_DATA) params: { sendId: string }
   ) {
     super(
@@ -50,6 +51,12 @@ export class AddEditComponent extends BaseAddEditComponent {
     );
 
     this.sendId = params.sendId;
+  }
+
+  async submit(): Promise<boolean> {
+    const success = await super.submit();
+    this.dialogRef.close(success);
+    return success;
   }
 
   async copyLinkToClipboard(link: string): Promise<void | boolean> {

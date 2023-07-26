@@ -213,43 +213,31 @@
         </bit-form-control>
       </div>
     </span>
-    <span bitDialogFooter>
+    <ng-container bitDialogFooter>
       <button
         type="submit"
-        class="btn btn-primary btn-submit manual"
-        [ngClass]="{ loading: form.loading }"
+        [loading]="form.loading"
         [disabled]="form.loading || disableSend"
+        bitButton
+        buttonType="primary"
       >
-        <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-        <span>{{ "save" | i18n }}</span>
+        {{ "save" | i18n }}
       </button>
-      <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+      <button type="button" bitButton buttonType="secondary" bitDialogClose>
         {{ "cancel" | i18n }}
       </button>
-      <div class="tw-ml-auto" *ngIf="send">
-        <button
-          #deleteBtn
-          type="button"
-          (click)="delete()"
-          class="btn btn-outline-danger"
-          appA11yTitle="{{ 'delete' | i18n }}"
-          *ngIf="editMode"
-          [disabled]="$any(deleteBtn).loading"
-          [appApiAction]="deletePromise"
-        >
-          <i
-            class="bwi bwi-trash bwi-lg bwi-fw"
-            [hidden]="$any(deleteBtn).loading"
-            aria-hidden="true"
-          ></i>
-          <i
-            class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
-            [hidden]="!$any(deleteBtn).loading"
-            title="{{ 'loading' | i18n }}"
-            aria-hidden="true"
-          ></i>
-        </button>
-      </div>
-    </span>
+
+      <button
+        #deleteBtn
+        *ngIf="send"
+        type="button"
+        class="tw-ml-auto"
+        bitIconButton="bwi-trash"
+        buttonType="danger"
+        title="{{ 'delete' | i18n }}"
+        [bitAction]="delete"
+        [disabled]="$any(deleteBtn).loading"
+      ></button>
+    </ng-container>
   </bit-dialog>
 </form>
