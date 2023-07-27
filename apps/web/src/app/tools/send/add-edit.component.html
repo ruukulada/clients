@@ -26,9 +26,9 @@
         />
         <bit-hint>{{ "sendNameDesc" | i18n }}</bit-hint>
       </bit-form-field>
-      <div class="row" *ngIf="!editMode">
-        <div class="col-6 form-group">
-          <label>{{ "whatTypeOfSend" | i18n }}</label>
+      <div class="tw-flex" *ngIf="!editMode">
+        <div class="tw-mb-6 tw-w-1/2">
+          <bit-label>{{ "whatTypeOfSend" | i18n }}</bit-label>
           <div class="form-check" *ngFor="let o of typeOptions">
             <input
               class="form-check-input"
@@ -74,14 +74,17 @@
       </ng-container>
       <!-- File -->
       <ng-container *ngIf="send.type === sendType.File">
-        <div class="form-group">
+        <div class="tw-flex">
           <div *ngIf="editMode">
-            <strong class="d-block">{{ "file" | i18n }}</strong>
-            {{ send.file.fileName }} ({{ send.file.sizeName }})
+            <div class="tw-mb-1 tw-block tw-font-semibold tw-text-main">{{ "file" | i18n }}</div>
+            <p bitTypography="body1" class="tw-mb-0">
+              {{ send.file.fileName }} ({{ send.file.sizeName }})
+            </p>
           </div>
-          <div *ngIf="!editMode">
-            <label for="file">{{ "file" | i18n }}</label>
+          <bit-form-field *ngIf="!editMode">
+            <bit-label for="file">{{ "file" | i18n }}</bit-label>
             <input
+              #fileSelector
               type="file"
               id="file"
               class="form-control-file"
@@ -89,10 +92,8 @@
               required
               [disabled]="disableSend"
             />
-            <small class="form-text text-muted"
-              >{{ "sendFileDesc" | i18n }} {{ "maxFileSize" | i18n }}</small
-            >
-          </div>
+            <bit-hint>{{ "sendFileDesc" | i18n }} {{ "maxFileSize" | i18n }}</bit-hint>
+          </bit-form-field>
         </div>
       </ng-container>
       <h4 bitTypography="h4" class="tw-mt-5">{{ "share" | i18n }}</h4>
