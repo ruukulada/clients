@@ -76,20 +76,28 @@
       <ng-container *ngIf="send.type === sendType.File">
         <div class="tw-flex">
           <div *ngIf="editMode">
-            <div class="tw-mb-1 tw-block tw-font-semibold tw-text-main">{{ "file" | i18n }}</div>
+            <bit-label>{{ "file" | i18n }}</bit-label>
             <p bitTypography="body1" class="tw-mb-0">
               {{ send.file.fileName }} ({{ send.file.sizeName }})
             </p>
           </div>
           <bit-form-field *ngIf="!editMode">
-            <bit-label for="file">{{ "file" | i18n }}</bit-label>
+            <bit-label>{{ "file" | i18n }}</bit-label>
+            <div class="file-selector">
+              <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+                {{ "chooseFile" | i18n }}
+              </button>
+              {{ selectedFile?.name ?? ("noFileChosen" | i18n) }}
+            </div>
             <input
+              bitInput
               #fileSelector
+              hidden
               type="file"
               id="file"
-              class="form-control-file"
               name="file"
               required
+              (change)="setSelectedFile($event)"
               [disabled]="disableSend"
             />
             <bit-hint>{{ "sendFileDesc" | i18n }} {{ "maxFileSize" | i18n }}</bit-hint>

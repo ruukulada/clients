@@ -20,6 +20,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 })
 export class AddEditComponent extends BaseAddEditComponent {
   override componentName = "app-send-add-edit";
+  protected selectedFile: File;
 
   constructor(
     i18nService: I18nService,
@@ -65,5 +66,11 @@ export class AddEditComponent extends BaseAddEditComponent {
     return new Promise((resolve) => {
       window.setTimeout(() => resolve(super.copyLinkToClipboard(link)), 500);
     });
+  }
+
+  protected setSelectedFile(event: Event) {
+    const fileInputEl = <HTMLInputElement>event.target;
+    const file = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
+    this.selectedFile = file;
   }
 }
