@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { ReplaySubject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
@@ -12,7 +12,7 @@ import { browserSession, sessionSync } from "../decorators/session-sync-observab
 @browserSession
 export class BrowserConfigService extends ConfigService {
   @sessionSync<ServerConfig>({ initializer: ServerConfig.fromJSON })
-  protected _serverConfig: BehaviorSubject<ServerConfig | null>;
+  protected _serverConfig: ReplaySubject<ServerConfig | null>;
 
   constructor(
     stateService: StateService,
