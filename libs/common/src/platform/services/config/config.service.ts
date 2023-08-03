@@ -1,9 +1,10 @@
 import {
-  BehaviorSubject,
+  ReplaySubject,
   Subject,
   concatMap,
   delayWhen,
   filter,
+  first,
   firstValueFrom,
   from,
   map,
@@ -24,12 +25,12 @@ import { ServerConfigData } from "../../models/data/server-config.data";
 const ONE_HOUR_IN_MILLISECONDS = 1000 * 3600;
 
 export class ConfigService implements ConfigServiceAbstraction {
-  protected _serverConfig = new BehaviorSubject<ServerConfig | null>(null);
+  protected _serverConfig = new ReplaySubject<ServerConfig | null>(1);
   serverConfig$ = this._serverConfig.asObservable();
   private _forceFetchConfig = new Subject<void>();
 
   cloudRegion$ = this.serverConfig$.pipe(
-    map((config) => config.environment?.cloudRegion ?? Region.US)
+    map((config) => config?.environment?.cloudRegion ?? Region.US)
   );
 
   constructor(
@@ -46,16 +47,14 @@ export class ConfigService implements ConfigServiceAbstraction {
 
     // Get config from storage on initial load
     from(this.stateService.getServerConfig())
-      .pipe(
-        filter((data) => data != null && this._serverConfig.getValue() == null),
-        map((data) => new ServerConfig(data))
-      )
+      .pipe(map((data) => (data == null ? null : new ServerConfig(data))))
       .subscribe((config) => this._serverConfig.next(config));
 
     // Fetch config from server
     // If you need to fetch a new config when an event occurs, add an observable that emits on that event here
     merge(
-      timer(0, ONE_HOUR_IN_MILLISECONDS), // immediately, then every hour
+      this.serverConfig$.pipe(first()), // after the initial load from storage has emitted (to avoid a race condition)
+      timer(ONE_HOUR_IN_MILLISECONDS, ONE_HOUR_IN_MILLISECONDS), // after 1 hour, then every hour
       environmentService.urls, // when environment URLs change
       this._forceFetchConfig // manual
     )

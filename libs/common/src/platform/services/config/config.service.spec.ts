@@ -54,8 +54,7 @@ describe("ConfigService", () => {
 
     const configService = configServiceFactory();
 
-    // skip initial null value
-    configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
+    configService.serverConfig$.pipe(take(1)).subscribe((config) => {
       expect(config).toEqual(new ServerConfig(storedConfigData));
       expect(stateService.getServerConfig).toHaveBeenCalledTimes(1);
       expect(stateService.setServerConfig).not.toHaveBeenCalled();
@@ -71,7 +70,7 @@ describe("ConfigService", () => {
     it("when the service is created", (done) => {
       const configService = configServiceFactory();
 
-      // skip initial null value
+      // skip initial load from storage
       configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
         try {
           expect(config.gitHash).toEqual("server1");
@@ -89,7 +88,7 @@ describe("ConfigService", () => {
       (hours: number, done: jest.DoneCallback) => {
         const configService = configServiceFactory();
 
-        // skip initial null value, plus first fetch on 0ms, plus previous hours (if any)
+        // skip initial load from storage, plus first fetch, plus previous hours (if any)
         configService.serverConfig$.pipe(skip(hours + 1), take(1)).subscribe((config) => {
           try {
             expect(config.gitHash).toEqual("server" + (hours + 1));
@@ -108,7 +107,7 @@ describe("ConfigService", () => {
     it("when environment URLs change", (done) => {
       const configService = configServiceFactory();
 
-      // skip initial null value
+      // skip initial load from storage
       configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
         try {
           expect(config.gitHash).toEqual("server1");
@@ -124,7 +123,7 @@ describe("ConfigService", () => {
     it("when triggerServerConfigFetch() is called", (done) => {
       const configService = configServiceFactory();
 
-      // skip initial null value
+      // skip initial load from storage
       configService.serverConfig$.pipe(skip(1), take(1)).subscribe((config) => {
         try {
           expect(config.gitHash).toEqual("server1");
@@ -143,7 +142,7 @@ describe("ConfigService", () => {
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
     const configService = configServiceFactory();
 
-    // skip initial null value
+    // skip initial load from storage
     configService.serverConfig$.pipe(skip(1), take(1)).subscribe(() => {
       try {
         expect(stateService.setServerConfig).toHaveBeenCalledWith(
