@@ -17,7 +17,7 @@ import { FeatureFlag, FeatureFlagValue } from "../../../enums/feature-flag.enum"
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ConfigServiceAbstraction } from "../../abstractions/config/config.service.abstraction";
 import { ServerConfig } from "../../abstractions/config/server-config";
-import { EnvironmentService } from "../../abstractions/environment.service";
+import { EnvironmentService, Region } from "../../abstractions/environment.service";
 import { StateService } from "../../abstractions/state.service";
 import { ServerConfigData } from "../../models/data/server-config.data";
 
@@ -27,6 +27,10 @@ export class ConfigService implements ConfigServiceAbstraction {
   protected _serverConfig = new BehaviorSubject<ServerConfig | null>(null);
   serverConfig$ = this._serverConfig.asObservable();
   private _forceFetchConfig = new Subject<void>();
+
+  cloudRegion$ = this.serverConfig$.pipe(
+    map((config) => config.environment?.cloudRegion ?? Region.US)
+  );
 
   constructor(
     private stateService: StateService,

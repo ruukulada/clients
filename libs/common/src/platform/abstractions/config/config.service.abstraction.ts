@@ -3,9 +3,11 @@ import { Observable } from "rxjs";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 
 import { ServerConfig } from "./server-config";
+import { Region } from "../environment.service";
 
 export abstract class ConfigServiceAbstraction {
   serverConfig$: Observable<ServerConfig | null>;
+  cloudRegion$: Observable<Region>;
   getFeatureFlag$: <T extends boolean | number | string>(
     key: FeatureFlag,
     defaultValue?: T
@@ -14,7 +16,6 @@ export abstract class ConfigServiceAbstraction {
     key: FeatureFlag,
     defaultValue?: T
   ) => Promise<T>;
-  getCloudRegion: (defaultValue?: string) => Promise<string>;
 
   /**
    * Force ConfigService to fetch an updated config from the server and emit it from serverConfig$
