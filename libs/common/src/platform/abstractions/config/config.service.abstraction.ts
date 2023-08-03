@@ -1,9 +1,9 @@
 import { Observable } from "rxjs";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { Region } from "../environment.service";
 
 import { ServerConfig } from "./server-config";
-import { Region } from "../environment.service";
 
 export abstract class ConfigServiceAbstraction {
   serverConfig$: Observable<ServerConfig | null>;
