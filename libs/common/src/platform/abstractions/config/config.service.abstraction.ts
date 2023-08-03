@@ -14,6 +14,7 @@ export abstract class ConfigServiceAbstraction {
     key: FeatureFlag,
     defaultValue?: T
   ) => Promise<T>;
+  getCloudRegion: (defaultValue?: string) => Promise<string>;
 
   /**
    * Force ConfigService to fetch an updated config from the server and emit it from serverConfig$
