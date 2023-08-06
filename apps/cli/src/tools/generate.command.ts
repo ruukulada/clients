@@ -25,6 +25,7 @@ export class GenerateCommand {
       capitalize: normalizedOptions.capitalize,
       includeNumber: normalizedOptions.includeNumber,
       minNumber: normalizedOptions.minNumber,
+      minSpecial: normalizedOptions.minSpecial,
     };
 
     const enforcedOptions = (await this.stateService.getIsAuthenticated())
@@ -49,6 +50,7 @@ class Options {
   capitalize: boolean;
   includeNumber: boolean;
   minNumber: number;
+  minSpecial: number;
 
   constructor(passedOptions: Record<string, any>) {
     this.uppercase = CliUtils.convertBooleanOption(passedOptions?.uppercase);
@@ -62,6 +64,7 @@ class Options {
     this.separator = passedOptions?.separator == null ? "-" : passedOptions.separator + "";
     this.words = passedOptions?.words != null ? parseInt(passedOptions.words, null) : 3;
     this.minNumber = passedOptions?.minNumber != null ? parseInt(passedOptions.minNumber, null) : 1;
+    this.minSpecial = passedOptions?.minSpecial != null ? parseInt(passedOptions.minSpecial, null) : 1;
 
     if (!this.uppercase && !this.lowercase && !this.special && !this.number) {
       this.lowercase = true;
