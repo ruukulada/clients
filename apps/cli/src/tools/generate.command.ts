@@ -24,6 +24,7 @@ export class GenerateCommand {
       numWords: normalizedOptions.words,
       capitalize: normalizedOptions.capitalize,
       includeNumber: normalizedOptions.includeNumber,
+      minNumber: normalizedOptions.minNumber,
     };
 
     const enforcedOptions = (await this.stateService.getIsAuthenticated())
@@ -47,6 +48,7 @@ class Options {
   words: number;
   capitalize: boolean;
   includeNumber: boolean;
+  minNumber: number;
 
   constructor(passedOptions: Record<string, any>) {
     this.uppercase = CliUtils.convertBooleanOption(passedOptions?.uppercase);
@@ -59,6 +61,7 @@ class Options {
     this.type = passedOptions?.passphrase ? "passphrase" : "password";
     this.separator = passedOptions?.separator == null ? "-" : passedOptions.separator + "";
     this.words = passedOptions?.words != null ? parseInt(passedOptions.words, null) : 3;
+    this.minNumber = passedOptions?.minNumber != null ? parseInt(passedOptions.minNumber, null) : 1;
 
     if (!this.uppercase && !this.lowercase && !this.special && !this.number) {
       this.lowercase = true;

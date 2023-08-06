@@ -299,6 +299,7 @@ export class Program {
       .option("-p, --passphrase", "Generate a passphrase.")
       .option("--length <length>", "Length of the password.")
       .option("--words <words>", "Number of words.")
+      .option("--minNumber <count>", "Minimum number of numeric characters.")
       .option("--separator <separator>", "Word separator.")
       .option("-c, --capitalize", "Title case passphrase.")
       .option("--includeNumber", "Passphrase includes number.")
