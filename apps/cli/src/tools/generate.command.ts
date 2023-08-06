@@ -1,5 +1,6 @@
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { PasswordGeneratorOptions } from "@bitwarden/common/tools/generator/password/password-generator-options";
 
 import { Response } from "../models/response";
 import { StringResponse } from "../models/response/string.response";
@@ -13,7 +14,7 @@ export class GenerateCommand {
 
   async run(cmdOptions: Record<string, any>): Promise<Response> {
     const normalizedOptions = new Options(cmdOptions);
-    const options = {
+    const options: PasswordGeneratorOptions = {
       uppercase: normalizedOptions.uppercase,
       lowercase: normalizedOptions.lowercase,
       number: normalizedOptions.number,

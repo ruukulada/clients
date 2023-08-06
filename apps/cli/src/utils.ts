@@ -253,11 +253,11 @@ export class CliUtils {
     return optionValue || optionValue === "" ? true : false;
   }
 
-  static convertNumberOption(optionValue: any, defaultValue: any) {
+  static convertNumberOption(optionValue: any, defaultValue: number) {
     return optionValue != null ? parseInt(optionValue, null) : defaultValue;
   }
 
-  static convertStringOption(optionValue: any, defaultValue: any) {
+  static convertStringOption(optionValue: any, defaultValue: string) {
     return optionValue != null ? String(optionValue) : defaultValue;
   }
 }
