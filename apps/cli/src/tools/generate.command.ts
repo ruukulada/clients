@@ -62,13 +62,12 @@ class Options {
     this.capitalize = CliUtils.convertBooleanOption(passedOptions?.capitalize);
     this.includeNumber = CliUtils.convertBooleanOption(passedOptions?.includeNumber);
     this.ambiguous = CliUtils.convertBooleanOption(passedOptions?.ambiguous);
-    this.length = passedOptions?.length != null ? parseInt(passedOptions?.length, null) : 14;
+    this.length = CliUtils.convertNumberOption(passedOptions?.length, 14);
     this.type = passedOptions?.passphrase ? "passphrase" : "password";
-    this.separator = passedOptions?.separator == null ? "-" : passedOptions.separator + "";
-    this.words = passedOptions?.words != null ? parseInt(passedOptions.words, null) : 3;
-    this.minNumber = passedOptions?.minNumber != null ? parseInt(passedOptions.minNumber, null) : 1;
-    this.minSpecial =
-      passedOptions?.minSpecial != null ? parseInt(passedOptions.minSpecial, null) : 1;
+    this.separator = CliUtils.convertStringOption(passedOptions?.separator, "-");
+    this.words = CliUtils.convertNumberOption(passedOptions?.words, 3);
+    this.minNumber = CliUtils.convertNumberOption(passedOptions?.minNumber, 1);
+    this.minSpecial = CliUtils.convertNumberOption(passedOptions?.minSpecial, 1);
 
     if (!this.uppercase && !this.lowercase && !this.special && !this.number) {
       this.lowercase = true;

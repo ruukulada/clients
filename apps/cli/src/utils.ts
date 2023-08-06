@@ -252,4 +252,12 @@ export class CliUtils {
   static convertBooleanOption(optionValue: any) {
     return optionValue || optionValue === "" ? true : false;
   }
+
+  static convertNumberOption(optionValue: any, defaultValue: any) {
+    return optionValue != null ? parseInt(optionValue, null) : defaultValue;
+  }
+
+  static convertStringOption(optionValue: any, defaultValue: any) {
+    return optionValue != null ? String(optionValue) : defaultValue;
+  }
 }
