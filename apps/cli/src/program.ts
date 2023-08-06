@@ -304,6 +304,7 @@ export class Program {
       .option("--separator <separator>", "Word separator.")
       .option("-c, --capitalize", "Title case passphrase.")
       .option("--includeNumber", "Passphrase includes number.")
+      .option("--ambiguous", "Avoid ambiguous characters.")
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
