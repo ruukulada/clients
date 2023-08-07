@@ -1,5 +1,5 @@
 <div class="environment-selector-btn">
-  {{ "region" | i18n }}:
+  {{ "loggingInOn" | i18n }}:
   <button
     type="button"
     (click)="toggle(null)"
@@ -10,8 +10,12 @@
     [ngSwitch]="selectedEnvironment"
   >
     <span class="sr-only">{{ "region" | i18n }}:&nbsp;</span>
-    <span *ngSwitchCase="ServerEnvironmentType.US" class="text-primary">{{ "us" | i18n }}</span>
-    <span *ngSwitchCase="ServerEnvironmentType.EU" class="text-primary">{{ "eu" | i18n }}</span>
+    <span *ngSwitchCase="ServerEnvironmentType.US" class="text-primary">{{
+      "usDomain" | i18n
+    }}</span>
+    <span *ngSwitchCase="ServerEnvironmentType.EU" class="text-primary">{{
+      "euDomain" | i18n
+    }}</span>
     <span *ngSwitchCase="ServerEnvironmentType.SelfHosted" class="text-primary">{{
       "selfHosted" | i18n
     }}</span>
@@ -53,7 +57,7 @@
           "
         ></i>
         <img class="img-us" alt="" />
-        <span>{{ "us" | i18n }}</span>
+        <span>{{ "usDomain" | i18n }}</span>
       </button>
       <br />
       <button
@@ -72,7 +76,7 @@
           "
         ></i>
         <img class="img-eu" alt="" />
-        <span>{{ "eu" | i18n }}</span>
+        <span>{{ "euDomain" | i18n }}</span>
       </button>
       <br *ngIf="euServerFlagEnabled" />
       <button
@@ -92,8 +96,8 @@
           "
         ></i>
         <i
-          class="bwi bwi-fw bwi-sm bwi-pencil-square"
-          style="padding-bottom: 1px"
+          class="bwi bwi-fw bwi-md bwi-pencil-square"
+          style="padding-bottom: 1px; margin-right: 5px"
           aria-hidden="true"
         ></i>
         <span>{{ "selfHosted" | i18n }}</span>
