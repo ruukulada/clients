@@ -1,6 +1,7 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { DatePipe } from "@angular/common";
 import { Component, Inject } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
 
 import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
@@ -34,6 +35,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     logService: LogService,
     sendApiService: SendApiService,
     dialogService: DialogServiceAbstraction,
+    formBuilder: FormBuilder,
     protected dialogRef: DialogRef,
     @Inject(DIALOG_DATA) params: { sendId: string }
   ) {
@@ -48,16 +50,11 @@ export class AddEditComponent extends BaseAddEditComponent {
       logService,
       stateService,
       sendApiService,
-      dialogService
+      dialogService,
+      formBuilder
     );
 
     this.sendId = params.sendId;
-  }
-
-  async submit(): Promise<boolean> {
-    const success = await super.submit();
-    this.dialogRef.close(success);
-    return success;
   }
 
   async copyLinkToClipboard(link: string): Promise<void | boolean> {
@@ -73,4 +70,21 @@ export class AddEditComponent extends BaseAddEditComponent {
     const file = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
     this.selectedFile = file;
   }
+
+  submitAndClose = async () => {
+    const success = await this.submit();
+    this.dialogRef.close(success);
+    return success;
+  };
+
+  deleteAndClose = async () => {
+    try {
+      const success = await this.delete();
+      if (success) {
+        this.dialogRef.close();
+      }
+    } catch (e) {
+      this.logService.error(e);
+    }
+  };
 }

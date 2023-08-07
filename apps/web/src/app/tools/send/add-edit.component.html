@@ -1,4 +1,10 @@
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate autocomplete="off">
+<form
+  [formGroup]="formGroup"
+  [bitSubmit]="submitAndClose"
+  [appApiAction]="formPromise"
+  ngNativeValidate
+  autocomplete="off"
+>
   <bit-dialog dialogSize="large">
     <span bitDialogTitle>
       {{ title }}
@@ -15,60 +21,32 @@
       </bit-callout>
       <bit-form-field class="tw-w-1/2">
         <bit-label for="name">{{ "name" | i18n }}</bit-label>
-        <input
-          bitInput
-          id="name"
-          type="text"
-          name="Name"
-          [(ngModel)]="send.name"
-          required
-          [readOnly]="disableSend"
-        />
+        <input bitInput type="text" formControlName="name" />
         <bit-hint>{{ "sendNameDesc" | i18n }}</bit-hint>
       </bit-form-field>
       <div class="tw-flex" *ngIf="!editMode">
-        <div class="tw-mb-6 tw-w-1/2">
+        <bit-radio-group formControlName="type">
           <bit-label>{{ "whatTypeOfSend" | i18n }}</bit-label>
-          <div class="form-check" *ngFor="let o of typeOptions">
-            <input
-              class="form-check-input"
-              type="radio"
-              [(ngModel)]="send.type"
-              name="Type_{{ o.value }}"
-              id="type_{{ o.value }}"
-              [value]="o.value"
-              (change)="typeChanged()"
-              [checked]="send.type === o.value"
-            />
-            <label class="form-check-label" for="type_{{ o.value }}">
-              {{ o.name }}
-            </label>
-          </div>
-        </div>
+
+          <bit-radio-button
+            *ngFor="let o of typeOptions"
+            id="type_{{ o.value }}"
+            class="tw-block"
+            [value]="o.value"
+          >
+            <bit-label>{{ o.name }}</bit-label>
+          </bit-radio-button>
+        </bit-radio-group>
       </div>
       <!-- Text -->
       <ng-container *ngIf="send.type === sendType.Text">
         <bit-form-field>
           <bit-label for="text">{{ "sendTypeText" | i18n }}</bit-label>
-          <textarea
-            bitInput
-            id="text"
-            name="Text.Text"
-            rows="6"
-            [(ngModel)]="send.text.text"
-            [readOnly]="disableSend"
-          ></textarea>
+          <textarea bitInput id="text" rows="6" formControlName="text"></textarea>
           <bit-hint>{{ "sendTextDesc" | i18n }}</bit-hint>
         </bit-form-field>
         <bit-form-control>
-          <input
-            bitCheckbox
-            type="checkbox"
-            [(ngModel)]="send.text.hidden"
-            id="text-hidden"
-            name="Text.Hidden"
-            [disabled]="disableSend"
-          />
+          <input bitCheckbox type="checkbox" formControlName="textHidden" />
           <bit-label>{{ "textHiddenByDefault" | i18n }}</bit-label>
         </bit-form-control>
       </ng-container>
@@ -95,10 +73,8 @@
               hidden
               type="file"
               id="file"
-              name="file"
-              required
+              formControlName="file"
               (change)="setSelectedFile($event)"
-              [disabled]="disableSend"
             />
             <bit-hint>{{ "sendFileDesc" | i18n }} {{ "maxFileSize" | i18n }}</bit-hint>
           </bit-form-field>
@@ -108,11 +84,11 @@
 
       <bit-form-field *ngIf="link">
         <bit-label for="link">{{ "sendLinkLabel" | i18n }}</bit-label>
-        <input bitInput type="text" readonly id="link" name="Link" [ngModel]="link" />
+        <input bitInput type="text" readonly formControlName="link" />
       </bit-form-field>
 
       <bit-form-control>
-        <input bitCheckbox type="checkbox" [(ngModel)]="copyLink" id="copy-link" name="CopyLink" />
+        <input bitCheckbox type="checkbox" formControlName="copyLink" />
         <bit-label>{{ "copySendLinkOnSave" | i18n }}</bit-label>
       </bit-form-control>
       <div
@@ -143,27 +119,12 @@
         <div class="tw-flex">
           <bit-form-field class="tw-w-1/2 tw-pr-3">
             <bit-label for="maxAccessCount">{{ "maxAccessCount" | i18n }}</bit-label>
-            <input
-              bitInput
-              id="maxAccessCount"
-              type="number"
-              name="MaxAccessCount"
-              [(ngModel)]="send.maxAccessCount"
-              min="1"
-              [readOnly]="disableSend"
-            />
+            <input bitInput type="number" formControlName="maxAccessCount" min="1" />
             <bit-hint>{{ "maxAccessCountDesc" | i18n }}</bit-hint>
           </bit-form-field>
           <bit-form-field class="tw-w-1/2 tw-pl-3" *ngIf="editMode">
             <bit-label for="accessCount">{{ "currentAccessCount" | i18n }}</bit-label>
-            <input
-              bitInput
-              id="accessCount"
-              type="text"
-              name="AccessCount"
-              readonly
-              [(ngModel)]="send.accessCount"
-            />
+            <input bitInput type="text" formControlName="accessCount" readonly />
           </bit-form-field>
         </div>
         <div class="tw-flex">
@@ -171,65 +132,30 @@
             <bit-label for="password" *ngIf="!hasPassword">{{ "password" | i18n }}</bit-label>
             <bit-label for="password" *ngIf="hasPassword">{{ "newPassword" | i18n }}</bit-label>
 
-            <input
-              bitInput
-              id="password"
-              type="password"
-              name="Password"
-              [(ngModel)]="password"
-              [readOnly]="disableSend"
-            />
+            <input bitInput type="password" formControlName="password" />
             <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
             <bit-hint>{{ "sendPasswordDesc" | i18n }}</bit-hint>
           </bit-form-field>
         </div>
         <bit-form-field>
           <bit-label>{{ "notes" | i18n }}</bit-label>
-          <textarea
-            bitInput
-            id="notes"
-            name="Notes"
-            rows="6"
-            [(ngModel)]="send.notes"
-            class="form-control"
-            [readOnly]="disableSend"
-          ></textarea>
+          <textarea bitInput formControlName="notes" rows="6"></textarea>
           <bit-hint>{{ "sendNotesDesc" | i18n }}</bit-hint>
         </bit-form-field>
 
         <bit-form-control>
-          <input
-            bitCheckbox
-            type="checkbox"
-            [(ngModel)]="send.hideEmail"
-            id="hideEmail"
-            name="HideEmail"
-            [disabled]="(disableHideEmail && !send.hideEmail) || disableSend"
-          />
+          <input bitCheckbox type="checkbox" formControlName="hideEmail" />
           <bit-label>{{ "hideEmail" | i18n }}</bit-label>
         </bit-form-control>
 
         <bit-form-control>
-          <input
-            bitCheckbox
-            type="checkbox"
-            [(ngModel)]="send.disabled"
-            id="disabled"
-            name="Disabled"
-            [disabled]="disableSend"
-          />
+          <input bitCheckbox type="checkbox" formControlName="disabled" />
           <bit-label>{{ "disableThisSend" | i18n }}</bit-label>
         </bit-form-control>
       </div>
     </span>
     <ng-container bitDialogFooter>
-      <button
-        type="submit"
-        [loading]="form.loading"
-        [disabled]="form.loading || disableSend"
-        bitButton
-        buttonType="primary"
-      >
+      <button type="submit" bitButton bitFormButton buttonType="primary">
         {{ "save" | i18n }}
       </button>
       <button type="button" bitButton buttonType="secondary" bitDialogClose>
@@ -244,7 +170,7 @@
         bitIconButton="bwi-trash"
         buttonType="danger"
         title="{{ 'delete' | i18n }}"
-        [bitAction]="delete"
+        [bitAction]="deleteAndClose"
         [disabled]="$any(deleteBtn).loading"
       ></button>
     </ng-container>
