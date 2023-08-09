@@ -39,7 +39,7 @@
         </bit-radio-group>
       </div>
       <!-- Text -->
-      <ng-container *ngIf="send.type === sendType.Text">
+      <ng-container *ngIf="type === sendType.Text">
         <bit-form-field>
           <bit-label for="text">{{ "sendTypeText" | i18n }}</bit-label>
           <textarea bitInput id="text" rows="6" formControlName="text"></textarea>
@@ -51,7 +51,7 @@
         </bit-form-control>
       </ng-container>
       <!-- File -->
-      <ng-container *ngIf="send.type === sendType.File">
+      <ng-container *ngIf="type === sendType.File">
         <div class="tw-flex">
           <div *ngIf="editMode">
             <bit-label>{{ "file" | i18n }}</bit-label>

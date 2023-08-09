@@ -1,5 +1,6 @@
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -20,7 +21,6 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 
 import { DialogServiceAbstraction, SimpleDialogType } from "../../services/dialog";
-import { FormBuilder, Validators } from "@angular/forms";
 
 @Directive()
 export class AddEditComponent implements OnInit, OnDestroy {
@@ -53,12 +53,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private sendLinkBaseUrl: string;
   private destroy$ = new Subject<void>();
 
-  formGroup = this.formBuilder.group({
+  protected formGroup = this.formBuilder.group({
     name: ["", Validators.required],
     text: [],
     textHidden: [false],
     fileContents: [],
-    file: [null],
+    file: [null, Validators.required],
     link: [],
     copyLink: false,
     maxAccessCount: [],
@@ -67,8 +67,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     notes: [],
     hideEmail: false,
     disabled: false,
-    deletionDate: [],
-    expirationDate: [],
     type: [],
   });
 
@@ -157,9 +155,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   async load() {
     this.canAccessPremium = await this.stateService.getCanAccessPremium();
     this.emailVerified = await this.stateService.getEmailVerified();
-    if (!this.canAccessPremium || !this.emailVerified) {
-      this.type = SendType.Text;
-    }
+
+    this.type = !this.canAccessPremium || !this.emailVerified ? SendType.Text : SendType.File;
 
     if (this.send == null) {
       if (this.editMode) {
@@ -175,8 +172,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
           notes: this.send.notes,
           hideEmail: this.send.hideEmail,
           disabled: this.send.disabled,
-          deletionDate: this.send.deletionDate,
-          expirationDate: this.send.expirationDate,
           type: this.send.type,
         });
         this.type = this.send.type;
@@ -185,12 +180,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       } else {
         this.send = new SendView();
-        this.send.type = this.type == null ? SendType.File : this.type;
+        this.send.type = this.type;
         this.send.file = new SendFileView();
         this.send.text = new SendTextView();
         this.send.deletionDate = new Date();
         this.send.deletionDate.setDate(this.send.deletionDate.getDate() + 7);
-        this.type = this.send.type;
         this.formGroup.controls.type.patchValue(this.send.type);
       }
     }
@@ -219,9 +213,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.send.notes = this.formGroup.controls.notes.value;
     this.send.hideEmail = this.formGroup.controls.hideEmail.value;
     this.send.disabled = this.formGroup.controls.disabled.value;
-    this.send.deletionDate = this.formGroup.controls.deletionDate.value;
-    this.send.expirationDate = this.formGroup.controls.expirationDate.value;
-    this.send.type = this.formGroup.controls.type.value;
+    this.send.type = this.type;
 
     if (this.send.name == null || this.send.name === "") {
       this.platformUtilsService.showToast(
@@ -233,7 +225,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     let file: File = null;
-    if (this.formGroup.controls.type.value === SendType.File && !this.editMode) {
+    if (this.type === SendType.File && !this.editMode) {
       const fileEl = document.getElementById("file") as HTMLInputElement;
       const files = fileEl.files;
       if (files == null || files.length === 0) {
@@ -327,7 +319,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   typeChanged() {
-    if (this.formGroup.controls.type.value === SendType.File && !this.alertShown) {
+    if (this.type === SendType.File && !this.alertShown) {
       if (!this.canAccessPremium) {
         this.alertShown = true;
         this.messagingService.send("premiumRequired");
