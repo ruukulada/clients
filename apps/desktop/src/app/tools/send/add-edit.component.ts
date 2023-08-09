@@ -1,5 +1,6 @@
 import { DatePipe } from "@angular/common";
 import { Component } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
 
 import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
@@ -29,7 +30,8 @@ export class AddEditComponent extends BaseAddEditComponent {
     policyService: PolicyService,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogServiceAbstraction,
+    formBuilder: FormBuilder
   ) {
     super(
       i18nService,
@@ -42,7 +44,8 @@ export class AddEditComponent extends BaseAddEditComponent {
       logService,
       stateService,
       sendApiService,
-      dialogService
+      dialogService,
+      formBuilder
     );
   }
 
@@ -50,6 +53,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     this.password = null;
     const send = await this.loadSend();
     this.send = await send.decrypt();
+    this.updateFormValues();
     this.hasPassword = this.send.password != null && this.send.password.trim() !== "";
   }
 

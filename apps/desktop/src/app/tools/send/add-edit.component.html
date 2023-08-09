@@ -1,4 +1,4 @@
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise">
+<form #form [formGroup]="formGroup" (ngSubmit)="submit()" [appApiAction]="formPromise">
   <div class="content">
     <div class="inner-content" *ngIf="send">
       <div class="box">
@@ -16,14 +16,7 @@
         <div class="box-content">
           <div class="box-content-row" appBoxRow>
             <label for="name">{{ "name" | i18n }}</label>
-            <input
-              id="name"
-              type="text"
-              name="Name"
-              [(ngModel)]="send.name"
-              appAutofocus
-              [readOnly]="disableSend"
-            />
+            <input id="name" type="text" name="Name" formControlName="name" appAutofocus />
           </div>
           <div class="box-content-row box-content-row-radio" *ngIf="!editMode">
             <label class="radio-header">{{ "whatTypeOfSend" | i18n }}</label>
@@ -31,20 +24,16 @@
               <input
                 type="radio"
                 class="radio"
-                [(ngModel)]="send.type"
-                name="Type_{{ o.value }}"
+                formControlName="type"
                 id="type_{{ o.value }}"
                 [value]="o.value"
-                (change)="typeChanged()"
-                [checked]="send.type === o.value"
-                [disabled]="disableSend"
               />
               <label class="unstyled" for="type_{{ o.value }}">
                 {{ o.name }}
               </label>
             </div>
           </div>
-          <div class="box-content-row" appBowRow *ngIf="!editMode && send.type === sendType.File">
+          <div class="box-content-row" appBowRow *ngIf="!editMode && type === sendType.File">
             <label for="file">{{ "file" | i18n }}</label>
             <input
               type="file"
@@ -53,22 +42,20 @@
               name="file"
               aria-describedby="fileHelp"
               required
-              [disabled]="disableSend"
             />
           </div>
-          <div class="box-content-row" appBowRow *ngIf="editMode && send.type === sendType.File">
+          <div class="box-content-row" appBowRow *ngIf="editMode && type === sendType.File">
             <label for="file">{{ "file" | i18n }}</label>
             <div class="row-main">{{ send.file.fileName }} ({{ send.file.sizeName }})</div>
           </div>
-          <div class="box-content-row" appBoxRow *ngIf="send.type === sendType.Text">
+          <div class="box-content-row" appBoxRow *ngIf="type === sendType.Text">
             <label for="text">{{ "text" | i18n }}</label>
             <textarea
               id="text"
               name="text"
               aria-describedby="textHelp"
-              [(ngModel)]="send.text.text"
+              formControlName="text"
               rows="6"
-              [readOnly]="disableSend"
             ></textarea>
           </div>
         </div>
@@ -83,13 +70,7 @@
         <div class="box-content">
           <div class="box-content-row box-content-row-checkbox" appBoxRow>
             <label for="hideText">{{ "textHiddenByDefault" | i18n }}</label>
-            <input
-              id="hideText"
-              name="hideText"
-              type="checkbox"
-              [(ngModel)]="send.text.hidden"
-              [disabled]="disableSend"
-            />
+            <input id="hideText" name="hideText" type="checkbox" formControlName="textHidden" />
           </div>
         </div>
       </div>
@@ -129,8 +110,7 @@
                 type="number"
                 name="maxAccessCount"
                 aria-describedby="maxAccessCountHelp"
-                [(ngModel)]="send.maxAccessCount"
-                [readOnly]="disableSend"
+                formControlName="maxAccessCount"
               />
             </div>
           </div>
@@ -154,8 +134,7 @@
                   name="password"
                   aria-describedby="passwordHelp"
                   type="{{ showPassword ? 'text' : 'password' }}"
-                  [(ngModel)]="password"
-                  [readOnly]="disableSend"
+                  formControlName="password"
                   appInputVerbatim
                 />
               </div>
@@ -167,7 +146,6 @@
                   appA11yTitle="{{ 'toggleVisibility' | i18n }}"
                   [attr.aria-pressed]="showPassword"
                   (click)="togglePasswordVisible()"
-                  [disabled]="disableSend"
                 >
                   <i
                     class="bwi bwi-lg"
@@ -192,9 +170,8 @@
                 id="notes"
                 name="notes"
                 aria-describedby="notesHelp"
-                [(ngModel)]="send.notes"
+                formControlName="notes"
                 rows="6"
-                [readOnly]="disableSend"
               ></textarea>
             </div>
           </div>
@@ -206,13 +183,7 @@
           <div class="box-content">
             <div class="box-content-row box-content-row-checkbox" appBoxRow>
               <label for="hideEmail">{{ "hideEmail" | i18n }}</label>
-              <input
-                id="hideEmail"
-                type="checkbox"
-                name="HideEmail"
-                [(ngModel)]="send.hideEmail"
-                [disabled]="(disableHideEmail && !send.hideEmail) || disableSend"
-              />
+              <input id="hideEmail" type="checkbox" name="HideEmail" formControlName="hideEmail" />
             </div>
           </div>
         </div>
@@ -220,13 +191,7 @@
           <div class="box-content">
             <div class="box-content-row box-content-row-checkbox" appBoxRow>
               <label for="disabled">{{ "disableSend" | i18n }}</label>
-              <input
-                id="disabled"
-                type="checkbox"
-                name="disabled"
-                [(ngModel)]="send.disabled"
-                [disabled]="disableSend"
-              />
+              <input id="disabled" type="checkbox" name="disabled" formControlName="disabled" />
             </div>
           </div>
         </div>
@@ -238,17 +203,11 @@
         <div class="box-content">
           <div class="box-content-row" appBoxRow *ngIf="editMode">
             <label for="link">{{ "sendLinkLabel" | i18n }}</label>
-            <input id="link" name="link" [ngModel]="link" readonly />
+            <input id="link" name="link" formControlName="link" readonly />
           </div>
           <div class="box-content-row box-content-row-checkbox" appBoxRow>
             <label for="copyLink">{{ "copySendLinkOnSave" | i18n }}</label>
-            <input
-              id="copyLink"
-              name="copyLink"
-              [(ngModel)]="copyLink"
-              type="checkbox"
-              [disabled]="disableSend"
-            />
+            <input id="copyLink" name="copyLink" formControlName="copyLink" type="checkbox" />
           </div>
         </div>
       </div>
@@ -259,13 +218,12 @@
       type="submit"
       class="primary btn-submit"
       appA11yTitle="{{ 'save' | i18n }}"
-      [disabled]="form.loading"
       *ngIf="!disableSend"
     >
       <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
       <span><i class="bwi bwi-save-changes bwi-lg bwi-fw" aria-hidden="true"></i></span>
     </button>
-    <button type="button" (click)="cancel()" [disabled]="form.loading">
+    <button type="button" (click)="cancel()">
       {{ "cancel" | i18n }}
     </button>
     <div class="right">

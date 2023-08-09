@@ -92,7 +92,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   get link(): string {
-    if (this.send.id != null && this.send.accessId != null) {
+    if (this.send != null && this.send.id != null && this.send.accessId != null) {
       return this.sendLinkBaseUrl + this.send.accessId + "/" + this.send.urlB64Key;
     }
     return null;
@@ -157,24 +157,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.emailVerified = await this.stateService.getEmailVerified();
 
     this.type = !this.canAccessPremium || !this.emailVerified ? SendType.Text : SendType.File;
-
     if (this.send == null) {
       if (this.editMode) {
         const send = this.loadSend();
         this.send = await send.decrypt();
-        this.formGroup.patchValue({
-          name: this.send.name,
-          text: this.send.text.text,
-          textHidden: this.send.text.hidden,
-          link: this.link,
-          maxAccessCount: this.send.maxAccessCount,
-          accessCount: this.send.accessCount,
-          notes: this.send.notes,
-          hideEmail: this.send.hideEmail,
-          disabled: this.send.disabled,
-          type: this.send.type,
-        });
         this.type = this.send.type;
+        this.updateFormValues();
         if (this.send.hideEmail) {
           this.formGroup.controls.hideEmail.enable();
         }
@@ -366,6 +354,22 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.showPassword = !this.showPassword;
     document.getElementById("password").focus();
   }
+
+  updateFormValues() {
+    this.formGroup.patchValue({
+      name: this.send?.name ?? "",
+      text: this.send?.text?.text ?? "",
+      textHidden: this.send?.text?.hidden ?? false,
+      link: this.link ?? "",
+      maxAccessCount: this.send?.maxAccessCount ?? 0,
+      accessCount: this.send?.accessCount ?? 0,
+      notes: this.send?.notes ?? "",
+      hideEmail: this.send?.hideEmail ?? false,
+      disabled: this.send?.disabled ?? false,
+      type: this.send.type ?? this.type,
+    });
+  }
+
   private async handleCopyLinkToClipboard() {
     const copySuccess = await this.copyLinkToClipboard(this.formGroup.controls.link.value);
     if (copySuccess ?? true) {

@@ -96,7 +96,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     if (this.addEditComponent != null) {
       this.addEditComponent.sendId = null;
       this.addEditComponent.send = null;
-      this.addEditComponent.load();
+      this.addEditComponent.load().then(() => this.addEditComponent.updateFormValues());
     }
   }
 
