@@ -155,10 +155,22 @@
       </div>
     </span>
     <ng-container bitDialogFooter>
-      <button type="submit" bitButton bitFormButton buttonType="primary">
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        [appA11yTitle]="'save' | i18n"
+        buttonType="primary"
+      >
         {{ "save" | i18n }}
       </button>
-      <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [appA11yTitle]="'cancel' | i18n"
+        bitDialogClose
+      >
         {{ "cancel" | i18n }}
       </button>
 
@@ -169,7 +181,7 @@
         class="tw-ml-auto"
         bitIconButton="bwi-trash"
         buttonType="danger"
-        title="{{ 'delete' | i18n }}"
+        [appA11yTitle]="'delete' | i18n"
         [bitAction]="deleteAndClose"
         [disabled]="$any(deleteBtn).loading"
       ></button>
