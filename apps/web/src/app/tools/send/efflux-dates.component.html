@@ -1,13 +1,14 @@
-<div class="row" [formGroup]="datesForm">
-  <div class="col-6 form-group">
-    <label for="deletionDate">{{ "deletionDate" | i18n }}</label>
+<div class="tw-flex" [formGroup]="datesForm">
+  <bit-form-field class="tw-w-1/2 tw-pr-3">
+    <bit-label for="deletionDate">{{ "deletionDate" | i18n }}</bit-label>
     <ng-template #deletionDateCustom>
       <ng-container [ngSwitch]="browserPath">
         <ng-container *ngSwitchCase="'firefox'">
-          <div class="d-flex justify-content-around">
+          <div class="justify-content-around tw-flex">
             <input
+              bitInput
               id="deletionDateCustomFallback"
-              class="form-control mt-1"
+              class="tw-mt-1"
               type="date"
               name="DeletionDateFallback"
               formControlName="fallbackDeletionDate"
@@ -16,8 +17,9 @@
               data-date-format="mm/dd/yyyy"
             />
             <input
+              bitInput
               id="deletionTimeCustomFallback"
-              class="form-control mt-1 ml-1"
+              class="tw-ml-1 tw-mt-1"
               type="time"
               name="DeletionTimeDate"
               formControlName="fallbackDeletionTime"
@@ -27,7 +29,7 @@
           </div>
         </ng-container>
         <ng-container *ngSwitchCase="'safari'">
-          <div class="d-flex justify-content-around">
+          <div class="justify-content-around tw-flex">
             <input
               id="deletionDateCustomFallback"
               class="form-control mt-1"
@@ -56,8 +58,8 @@
         </ng-container>
         <ng-container *ngSwitchDefault>
           <input
+            bitInput
             id="deletionDateCustom"
-            class="form-control mt-1"
             type="datetime-local"
             name="DeletionDate"
             formControlName="defaultDeletionDateTime"
@@ -69,43 +71,50 @@
       </ng-container>
     </ng-template>
     <div *ngIf="!editMode">
-      <select
+      <bit-select
         id="deletionDate"
         name="SelectedDeletionDatePreset"
         formControlName="selectedDeletionDatePreset"
-        class="form-control"
         required
       >
-        <option *ngFor="let o of deletionDatePresets" [ngValue]="o.value">{{ o.name }}</option>
-      </select>
+        <bit-option
+          *ngFor="let o of deletionDatePresets"
+          [value]="o.value"
+          [label]="o.name"
+          ]
+        ></bit-option>
+      </bit-select>
       <ng-container *ngIf="selectedDeletionDatePreset.value === 0">
         <ng-container *ngTemplateOutlet="deletionDateCustom"> </ng-container>
       </ng-container>
     </div>
-    <div *ngIf="editMode">
+    <div *ngIf="editMode" class="tw-w-full">
       <ng-container *ngTemplateOutlet="deletionDateCustom"> </ng-container>
     </div>
-    <div class="form-text text-muted small">{{ "deletionDateDesc" | i18n }}</div>
-  </div>
-  <div class="col-6 form-group">
-    <div class="d-flex">
-      <label for="expirationDate">{{ "expirationDate" | i18n }}</label>
-      <a
-        href="#"
+    <bit-hint>{{ "deletionDateDesc" | i18n }}</bit-hint>
+  </bit-form-field>
+  <bit-form-field class="tw-w-1/2 tw-pl-3">
+    <bit-label class="tw-flex" for="expirationDate">
+      {{ "expirationDate" | i18n }}
+
+      <button
+        type="button"
+        bitLink
         appStopClick
         (click)="clearExpiration()"
-        class="ml-auto"
         *ngIf="editMode && !disabled"
+        class="tw-ml-auto"
       >
         {{ "clear" | i18n }}
-      </a>
-    </div>
+      </button>
+    </bit-label>
     <ng-template #expirationDateCustom>
       <ng-container [ngSwitch]="browserPath">
         <div *ngSwitchCase="'firefox'" class="d-flex justify-content-around">
           <input
+            bitInput
             id="expirationDateCustomFallback"
-            class="form-control mt-1"
+            class="tw-mt-1"
             type="date"
             name="ExpirationDateFallback"
             formControlName="fallbackExpirationDate"
@@ -115,8 +124,9 @@
             data-date-format="mm/dd/yyyy"
           />
           <input
+            bitInput
             id="expirationTimeCustomFallback"
-            class="form-control mt-1 ml-1"
+            class="tw-ml-1 tw-mt-1"
             type="time"
             name="ExpirationTimeFallback"
             formControlName="fallbackExpirationTime"
@@ -128,6 +138,7 @@
         <!-- non-default cases are not showing up -->
         <div *ngSwitchCase="'safari'" class="d-flex justify-content-around">
           <input
+            bitInput
             id="expirationDateCustomFallback"
             class="form-control mt-1"
             type="date"
@@ -138,25 +149,24 @@
             [readOnly]="disabled"
             data-date-format="mm/dd/yyyy"
           />
-          <select
+          <bit-select
             id="expirationTimeCustomFallback"
-            class="form-control mt-1 ml-1"
+            class="tw-ml-1 tw-mt-1"
             [required]="!editMode"
             formControlName="fallbackExpirationTime"
-            name="SafariExpirationTime"
           >
-            <option
+            <bit-option
               *ngFor="let o of safariExpirationTimePresetOptions"
-              [ngValue]="o.twentyFourHour"
+              [value]="o.twentyFourHour"
+              [label]="o.twentyFourHour"
             >
-              {{ o.twelveHour }}
-            </option>
-          </select>
+            </bit-option>
+          </bit-select>
         </div>
         <ng-container *ngSwitchDefault>
           <input
+            bitInput
             id="expirationDateCustom"
-            class="form-control mt-1"
             type="datetime-local"
             name="ExpirationDate"
             formControlName="defaultExpirationDateTime"
@@ -180,9 +190,9 @@
         <ng-container *ngTemplateOutlet="expirationDateCustom"> </ng-container>
       </ng-container>
     </div>
-    <div *ngIf="editMode">
+    <div *ngIf="editMode" class="tw-w-full">
       <ng-container *ngTemplateOutlet="expirationDateCustom"> </ng-container>
     </div>
-    <div class="form-text text-muted small">{{ "expirationDateDesc" | i18n }}</div>
-  </div>
+    <bit-hint>{{ "expirationDateDesc" | i18n }}</bit-hint>
+  </bit-form-field>
 </div>
