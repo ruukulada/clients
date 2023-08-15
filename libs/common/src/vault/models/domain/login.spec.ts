@@ -113,7 +113,7 @@ describe("Login DTO", () => {
         passwordRevisionDate: passwordRevisionDate.toISOString(),
         totp: "myTotp",
         fido2Key: {
-          nonDiscoverableId: "keyId",
+          credentialId: "keyId",
           keyType: "keyType",
           keyAlgorithm: "keyAlgorithm",
           keyCurve: "keyCurve",
@@ -134,7 +134,7 @@ describe("Login DTO", () => {
         passwordRevisionDate: passwordRevisionDate,
         totp: "myTotp_fromJSON",
         fido2Key: {
-          nonDiscoverableId: "keyId_fromJSON",
+          credentialId: "keyId_fromJSON",
           keyType: "keyType_fromJSON",
           keyAlgorithm: "keyAlgorithm_fromJSON",
           keyCurve: "keyCurve_fromJSON",

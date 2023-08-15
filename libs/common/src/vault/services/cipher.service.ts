@@ -1060,7 +1060,7 @@ export class CipherService implements CipherServiceAbstraction {
             model.login.fido2Key,
             cipher.login.fido2Key,
             {
-              nonDiscoverableId: null,
+              credentialId: null,
               keyType: null,
               keyAlgorithm: null,
               keyCurve: null,

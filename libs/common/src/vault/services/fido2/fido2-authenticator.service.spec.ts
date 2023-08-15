@@ -107,12 +107,12 @@ describe("FidoAuthenticatorService", () => {
       beforeEach(async () => {
         excludedCipher = createCipherView(
           { type: CipherType.Login },
-          { nonDiscoverableId: Utils.newGuid() }
+          { credentialId: Utils.newGuid() }
         );
         params = await createParams({
           excludeCredentialDescriptorList: [
             {
-              id: Utils.guidToRawFormat(excludedCipher.login.fido2Key.nonDiscoverableId),
+              id: Utils.guidToRawFormat(excludedCipher.login.fido2Key.credentialId),
               type: "public-key",
             },
           ],
@@ -312,7 +312,7 @@ describe("FidoAuthenticatorService", () => {
             name: params.rpEntity.name,
 
             fido2Key: expect.objectContaining({
-              nonDiscoverableId: null,
+              credentialId: null,
               keyType: "public-key",
               keyAlgorithm: "ECDSA",
               keyCurve: "P-256",
@@ -411,7 +411,7 @@ describe("FidoAuthenticatorService", () => {
 
             login: expect.objectContaining({
               fido2Key: expect.objectContaining({
-                nonDiscoverableId: expect.anything(),
+                credentialId: expect.anything(),
                 keyType: "public-key",
                 keyAlgorithm: "ECDSA",
                 keyCurve: "P-256",
@@ -465,8 +465,8 @@ describe("FidoAuthenticatorService", () => {
           0x75, 0x28, 0x0e, 0x7e, 0xa7, 0x2e, 0x4d, 0x6c, 0xbf, 0x1e, 0xd3, 0x72, 0x38, 0x35, 0x2f,
           0x9b,
         ]);
-        const nonDiscoverableId = "52217b91-73f1-4fea-b3f2-54a7959fd5aa";
-        const nonDiscoverableIdBytes = new Uint8Array([
+        const credentialId = "52217b91-73f1-4fea-b3f2-54a7959fd5aa";
+        const credentialIdBytes = new Uint8Array([
           0x52, 0x21, 0x7b, 0x91, 0x73, 0xf1, 0x4f, 0xea, 0xb3, 0xf2, 0x54, 0xa7, 0x95, 0x9f, 0xd5,
           0xaa,
         ]);
@@ -489,7 +489,7 @@ describe("FidoAuthenticatorService", () => {
           cipherService.getAllDecrypted.mockResolvedValue([await cipher]);
           cipherService.encrypt.mockImplementation(async (cipher) => {
             if (!requireResidentKey) {
-              cipher.login.fido2Key.nonDiscoverableId = nonDiscoverableId; // Replace id for testability
+              cipher.login.fido2Key.credentialId = credentialId; // Replace id for testability
             }
             return {} as any;
           });
@@ -537,7 +537,7 @@ describe("FidoAuthenticatorService", () => {
           if (requireResidentKey) {
             expect(credentialId).toEqual(cipherIdBytes);
           } else {
-            expect(credentialId).toEqual(nonDiscoverableIdBytes);
+            expect(credentialId).toEqual(credentialIdBytes);
           }
         });
       });
@@ -657,7 +657,7 @@ describe("FidoAuthenticatorService", () => {
 
       it("should inform user if credential exists but rpId does not match", async () => {
         const cipher = await createCipherView({ type: CipherType.Login });
-        cipher.login.fido2Key.nonDiscoverableId = credentialId;
+        cipher.login.fido2Key.credentialId = credentialId;
         cipher.login.fido2Key.rpId = "mismatch-rpid";
         cipherService.getAllDecrypted.mockResolvedValue([cipher]);
         userInterfaceSession.informCredentialNotFound.mockResolvedValue();
@@ -700,7 +700,7 @@ describe("FidoAuthenticatorService", () => {
         ciphers = [
           await createCipherView(
             { type: CipherType.Login },
-            { nonDiscoverableId: credentialIds[0], rpId: RpId }
+            { credentialId: credentialIds[0], rpId: RpId }
           ),
           await createCipherView(
             { type: CipherType.Fido2Key, id: credentialIds[1] },
@@ -782,7 +782,7 @@ describe("FidoAuthenticatorService", () => {
             ciphers = credentialIds.map((id) =>
               createCipherView(
                 { type: CipherType.Login },
-                { nonDiscoverableId: id, rpId: RpId, counter: 9000 }
+                { credentialId: id, rpId: RpId, counter: 9000 }
               )
             );
             fido2Keys = ciphers.map((c) => c.login.fido2Key);
@@ -937,7 +937,7 @@ function createCipherView(
   cipher.localData = {};
 
   const fido2KeyView = new Fido2KeyView();
-  fido2KeyView.nonDiscoverableId = fido2Key.nonDiscoverableId;
+  fido2KeyView.credentialId = fido2Key.credentialId;
   fido2KeyView.rpId = fido2Key.rpId ?? RpId;
   fido2KeyView.counter = fido2Key.counter ?? 0;
   fido2KeyView.userHandle = fido2Key.userHandle ?? Fido2Utils.bufferToString(randomBytes(16));

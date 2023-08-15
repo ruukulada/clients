@@ -7,7 +7,7 @@ import { Fido2KeyData } from "../data/fido2-key.data";
 import { Fido2KeyView } from "../view/fido2-key.view";
 
 export class Fido2Key extends Domain {
-  nonDiscoverableId: EncString | null = null;
+  credentialId: EncString | null = null;
   keyType: EncString;
   keyAlgorithm: EncString;
   keyCurve: EncString;
@@ -31,7 +31,7 @@ export class Fido2Key extends Domain {
       this,
       obj,
       {
-        nonDiscoverableId: null,
+        credentialId: null,
         keyType: null,
         keyAlgorithm: null,
         keyCurve: null,
@@ -51,7 +51,7 @@ export class Fido2Key extends Domain {
     const view = await this.decryptObj(
       new Fido2KeyView(),
       {
-        nonDiscoverableId: null,
+        credentialId: null,
         keyType: null,
         keyAlgorithm: null,
         keyCurve: null,
@@ -83,7 +83,7 @@ export class Fido2Key extends Domain {
   toFido2KeyData(): Fido2KeyData {
     const i = new Fido2KeyData();
     this.buildDataModel(this, i, {
-      nonDiscoverableId: null,
+      credentialId: null,
       keyType: null,
       keyAlgorithm: null,
       keyCurve: null,
@@ -103,7 +103,7 @@ export class Fido2Key extends Domain {
       return null;
     }
 
-    const nonDiscoverableId = EncString.fromJSON(obj.nonDiscoverableId);
+    const credentialId = EncString.fromJSON(obj.credentialId);
     const keyType = EncString.fromJSON(obj.keyType);
     const keyAlgorithm = EncString.fromJSON(obj.keyAlgorithm);
     const keyCurve = EncString.fromJSON(obj.keyCurve);
@@ -116,7 +116,7 @@ export class Fido2Key extends Domain {
     const origin = EncString.fromJSON(obj.origin);
 
     return Object.assign(new Fido2Key(), obj, {
-      nonDiscoverableId,
+      credentialId,
       keyType,
       keyAlgorithm,
       keyCurve,
