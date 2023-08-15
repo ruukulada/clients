@@ -33,7 +33,7 @@
               </label>
             </div>
           </div>
-          <div class="box-content-row" appBowRow *ngIf="!editMode && type === sendType.File">
+          <div class="box-content-row" appBoxRow *ngIf="!editMode && type === sendType.File">
             <label for="file">{{ "file" | i18n }}</label>
             <input
               type="file"
@@ -44,7 +44,7 @@
               required
             />
           </div>
-          <div class="box-content-row" appBowRow *ngIf="editMode && type === sendType.File">
+          <div class="box-content-row" appBoxRow *ngIf="editMode && type === sendType.File">
             <label for="file">{{ "file" | i18n }}</label>
             <div class="row-main">{{ send.file.fileName }} ({{ send.file.sizeName }})</div>
           </div>
