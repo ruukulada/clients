@@ -200,17 +200,18 @@
         </div>
         <div id="deletionDateHelp" class="box-footer">
           {{ "deletionDateDesc" | i18n }}
-          <!-- <ng-container
+          <ng-container
             *ngIf="
               !inPopout &&
-              browserPath == 'firefox' &&
-              (editMode || (selectedDeletionDatePreset.value === 0 && !editMode))
+              isFirefox &&
+              (editMode ||
+                (formGroup.controls['selectedDeletionDatePreset'].value === 0 && !editMode))
             "
           >
             <br />{{ "sendFirefoxCustomDatePopoutMessage1" | i18n }}
-            <a (click)="popOutWindow.emit()">{{ "sendFirefoxCustomDatePopoutMessage2" | i18n }}</a>
+            <a (click)="popOutWindow()">{{ "sendFirefoxCustomDatePopoutMessage2" | i18n }}</a>
             {{ "sendFirefoxCustomDatePopoutMessage3" | i18n }}
-          </ng-container> -->
+          </ng-container>
         </div>
       </div>
 
