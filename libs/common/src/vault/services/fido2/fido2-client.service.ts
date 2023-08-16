@@ -38,6 +38,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     params: CreateCredentialParams,
     abortController = new AbortController()
   ): Promise<CreateCredentialResult> {
+    // debugger;
     const enableFido2VaultCredentials = await this.configService.getFeatureFlagBool(
       FeatureFlag.Fido2VaultCredentials
     );
@@ -198,6 +199,13 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     if (!enableFido2VaultCredentials) {
       this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
       throw new FallbackRequestedError();
+    }
+
+    if (!params.sameOriginWithAncestors) {
+      this.logService?.warning(
+        `[Fido2Client] Invalid 'sameOriginWithAncestors' value: ${params.sameOriginWithAncestors}`
+      );
+      throw new DOMException("Invalid 'sameOriginWithAncestors' value", "NotAllowedError");
     }
 
     const { domain: effectiveDomain } = parse(params.origin, { allowPrivateDomains: true });
