@@ -52,6 +52,14 @@ const browserCredentials = {
 
 const messenger = Messenger.forDOMCommunication(window);
 
+const isNotIframeCheck = () => {
+  try {
+    return window.self === window.top;
+  } catch {
+    return false;
+  }
+};
+
 navigator.credentials.create = async (
   options?: CredentialCreationOptions,
   abortController?: AbortController
@@ -62,6 +70,8 @@ navigator.credentials.create = async (
     (options?.publicKey?.authenticatorSelection.authenticatorAttachment !== "platform" &&
       browserNativeWebauthnSupport);
   try {
+    const isNotIframe = isNotIframeCheck();
+
     const response = await messenger.request(
       {
         type: MessageType.CredentialCreationRequest,
@@ -69,7 +79,7 @@ navigator.credentials.create = async (
         data: WebauthnUtils.mapCredentialCreationOptions(
           options,
           window.location.origin,
-          true,
+          isNotIframe,
           fallbackSupported
         ),
       },
@@ -96,6 +106,8 @@ navigator.credentials.get = async (
 ): Promise<Credential> => {
   const fallbackSupported = browserNativeWebauthnSupport;
   try {
+    const isNotIframe = isNotIframeCheck();
+
     const response = await messenger.request(
       {
         type: MessageType.CredentialGetRequest,
@@ -103,7 +115,7 @@ navigator.credentials.get = async (
         data: WebauthnUtils.mapCredentialRequestOptions(
           options,
           window.location.origin,
-          true,
+          isNotIframe,
           fallbackSupported
         ),
       },
