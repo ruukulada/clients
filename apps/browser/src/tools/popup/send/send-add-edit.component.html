@@ -151,15 +151,139 @@
       </h2>
     </div>
     <div [hidden]="!showOptions">
-      <app-send-efflux-dates
-        [initialDeletionDate]="send.deletionDate"
-        [initialExpirationDate]="send.expirationDate"
-        [editMode]="editMode"
-        [disabled]="disableSend"
-        (datesChanged)="setDates($event)"
-        (popOutWindow)="popOutWindow()"
-      >
-      </app-send-efflux-dates>
+      <!-- Deletion Date -->
+      <div class="box">
+        <div class="box-content">
+          <ng-container *ngIf="!editMode">
+            <div class="box-content-row" appBoxRow>
+              <label for="deletionDate">{{ "deletionDate" | i18n }}</label>
+              <select
+                id="deletionDate"
+                name="DeletionDateSelect"
+                aria-describedby="deletionDateHelp"
+                formControlName="selectedDeletionDatePreset"
+                required
+              >
+                <option *ngFor="let o of deletionDatePresets" [ngValue]="o.value">
+                  {{ o.name }}
+                </option>
+              </select>
+            </div>
+            <div
+              class="box-content-row"
+              appBoxRow
+              *ngIf="formGroup.controls['selectedDeletionDatePreset'].value === 0"
+            >
+              <input
+                id="deletionDateCustom"
+                type="datetime-local"
+                name="DeletionDate"
+                aria-describedby="deletionDateHelp"
+                formControlName="defaultDeletionDateTime"
+                required
+                placeholder="MM/DD/YYYY HH:MM AM/PM"
+              />
+            </div>
+          </ng-container>
+          <div class="box-content-row" appBoxRow *ngIf="editMode">
+            <label for="deletionDate">{{ "deletionDate" | i18n }}</label>
+            <input
+              id="deletionDateCustom"
+              type="datetime-local"
+              name="DeletionDate"
+              aria-describedby="deletionDateHelp"
+              formControlName="defaultDeletionDateTime"
+              required
+              placeholder="MM/DD/YYYY HH:MM AM/PM"
+            />
+          </div>
+        </div>
+        <div id="deletionDateHelp" class="box-footer">
+          {{ "deletionDateDesc" | i18n }}
+          <!-- <ng-container
+            *ngIf="
+              !inPopout &&
+              browserPath == 'firefox' &&
+              (editMode || (selectedDeletionDatePreset.value === 0 && !editMode))
+            "
+          >
+            <br />{{ "sendFirefoxCustomDatePopoutMessage1" | i18n }}
+            <a (click)="popOutWindow.emit()">{{ "sendFirefoxCustomDatePopoutMessage2" | i18n }}</a>
+            {{ "sendFirefoxCustomDatePopoutMessage3" | i18n }}
+          </ng-container> -->
+        </div>
+      </div>
+
+      <!-- Expiration Date -->
+      <div class="box">
+        <div class="box-content">
+          <ng-container *ngIf="!editMode">
+            <div class="box-content-row" *ngIf="!editMode" appBoxRow>
+              <label for="editExpirationDate">{{ "expirationDate" | i18n }}</label>
+              <select
+                id="expirationDate"
+                name="ExpirationDateSelect"
+                aria-describedby="expirationDateHelp"
+                formControlName="selectedExpirationDatePreset"
+                required
+              >
+                <option *ngFor="let o of expirationDatePresets" [ngValue]="o.value">
+                  {{ o.name }}
+                </option>
+              </select>
+            </div>
+            <div
+              class="box-content-row"
+              *ngIf="formGroup.controls['selectedExpirationDatePreset'].value === 0"
+              appBoxRow
+            >
+              <input
+                id="expirationDateCustom"
+                type="datetime-local"
+                name="ExpirationDate"
+                aria-describedby="expirationDateHelp"
+                formControlName="defaultExpirationDateTime"
+                required
+                placeholder="MM/DD/YYYY HH:MM AM/PM"
+                [readOnly]="disableSend"
+              />
+            </div>
+          </ng-container>
+          <div class="box-content-row" *ngIf="editMode" appBoxRow>
+            <div class="flex-label">
+              <label>{{ "expirationDate" | i18n }}</label>
+              <button type="button" *ngIf="!disableSend" appStopClick (click)="clearExpiration()">
+                {{ "clear" | i18n }}
+              </button>
+            </div>
+            <input
+              id="expirationDateCustom"
+              type="datetime-local"
+              name="ExpirationDate"
+              aria-describedby="expirationDateHelp"
+              formControlName="defaultExpirationDateTime"
+              required
+              placeholder="MM/DD/YYYY HH:MM AM/PM"
+              [readOnly]="disableSend"
+            />
+          </div>
+        </div>
+        <div id="expirationDateHelp" class="box-footer">
+          {{ "expirationDateDesc" | i18n }}
+          <ng-container
+            *ngIf="
+              !inPopout &&
+              isFirefox &&
+              (editMode ||
+                (formGroup.controls['selectedExpirationDatePreset'].value === 0 && !editMode))
+            "
+          >
+            <br />{{ "sendFirefoxCustomDatePopoutMessage1" | i18n }}
+            <a (click)="popOutWindow()">{{ "sendFirefoxCustomDatePopoutMessage2" | i18n }}</a>
+            {{ "sendFirefoxCustomDatePopoutMessage3" | i18n }}
+          </ng-container>
+        </div>
+      </div>
       <!-- Maximum Access Count -->
       <div class="box">
         <div class="box-content">

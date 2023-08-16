@@ -73,6 +73,7 @@
               hidden
               type="file"
               id="file"
+              name="file"
               formControlName="file"
               (change)="setSelectedFile($event)"
             />
@@ -108,14 +109,110 @@
         </h4>
       </div>
       <div id="options" [hidden]="!showOptions">
-        <app-send-efflux-dates
-          [initialDeletionDate]="send.deletionDate"
-          [initialExpirationDate]="send.expirationDate"
-          [editMode]="editMode"
-          [disabled]="disableSend"
-          (datesChanged)="setDates($event)"
-        >
-        </app-send-efflux-dates>
+        <div class="tw-flex">
+          <div *ngIf="!editMode" class="tw-w-1/2 tw-pr-3">
+            <bit-form-field>
+              <bit-label for="deletionDate">{{ "deletionDate" | i18n }}</bit-label>
+              <bit-select
+                id="deletionDate"
+                name="SelectedDeletionDatePreset"
+                formControlName="selectedDeletionDatePreset"
+                required
+              >
+                <bit-option
+                  *ngFor="let o of deletionDatePresets"
+                  [value]="o.value"
+                  [label]="o.name"
+                ></bit-option>
+              </bit-select>
+              <ng-container *ngIf="formGroup.controls['selectedDeletionDatePreset'].value === 0">
+                <input
+                  bitInput
+                  id="deletionDateCustom"
+                  type="datetime-local"
+                  name="DeletionDate"
+                  formControlName="defaultDeletionDateTime"
+                  required
+                  placeholder="MM/DD/YYYY HH:MM AM/PM"
+                />
+              </ng-container>
+              <bit-hint>{{ "deletionDateDesc" | i18n }}</bit-hint>
+            </bit-form-field>
+          </div>
+          <div *ngIf="editMode" class="tw-w-1/2 tw-pr-3">
+            <bit-form-field>
+              <bit-label for="deletionDate">{{ "deletionDate" | i18n }}</bit-label>
+              <input
+                bitInput
+                id="deletionDateCustom"
+                type="datetime-local"
+                name="DeletionDate"
+                formControlName="defaultDeletionDateTime"
+                required
+                placeholder="MM/DD/YYYY HH:MM AM/PM"
+              />
+              <bit-hint>{{ "deletionDateDesc" | i18n }}</bit-hint>
+            </bit-form-field>
+          </div>
+          <div *ngIf="!editMode" class="tw-w-1/2 tw-pl-3">
+            <bit-form-field>
+              <bit-label for="expirationDate">
+                {{ "expirationDate" | i18n }}
+              </bit-label>
+              <bit-select
+                bitInput
+                id="expirationDate"
+                name="SelectedExpirationDatePreset"
+                formControlName="selectedExpirationDatePreset"
+                required
+              >
+                <bit-option
+                  *ngFor="let e of expirationDatePresets"
+                  [value]="e.value"
+                  [label]="e.name"
+                ></bit-option>
+              </bit-select>
+              <ng-container *ngIf="formGroup.controls['selectedExpirationDatePreset'].value === 0">
+                <input
+                  bitInput
+                  id="expirationDateCustom"
+                  type="datetime-local"
+                  name="ExpirationDate"
+                  formControlName="defaultExpirationDateTime"
+                  placeholder="MM/DD/YYYY HH:MM AM/PM"
+                />
+              </ng-container>
+              <bit-hint>{{ "expirationDateDesc" | i18n }}</bit-hint>
+            </bit-form-field>
+          </div>
+          <div *ngIf="editMode" class="tw-w-1/2 tw-pl-3">
+            <bit-form-field>
+              <bit-label class="tw-flex" for="expirationDate">
+                {{ "expirationDate" | i18n }}
+
+                <button
+                  type="button"
+                  bitLink
+                  appStopClick
+                  (click)="clearExpiration()"
+                  *ngIf="!disableSend"
+                  class="tw-ml-auto"
+                >
+                  {{ "clear" | i18n }}
+                </button>
+              </bit-label>
+              <input
+                bitInput
+                id="expirationDateCustom"
+                type="datetime-local"
+                name="ExpirationDate"
+                formControlName="defaultExpirationDateTime"
+                placeholder="MM/DD/YYYY HH:MM AM/PM"
+              />
+              <bit-hint>{{ "expirationDateDesc" | i18n }}</bit-hint>
+            </bit-form-field>
+          </div>
+        </div>
         <div class="tw-flex">
           <bit-form-field class="tw-w-1/2 tw-pr-3">
             <bit-label for="maxAccessCount">{{ "maxAccessCount" | i18n }}</bit-label>

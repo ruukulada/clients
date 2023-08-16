@@ -22,6 +22,18 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 
 import { DialogServiceAbstraction, SimpleDialogType } from "../../services/dialog";
 
+// Value = hours
+enum DatePreset {
+  OneHour = 1,
+  OneDay = 24,
+  TwoDays = 48,
+  ThreeDays = 72,
+  SevenDays = 168,
+  ThirtyDays = 720,
+  Custom = 0,
+  Never = null,
+}
+
 @Directive()
 export class AddEditComponent implements OnInit, OnDestroy {
   @Input() sendId: string;
@@ -31,12 +43,24 @@ export class AddEditComponent implements OnInit, OnDestroy {
   @Output() onDeletedSend = new EventEmitter<SendView>();
   @Output() onCancelled = new EventEmitter<SendView>();
 
+  deletionDatePresets: any[] = [
+    { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
+    { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
+    { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
+    { name: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
+    { name: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
+    { name: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
+    { name: this.i18nService.t("custom"), value: DatePreset.Custom },
+  ];
+
+  expirationDatePresets: any[] = [
+    { name: this.i18nService.t("never"), value: DatePreset.Never },
+  ].concat([...this.deletionDatePresets]);
+
   copyLink = false;
   disableSend = false;
   disableHideEmail = false;
   send: SendView;
-  deletionDate: string;
-  expirationDate: string;
   hasPassword: boolean;
   password: string;
   showPassword = false;
@@ -58,7 +82,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     text: [],
     textHidden: [false],
     fileContents: [],
-    file: [null, Validators.required],
+    file: [null],
     link: [],
     copyLink: false,
     maxAccessCount: [],
@@ -68,6 +92,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
     hideEmail: false,
     disabled: false,
     type: [],
+    defaultExpirationDateTime: [],
+    defaultDeletionDateTime: [],
+    selectedDeletionDatePreset: [],
+    selectedExpirationDatePreset: [],
   });
 
   constructor(
@@ -147,11 +175,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return this.i18nService.t(this.editMode ? "editSend" : "createSend");
   }
 
-  setDates(event: { deletionDate: string; expirationDate: string }) {
-    this.deletionDate = event.deletionDate;
-    this.expirationDate = event.expirationDate;
-  }
-
   async load() {
     this.canAccessPremium = await this.stateService.getCanAccessPremium();
     this.emailVerified = await this.stateService.getEmailVerified();
@@ -174,6 +197,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.send.deletionDate = new Date();
         this.send.deletionDate.setDate(this.send.deletionDate.getDate() + 7);
         this.formGroup.controls.type.patchValue(this.send.type);
+
+        this.formGroup.patchValue({
+          selectedDeletionDatePreset: DatePreset.SevenDays,
+          selectedExpirationDatePreset: DatePreset.Never,
+        });
       }
     }
 
@@ -336,13 +364,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     // Parse dates
     try {
-      sendData[0].deletionDate = this.deletionDate == null ? null : new Date(this.deletionDate);
+      sendData[0].deletionDate =
+        this.formattedDeletionDate == null ? null : new Date(this.formattedDeletionDate);
     } catch {
       sendData[0].deletionDate = null;
     }
     try {
       sendData[0].expirationDate =
-        this.expirationDate == null ? null : new Date(this.expirationDate);
+        this.formattedExpirationDate == null ? null : new Date(this.formattedExpirationDate);
     } catch {
       sendData[0].expirationDate = null;
     }
@@ -367,6 +396,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
       hideEmail: this.send?.hideEmail ?? false,
       disabled: this.send?.disabled ?? false,
       type: this.send.type ?? this.type,
+
+      selectedDeletionDatePreset: DatePreset.Custom,
+      selectedExpirationDatePreset: DatePreset.Custom,
+      defaultExpirationDateTime:
+        this.send.expirationDate != null
+          ? this.datePipe.transform(new Date(this.send.expirationDate), "yyyy-MM-ddTHH:mm")
+          : null,
+      defaultDeletionDateTime: this.datePipe.transform(
+        new Date(this.send.deletionDate),
+        "yyyy-MM-ddTHH:mm"
+      ),
     });
   }
 
@@ -388,6 +428,48 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
       await this.copyLinkToClipboard(this.formGroup.controls.link.value);
+    }
+  }
+
+  clearExpiration() {
+    this.formGroup.controls.defaultExpirationDateTime.patchValue(null);
+  }
+
+  get formattedExpirationDate(): string {
+    switch (this.formGroup.controls.selectedExpirationDatePreset.value as DatePreset) {
+      case DatePreset.Never:
+        return null;
+      case DatePreset.Custom:
+        if (!this.formGroup.controls.defaultExpirationDateTime.value) {
+          return null;
+        }
+        return this.formGroup.controls.defaultExpirationDateTime.value;
+      default: {
+        const now = new Date();
+        const milliseconds = now.setTime(
+          now.getTime() +
+            (this.formGroup.controls.selectedExpirationDatePreset.value as number) * 60 * 60 * 1000
+        );
+        return new Date(milliseconds).toString();
+      }
+    }
+  }
+
+  get formattedDeletionDate(): string {
+    switch (this.formGroup.controls.selectedDeletionDatePreset.value as DatePreset) {
+      case DatePreset.Never:
+        this.formGroup.controls.selectedDeletionDatePreset.patchValue(DatePreset.SevenDays);
+        return this.formattedDeletionDate;
+      case DatePreset.Custom:
+        return this.formGroup.controls.defaultDeletionDateTime.value;
+      default: {
+        const now = new Date();
+        const milliseconds = now.setTime(
+          now.getTime() +
+            (this.formGroup.controls.selectedDeletionDatePreset.value as number) * 60 * 60 * 1000
+        );
+        return new Date(milliseconds).toString();
+      }
     }
   }
 }
