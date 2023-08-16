@@ -1,7 +1,6 @@
 import { Component, NgZone, ViewChild, ViewContainerRef } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -14,7 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { NoItemsModule, SearchModule, TableDataSource } from "@bitwarden/components";
+import { DialogService, NoItemsModule, SearchModule, TableDataSource } from "@bitwarden/components";
 
 import { SharedModule } from "../../shared";
 
@@ -57,7 +56,7 @@ export class SendComponent extends BaseSendComponent {
     private broadcasterService: BroadcasterService,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       sendService,

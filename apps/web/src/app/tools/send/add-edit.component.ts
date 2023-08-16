@@ -3,7 +3,6 @@ import { DatePipe } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -14,6 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-send-add-edit",
@@ -34,7 +34,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     policyService: PolicyService,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogServiceAbstraction,
+    dialogService: DialogService,
     formBuilder: FormBuilder,
     protected dialogRef: DialogRef,
     @Inject(DIALOG_DATA) params: { sendId: string }
