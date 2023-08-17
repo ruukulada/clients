@@ -75,7 +75,6 @@ navigator.credentials.create = async (
     const response = await messenger.request(
       {
         type: MessageType.CredentialCreationRequest,
-        // TODO: Fix sameOriginWithAncestors!
         data: WebauthnUtils.mapCredentialCreationOptions(
           options,
           window.location.origin,
@@ -111,7 +110,6 @@ navigator.credentials.get = async (
     const response = await messenger.request(
       {
         type: MessageType.CredentialGetRequest,
-        // TODO: Fix sameOriginWithAncestors!
         data: WebauthnUtils.mapCredentialRequestOptions(
           options,
           window.location.origin,
