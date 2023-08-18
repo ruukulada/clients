@@ -34,6 +34,35 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     private logService?: LogService
   ) {}
 
+  errorCheckHandler(params: any, enableFido2VaultCredentials: boolean, parsedOrigin: any) {
+    const { sameOriginWithAncestors, origin } = params;
+    const rpId = params.rpId ?? params.rp.id ?? parsedOrigin.hostname;
+
+    if (!enableFido2VaultCredentials) {
+      this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
+      throw new FallbackRequestedError();
+    }
+
+    if (!sameOriginWithAncestors) {
+      this.logService?.warning(
+        `[Fido2Client] Invalid 'sameOriginWithAncestors' value: ${sameOriginWithAncestors}`
+      );
+      throw new DOMException("Invalid 'sameOriginWithAncestors' value", "NotAllowedError");
+    }
+
+    if (parsedOrigin.hostname == undefined || !origin.startsWith("https://")) {
+      this.logService?.warning(`[Fido2Client] Invalid https origin: ${origin}`);
+      throw new DOMException("'origin' is not a valid https origin", "SecurityError");
+    }
+
+    if (!isValidRpId(rpId, origin)) {
+      this.logService?.warning(
+        `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${rpId}; origin = ${origin}`
+      );
+      throw new DOMException("'rp.id' cannot be used with the current origin", "SecurityError");
+    }
+  }
+
   async isFido2FeatureEnabled(): Promise<boolean> {
     return await this.configService.getFeatureFlagBool(FeatureFlag.Fido2VaultCredentials);
   }
@@ -42,41 +71,19 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     params: CreateCredentialParams,
     abortController = new AbortController()
   ): Promise<CreateCredentialResult> {
+    const { sameOriginWithAncestors, origin, user } = params;
+    const parsedOrigin = parse(origin, { allowPrivateDomains: true });
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
-
-    if (!enableFido2VaultCredentials) {
-      this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
-      throw new FallbackRequestedError();
-    }
-
-    if (!params.sameOriginWithAncestors) {
-      this.logService?.warning(
-        `[Fido2Client] Invalid 'sameOriginWithAncestors' value: ${params.sameOriginWithAncestors}`
-      );
-      throw new DOMException("Invalid 'sameOriginWithAncestors' value", "NotAllowedError");
-    }
-
-    const userId = Fido2Utils.stringToBuffer(params.user.id);
-    if (userId.length < 1 || userId.length > 64) {
-      this.logService?.warning(
-        `[Fido2Client] Invalid 'user.id' length: ${params.user.id} (${userId.length})`
-      );
-      throw new TypeError("Invalid 'user.id' length");
-    }
-
-    const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
     const rpId = params.rp.id ?? parsedOrigin.hostname;
 
-    if (parsedOrigin.hostname == undefined || !params.origin.startsWith("https://")) {
-      this.logService?.warning(`[Fido2Client] Invalid https origin: ${params.origin}`);
-      throw new DOMException("'origin' is not a valid https origin", "SecurityError");
-    }
+    this.errorCheckHandler(params, enableFido2VaultCredentials, parsedOrigin);
 
-    if (!isValidRpId(rpId, params.origin)) {
+    const userId = Fido2Utils.stringToBuffer(user.id);
+    if (userId.length < 1 || userId.length > 64) {
       this.logService?.warning(
-        `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${rpId}; origin = ${params.origin}`
+        `[Fido2Client] Invalid 'user.id' length: ${user.id} (${userId.length})`
       );
-      throw new DOMException("'rp.id' cannot be used with the current origin", "SecurityError");
+      throw new TypeError("Invalid 'user.id' length");
     }
 
     let credTypesAndPubKeyAlgs: PublicKeyCredentialParam[];
@@ -102,8 +109,8 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     const collectedClientData = {
       type: "webauthn.create",
       challenge: params.challenge,
-      origin: params.origin,
-      crossOrigin: !params.sameOriginWithAncestors,
+      origin: origin,
+      crossOrigin: !sameOriginWithAncestors,
       // tokenBinding: {} // Not currently supported
     };
     const clientDataJSON = JSON.stringify(collectedClientData);
@@ -141,8 +148,8 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         name: params.rp.name,
       },
       userEntity: {
-        id: Fido2Utils.stringToBuffer(params.user.id),
-        displayName: params.user.displayName,
+        id: Fido2Utils.stringToBuffer(user.id),
+        displayName: user.displayName,
       },
       fallbackSupported: params.fallbackSupported,
     };
@@ -193,46 +200,24 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     params: AssertCredentialParams,
     abortController = new AbortController()
   ): Promise<AssertCredentialResult> {
+    const { sameOriginWithAncestors, origin, userVerification } = params;
+    const parsedOrigin = parse(origin, { allowPrivateDomains: true });
+    const rpId = params.rpId ?? parsedOrigin.hostname;
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
 
-    if (!enableFido2VaultCredentials) {
-      this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
-      throw new FallbackRequestedError();
-    }
+    this.errorCheckHandler(params, enableFido2VaultCredentials, parsedOrigin);
 
-    if (!params.sameOriginWithAncestors) {
-      this.logService?.warning(
-        `[Fido2Client] Invalid 'sameOriginWithAncestors' value: ${params.sameOriginWithAncestors}`
-      );
-      throw new DOMException("Invalid 'sameOriginWithAncestors' value", "NotAllowedError");
-    }
-
-    const { domain: effectiveDomain } = parse(params.origin, { allowPrivateDomains: true });
+    const { domain: effectiveDomain } = parsedOrigin;
     if (effectiveDomain == undefined) {
-      this.logService?.warning(`[Fido2Client] Invalid origin: ${params.origin}`);
+      this.logService?.warning(`[Fido2Client] Invalid origin: ${origin}`);
       throw new DOMException("'origin' is not a valid domain", "SecurityError");
-    }
-
-    const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
-    const rpId = params.rpId ?? parsedOrigin.hostname;
-
-    if (parsedOrigin.hostname == undefined || !params.origin.startsWith("https://")) {
-      this.logService?.warning(`[Fido2Client] Invalid https origin: ${params.origin}`);
-      throw new DOMException("'origin' is not a valid https origin", "SecurityError");
-    }
-
-    if (!isValidRpId(rpId, params.origin)) {
-      this.logService?.warning(
-        `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${rpId}; origin = ${params.origin}`
-      );
-      throw new DOMException("'rp.id' cannot be used with the current origin", "SecurityError");
     }
 
     const collectedClientData = {
       type: "webauthn.get",
       challenge: params.challenge,
-      origin: params.origin,
-      crossOrigin: !params.sameOriginWithAncestors,
+      origin: origin,
+      crossOrigin: !sameOriginWithAncestors,
       // tokenBinding: {} // Not currently supported
     };
     const clientDataJSON = JSON.stringify(collectedClientData);
@@ -244,7 +229,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       throw new DOMException(undefined, "AbortError");
     }
 
-    const timeout = setAbortTimeout(abortController, params.userVerification, params.timeout);
+    const timeout = setAbortTimeout(abortController, userVerification, params.timeout);
 
     const allowCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
       params.allowedCredentialIds.map((id) => ({
@@ -254,7 +239,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
 
     const getAssertionParams: Fido2AuthenticatorGetAssertionParams = {
       rpId,
-      requireUserVerification: params.userVerification === "required",
+      requireUserVerification: userVerification === "required",
       hash: clientDataHash,
       allowCredentialDescriptorList,
       extensions: {},
