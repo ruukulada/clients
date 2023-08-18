@@ -279,10 +279,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
           selectedCipher.type === CipherType.Login
             ? selectedCipher.login.fido2Key
             : selectedCipher.fido2Key;
-        const selectedCredentialId =
-          selectedCipher.type === CipherType.Login
-            ? selectedFido2Key.credentialId
-            : selectedCipher.id;
+        const selectedCredentialId = selectedFido2Key.credentialId ?? Utils.newGuid();
 
         ++selectedFido2Key.counter;
 
@@ -418,7 +415,7 @@ async function createKeyView(
 
   const pkcs8Key = await crypto.subtle.exportKey("pkcs8", keyValue);
   const fido2Key = new Fido2KeyView();
-  fido2Key.credentialId = params.requireResidentKey ? null : Utils.newGuid();
+  fido2Key.credentialId = Utils.newGuid();
   fido2Key.keyType = "public-key";
   fido2Key.keyAlgorithm = "ECDSA";
   fido2Key.keyCurve = "P-256";
