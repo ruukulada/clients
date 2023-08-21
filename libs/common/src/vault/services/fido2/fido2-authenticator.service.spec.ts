@@ -312,7 +312,7 @@ describe("FidoAuthenticatorService", () => {
             name: params.rpEntity.name,
 
             fido2Key: expect.objectContaining({
-              credentialId: null,
+              credentialId: expect.anything(),
               keyType: "public-key",
               keyAlgorithm: "ECDSA",
               keyCurve: "P-256",
@@ -461,10 +461,6 @@ describe("FidoAuthenticatorService", () => {
         requireResidentKey ? "discoverable" : "non-discoverable"
       } credential`, () => {
         const cipherId = "75280e7e-a72e-4d6c-bf1e-d37238352f9b";
-        const cipherIdBytes = new Uint8Array([
-          0x75, 0x28, 0x0e, 0x7e, 0xa7, 0x2e, 0x4d, 0x6c, 0xbf, 0x1e, 0xd3, 0x72, 0x38, 0x35, 0x2f,
-          0x9b,
-        ]);
         const credentialId = "52217b91-73f1-4fea-b3f2-54a7959fd5aa";
         const credentialIdBytes = new Uint8Array([
           0x52, 0x21, 0x7b, 0x91, 0x73, 0xf1, 0x4f, 0xea, 0xb3, 0xf2, 0x54, 0xa7, 0x95, 0x9f, 0xd5,
@@ -490,6 +486,8 @@ describe("FidoAuthenticatorService", () => {
           cipherService.encrypt.mockImplementation(async (cipher) => {
             if (!requireResidentKey) {
               cipher.login.fido2Key.credentialId = credentialId; // Replace id for testability
+            } else {
+              cipher.fido2Key.credentialId = credentialId;
             }
             return {} as any;
           });
@@ -534,11 +532,7 @@ describe("FidoAuthenticatorService", () => {
           expect(counter).toEqual(new Uint8Array([0, 0, 0, 0])); // 0 because of new counter
           expect(aaguid).toEqual(AAGUID);
           expect(credentialIdLength).toEqual(new Uint8Array([0, 16])); // 16 bytes because we're using GUIDs
-          if (requireResidentKey) {
-            expect(credentialId).toEqual(cipherIdBytes);
-          } else {
-            expect(credentialId).toEqual(credentialIdBytes);
-          }
+          expect(credentialId).toEqual(credentialIdBytes);
         });
       });
     }
@@ -769,11 +763,11 @@ describe("FidoAuthenticatorService", () => {
             ciphers = credentialIds.map((id) =>
               createCipherView(
                 { type: CipherType.Fido2Key },
-                { rpId: RpId, counter: 9000, keyValue }
+                { credentialId: id, rpId: RpId, counter: 9000, keyValue }
               )
             );
             fido2Keys = ciphers.map((c) => c.fido2Key);
-            selectedCredentialId = ciphers[0].id;
+            selectedCredentialId = credentialIds[0];
             params = await createParams({
               allowCredentialDescriptorList: undefined,
               rpId: RpId,

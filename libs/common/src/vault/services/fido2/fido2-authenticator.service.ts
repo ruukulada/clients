@@ -279,7 +279,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
           selectedCipher.type === CipherType.Login
             ? selectedCipher.login.fido2Key
             : selectedCipher.fido2Key;
-        const selectedCredentialId = selectedFido2Key.credentialId ?? Utils.newGuid();
+        const selectedCredentialId = selectedFido2Key.credentialId;
 
         ++selectedFido2Key.counter;
 
