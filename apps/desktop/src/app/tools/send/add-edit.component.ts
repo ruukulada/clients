@@ -69,4 +69,11 @@ export class AddEditComponent extends BaseAddEditComponent {
       this.i18nService.t("valueCopied", this.i18nService.t("sendLink"))
     );
   }
+
+  async resetAndLoad() {
+    this.sendId = null;
+    this.send = null;
+    await this.load();
+    this.updateFormValues();
+  }
 }
