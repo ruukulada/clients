@@ -1,4 +1,5 @@
 import { parse } from "tldts";
+import { IResult } from "tldts-core";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
@@ -34,9 +35,14 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     private logService?: LogService
   ) {}
 
-  errorCheckHandler(params: any, enableFido2VaultCredentials: boolean, parsedOrigin: any) {
+  private verifyCredentialRequest(
+    params: CreateCredentialParams | AssertCredentialParams,
+    enableFido2VaultCredentials: boolean,
+    parsedOrigin: IResult
+  ) {
     const { sameOriginWithAncestors, origin } = params;
-    const rpId = params.rpId ?? params.rp.id ?? parsedOrigin.hostname;
+    const rpId =
+      "rpId" in params ? params.rpId : "rp" in params ? params.rp.id : parsedOrigin.hostname;
 
     if (!enableFido2VaultCredentials) {
       this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
@@ -76,7 +82,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
     const rpId = params.rp.id ?? parsedOrigin.hostname;
 
-    this.errorCheckHandler(params, enableFido2VaultCredentials, parsedOrigin);
+    this.verifyCredentialRequest(params, enableFido2VaultCredentials, parsedOrigin);
 
     const userId = Fido2Utils.stringToBuffer(user.id);
     if (userId.length < 1 || userId.length > 64) {
@@ -205,7 +211,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     const rpId = params.rpId ?? parsedOrigin.hostname;
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
 
-    this.errorCheckHandler(params, enableFido2VaultCredentials, parsedOrigin);
+    this.verifyCredentialRequest(params, enableFido2VaultCredentials, parsedOrigin);
 
     const { domain: effectiveDomain } = parsedOrigin;
     if (effectiveDomain == undefined) {
