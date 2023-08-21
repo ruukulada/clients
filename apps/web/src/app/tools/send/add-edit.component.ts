@@ -73,18 +73,14 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   submitAndClose = async () => {
     const success = await this.submit();
-    this.dialogRef.close(success);
+    this.dialogRef.close();
     return success;
   };
 
   deleteAndClose = async () => {
-    try {
-      const success = await this.delete();
-      if (success) {
-        this.dialogRef.close();
-      }
-    } catch (e) {
-      this.logService.error(e);
+    const success = await this.delete();
+    if (success) {
+      this.dialogRef.close();
     }
   };
 }
