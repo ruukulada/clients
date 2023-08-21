@@ -2,7 +2,6 @@
   [formGroup]="formGroup"
   [bitSubmit]="submitAndClose"
   [appApiAction]="formPromise"
-  ngNativeValidate
   autocomplete="off"
 >
   <bit-dialog dialogSize="large">
@@ -11,10 +10,10 @@
     </span>
     <span bitDialogContent *ngIf="send">
       <bit-callout *ngIf="disableSend">
-        <span>{{ "sendDisabledWarning" | i18n }}</span>
+        {{ "sendDisabledWarning" | i18n }}
       </bit-callout>
       <bit-callout *ngIf="!disableSend && disableHideEmail">
-        <span>{{ "sendOptionsPolicyInEffect" | i18n }}</span>
+        {{ "sendOptionsPolicyInEffect" | i18n }}
         <ul class="mb-0">
           <li>{{ "sendDisableHideEmailInEffect" | i18n }}</li>
         </ul>
@@ -280,7 +279,6 @@
         buttonType="danger"
         [appA11yTitle]="'delete' | i18n"
         [bitAction]="deleteAndClose"
-        [disabled]="$any(deleteBtn).loading"
       ></button>
     </ng-container>
   </bit-dialog>
