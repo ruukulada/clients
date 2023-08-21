@@ -33,6 +33,11 @@ enum DatePreset {
   Never = null,
 }
 
+interface DatePresetSelectOption {
+  name: string;
+  value: DatePreset;
+}
+
 @Directive()
 export class AddEditComponent implements OnInit, OnDestroy {
   @Input() sendId: string;
@@ -42,7 +47,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   @Output() onDeletedSend = new EventEmitter<SendView>();
   @Output() onCancelled = new EventEmitter<SendView>();
 
-  deletionDatePresets: any[] = [
+  deletionDatePresets: DatePresetSelectOption[] = [
     { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
     { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
     { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
@@ -52,9 +57,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
     { name: this.i18nService.t("custom"), value: DatePreset.Custom },
   ];
 
-  expirationDatePresets: any[] = [
+  expirationDatePresets: DatePresetSelectOption[] = [
     { name: this.i18nService.t("never"), value: DatePreset.Never },
-  ].concat([...this.deletionDatePresets]);
+    ...this.deletionDatePresets,
+  ];
 
   copyLink = false;
   disableSend = false;
