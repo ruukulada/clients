@@ -186,7 +186,10 @@ describe("FidoAuthenticatorService", () => {
         excludedCipherView = createCipherView();
         params = await createParams({
           excludeCredentialDescriptorList: [
-            { id: Utils.guidToRawFormat(excludedCipherView.id), type: "public-key" },
+            {
+              id: Utils.guidToRawFormat(excludedCipherView.fido2Key.credentialId),
+              type: "public-key",
+            },
           ],
         });
         cipherService.get.mockImplementation(async (id) =>
@@ -697,8 +700,8 @@ describe("FidoAuthenticatorService", () => {
             { credentialId: credentialIds[0], rpId: RpId }
           ),
           await createCipherView(
-            { type: CipherType.Fido2Key, id: credentialIds[1] },
-            { rpId: RpId }
+            { type: CipherType.Fido2Key },
+            { credentialId: credentialIds[1], rpId: RpId }
           ),
         ];
         params = await createParams({
@@ -931,7 +934,7 @@ function createCipherView(
   cipher.localData = {};
 
   const fido2KeyView = new Fido2KeyView();
-  fido2KeyView.credentialId = fido2Key.credentialId;
+  fido2KeyView.credentialId = fido2Key.credentialId ?? Utils.newGuid();
   fido2KeyView.rpId = fido2Key.rpId ?? RpId;
   fido2KeyView.counter = fido2Key.counter ?? 0;
   fido2KeyView.userHandle = fido2Key.userHandle ?? Fido2Utils.bufferToString(randomBytes(16));
