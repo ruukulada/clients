@@ -9,7 +9,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { GeneratorOptions } from "@bitwarden/common/tools/generator/generator-options";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import {
+  PasswordGenerationServiceAbstraction,
+  PasswordGeneratorOptions,
+} from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
 
 @Directive()
@@ -26,7 +29,7 @@ export class GeneratorComponent implements OnInit {
   catchallOptions: any[];
   forwardOptions: EmailForwarderOptions[];
   usernameOptions: any = {};
-  passwordOptions: any = {};
+  passwordOptions: PasswordGeneratorOptions = {};
   username = "-";
   password = "-";
   showOptions = false;

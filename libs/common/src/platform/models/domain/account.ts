@@ -15,7 +15,10 @@ import { UserDecryptionOptionsResponse } from "../../../auth/models/response/use
 import { KdfType, UriMatchType } from "../../../enums";
 import { EventData } from "../../../models/data/event.data";
 import { GeneratorOptions } from "../../../tools/generator/generator-options";
-import { GeneratedPasswordHistory } from "../../../tools/generator/password";
+import {
+  GeneratedPasswordHistory,
+  PasswordGeneratorOptions,
+} from "../../../tools/generator/password";
 import { SendData } from "../../../tools/send/models/data/send.data";
 import { SendView } from "../../../tools/send/models/view/send.view";
 import { DeepJsonify } from "../../../types/deep-jsonify";
@@ -236,7 +239,7 @@ export class AccountSettings {
   equivalentDomains?: any;
   minimizeOnCopyToClipboard?: boolean;
   neverDomains?: { [id: string]: any };
-  passwordGenerationOptions?: any;
+  passwordGenerationOptions?: PasswordGeneratorOptions;
   usernameGenerationOptions?: any;
   generatorOptions?: GeneratorOptions;
   pinKeyEncryptedUserKey?: EncryptedString;

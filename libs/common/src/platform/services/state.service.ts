@@ -22,7 +22,7 @@ import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { EventData } from "../../models/data/event.data";
 import { WindowState } from "../../models/domain/window-state";
 import { GeneratorOptions } from "../../tools/generator/generator-options";
-import { GeneratedPasswordHistory } from "../../tools/generator/password";
+import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
 import { CipherData } from "../../vault/models/data/cipher.data";
@@ -2370,13 +2370,16 @@ export class StateService<
     );
   }
 
-  async getPasswordGenerationOptions(options?: StorageOptions): Promise<any> {
+  async getPasswordGenerationOptions(options?: StorageOptions): Promise<PasswordGeneratorOptions> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
     )?.settings?.passwordGenerationOptions;
   }
 
-  async setPasswordGenerationOptions(value: any, options?: StorageOptions): Promise<void> {
+  async setPasswordGenerationOptions(
+    value: PasswordGeneratorOptions,
+    options?: StorageOptions
+  ): Promise<void> {
     const account = await this.getAccount(
       this.reconcileOptions(options, await this.defaultOnDiskLocalOptions())
     );
