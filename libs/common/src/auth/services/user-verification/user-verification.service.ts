@@ -117,8 +117,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   async hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean> {
     return (
       (await this.hasMasterPassword(userId)) &&
-      (await this.cryptoService.getMasterKeyHash()) != null &&
-      (await this.stateService.getMasterKey()) != null // if a user unlocks with biometrics, no master key is stored
+      (await this.cryptoService.getMasterKeyHash()) != null
     );
   }
 
