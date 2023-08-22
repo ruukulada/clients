@@ -254,7 +254,15 @@ export class CliUtils {
   }
 
   static convertNumberOption(optionValue: any, defaultValue: number) {
-    return optionValue != null ? parseInt(optionValue, null) : defaultValue;
+    try {
+      if (optionValue != null) {
+        const numVal = parseInt(optionValue);
+        return !Number.isNaN(numVal) ? numVal : defaultValue;
+      }
+      return defaultValue;
+    } catch {
+      return defaultValue;
+    }
   }
 
   static convertStringOption(optionValue: any, defaultValue: string) {
