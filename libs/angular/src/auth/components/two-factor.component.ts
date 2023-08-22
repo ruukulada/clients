@@ -83,7 +83,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       }
 
       if (qParams.sessionId != null) {
-        this.sessionId = qParams?.sessionId;
+        this.sessionId = qParams.sessionId;
       }
     });
 
