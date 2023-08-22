@@ -13,6 +13,7 @@ import { BiometricKey } from "../../auth/types/biometric-key";
 import { KdfType, ThemeType, UriMatchType } from "../../enums";
 import { EventData } from "../../models/data/event.data";
 import { WindowState } from "../../models/domain/window-state";
+import { GeneratorOptions } from "../../tools/generator/generator-options";
 import { GeneratedPasswordHistory } from "../../tools/generator/password";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
@@ -439,12 +440,8 @@ export abstract class StateService<T extends Account = Account> {
     value: { [id: string]: OrganizationData },
     options?: StorageOptions
   ) => Promise<void>;
-  getPasswordGenerationOptions: (options?: StorageOptions) => Promise<any>;
-  setPasswordGenerationOptions: (value: any, options?: StorageOptions) => Promise<void>;
-  getUsernameGenerationOptions: (options?: StorageOptions) => Promise<any>;
-  setUsernameGenerationOptions: (value: any, options?: StorageOptions) => Promise<void>;
-  getGeneratorOptions: (options?: StorageOptions) => Promise<any>;
-  setGeneratorOptions: (value: any, options?: StorageOptions) => Promise<void>;
+  getGeneratorOptions: (options?: StorageOptions) => Promise<GeneratorOptions>;
+  setGeneratorOptions: (value: GeneratorOptions, options?: StorageOptions) => Promise<void>;
   /**
    * Gets the user's Pin, encrypted by the user key
    */

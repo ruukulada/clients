@@ -8,6 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { GeneratorOptions } from "@bitwarden/common/tools/generator/generator-options";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
 
@@ -118,7 +119,7 @@ export class GeneratorComponent implements OnInit {
   }
 
   async typeChanged() {
-    await this.stateService.setGeneratorOptions({ type: this.type });
+    await this.stateService.setGeneratorOptions({ type: this.type } as GeneratorOptions);
     if (this.regenerateWithoutButtonPress()) {
       await this.regenerate();
     }

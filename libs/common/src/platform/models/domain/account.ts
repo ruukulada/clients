@@ -14,6 +14,7 @@ import { TrustedDeviceUserDecryptionOption } from "../../../auth/models/domain/u
 import { UserDecryptionOptionsResponse } from "../../../auth/models/response/user-decryption-options/user-decryption-options.response";
 import { KdfType, UriMatchType } from "../../../enums";
 import { EventData } from "../../../models/data/event.data";
+import { GeneratorOptions } from "../../../tools/generator/generator-options";
 import { GeneratedPasswordHistory } from "../../../tools/generator/password";
 import { SendData } from "../../../tools/send/models/data/send.data";
 import { SendView } from "../../../tools/send/models/view/send.view";
@@ -237,7 +238,7 @@ export class AccountSettings {
   neverDomains?: { [id: string]: any };
   passwordGenerationOptions?: any;
   usernameGenerationOptions?: any;
-  generatorOptions?: any;
+  generatorOptions?: GeneratorOptions;
   pinKeyEncryptedUserKey?: EncryptedString;
   pinKeyEncryptedUserKeyEphemeral?: EncryptedString;
   protectedPin?: string;
