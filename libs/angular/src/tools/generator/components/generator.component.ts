@@ -13,7 +13,10 @@ import {
   PasswordGenerationServiceAbstraction,
   PasswordGeneratorOptions,
 } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
+import {
+  UsernameGenerationServiceAbstraction,
+  UsernameGeneratorOptions,
+} from "@bitwarden/common/tools/generator/username";
 
 @Directive()
 export class GeneratorComponent implements OnInit {
@@ -28,7 +31,7 @@ export class GeneratorComponent implements OnInit {
   subaddressOptions: any[];
   catchallOptions: any[];
   forwardOptions: EmailForwarderOptions[];
-  usernameOptions: any = {};
+  usernameOptions: UsernameGeneratorOptions = {};
   passwordOptions: PasswordGeneratorOptions = {};
   username = "-";
   password = "-";

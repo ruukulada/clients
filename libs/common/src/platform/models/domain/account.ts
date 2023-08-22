@@ -19,6 +19,7 @@ import {
   GeneratedPasswordHistory,
   PasswordGeneratorOptions,
 } from "../../../tools/generator/password";
+import { UsernameGeneratorOptions } from "../../../tools/generator/username/username-generation-options";
 import { SendData } from "../../../tools/send/models/data/send.data";
 import { SendView } from "../../../tools/send/models/view/send.view";
 import { DeepJsonify } from "../../../types/deep-jsonify";
@@ -240,7 +241,7 @@ export class AccountSettings {
   minimizeOnCopyToClipboard?: boolean;
   neverDomains?: { [id: string]: any };
   passwordGenerationOptions?: PasswordGeneratorOptions;
-  usernameGenerationOptions?: any;
+  usernameGenerationOptions?: UsernameGeneratorOptions;
   generatorOptions?: GeneratorOptions;
   pinKeyEncryptedUserKey?: EncryptedString;
   pinKeyEncryptedUserKeyEphemeral?: EncryptedString;
