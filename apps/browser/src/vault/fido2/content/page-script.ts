@@ -95,6 +95,11 @@ navigator.credentials.get = async (
   abortController?: AbortController
 ): Promise<Credential> => {
   const fallbackSupported = browserNativeWebauthnSupport;
+
+  if (options?.mediation && options.mediation !== "optional") {
+    throw new Error("Webauthn Conditional UI not supported in this browser.");
+  }
+
   try {
     const response = await messenger.request(
       {
