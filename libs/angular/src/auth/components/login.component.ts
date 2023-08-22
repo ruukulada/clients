@@ -278,6 +278,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
       switch (error.errorName) {
         case "email":
           return this.i18nService.t("invalidEmail");
+        case "minlength":
+          return this.i18nService.t("masterPasswordMinlength", Utils.minimumPasswordLength);
         default:
           return this.i18nService.t(this.errorTag(error));
       }
