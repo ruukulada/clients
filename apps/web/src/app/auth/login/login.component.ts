@@ -1,7 +1,7 @@
-import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, NgZone, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
@@ -33,13 +33,12 @@ import { RouterService, StateService } from "../../core";
   selector: "app-login",
   templateUrl: "login.component.html",
 })
-export class LoginComponent extends BaseLoginComponent implements OnInit, OnDestroy {
+// eslint-disable-next-line rxjs-angular/prefer-takeuntil
+export class LoginComponent extends BaseLoginComponent implements OnInit {
   showResetPasswordAutoEnrollWarning = false;
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
   policies: ListResponse<PolicyResponse>;
   showPasswordless = false;
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     devicesApiService: DevicesApiServiceAbstraction,
@@ -145,9 +144,9 @@ export class LoginComponent extends BaseLoginComponent implements OnInit, OnDest
     }
   }
 
+  // eslint-disable-next-line rxjs-angular/prefer-takeuntil
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    super.ngOnDestroy();
   }
 
   async goAfterLogIn() {

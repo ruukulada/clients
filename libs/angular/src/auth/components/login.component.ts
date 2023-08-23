@@ -1,4 +1,4 @@
-import { Directive, ElementRef, NgZone, OnInit, ViewChild } from "@angular/core";
+import { Directive, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject } from "rxjs";
@@ -28,7 +28,7 @@ import {
 import { CaptchaProtectedComponent } from "./captcha-protected.component";
 
 @Directive()
-export class LoginComponent extends CaptchaProtectedComponent implements OnInit {
+export class LoginComponent extends CaptchaProtectedComponent implements OnInit, OnDestroy {
   @ViewChild("masterPasswordInput", { static: true }) masterPasswordInput: ElementRef;
 
   showPassword = false;
@@ -52,7 +52,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   protected successRoute = "vault";
   protected forcePasswordResetRoute = "update-temp-password";
 
-  private destroy$ = new Subject<void>();
+  protected destroy$ = new Subject<void>();
 
   get loggedEmail() {
     return this.formGroup.value.email;
