@@ -14,7 +14,7 @@
       </bit-callout>
       <bit-callout *ngIf="!disableSend && disableHideEmail">
         {{ "sendOptionsPolicyInEffect" | i18n }}
-        <ul class="mb-0">
+        <ul class="tw-mb-0">
           <li>{{ "sendDisableHideEmailInEffect" | i18n }}</li>
         </ul>
       </bit-callout>
@@ -60,7 +60,7 @@
           </div>
           <bit-form-field *ngIf="!editMode">
             <bit-label>{{ "file" | i18n }}</bit-label>
-            <div class="file-selector">
+            <div>
               <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
                 {{ "chooseFile" | i18n }}
               </button>
@@ -91,11 +91,7 @@
         <input bitCheckbox type="checkbox" formControlName="copyLink" />
         <bit-label>{{ "copySendLinkOnSave" | i18n }}</bit-label>
       </bit-form-control>
-      <div
-        id="options-header"
-        class="section-header d-flex flex-row align-items-center mt-5"
-        (click)="toggleOptions()"
-      >
+      <div class="tw-mt-5 tw-flex" (click)="toggleOptions()">
         <h4 bitTypography="h4" class="tw-mb-0 tw-mr-2">
           <button type="button" bitLink appStopClick>
             <i
