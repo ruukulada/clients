@@ -82,14 +82,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loginService.setEmail(this.formGroup.value.email);
     this.loginService.setRememberEmail(this.formGroup.value.rememberEmail);
 
-    // const decodedRedirectUrl = decodeURIComponent(this.route.snapshot.queryParams.redirectUrl);
-    // console.log(decodedRedirectUrl, this.route);
-    this.router.navigate(["login"], {
-      queryParams: {
-        email: this.formGroup.value.email,
-        redirectUrl: this.route.snapshot.queryParams.redirectUrl,
-      },
-    });
+    const queryParams: { email: string; redirectUrl?: string } = {
+      email: this.formGroup.value.email,
+    };
+
+    if (this.route.snapshot.queryParams.redirectUrl) {
+      queryParams.redirectUrl = decodeURIComponent(this.route.snapshot.queryParams.redirectUrl);
+    }
+
+    this.router.navigate(["login"], { queryParams });
   }
 
   get selfHostedDomain() {

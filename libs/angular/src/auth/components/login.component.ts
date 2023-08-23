@@ -1,7 +1,8 @@
 import { Directive, ElementRef, NgZone, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { take } from "rxjs/operators";
+import { Subject } from "rxjs";
+import { take, takeUntil } from "rxjs/operators";
 
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/abstractions/devices/devices-api.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -39,8 +40,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   showLoginWithDevice: boolean;
   validatedEmail = false;
   paramEmailSet = false;
-  redirectPath: string;
-  sessionId: string;
+  redirectUrl: string;
 
   formGroup = this.formBuilder.group({
     email: ["", [Validators.required, Validators.email]],
@@ -51,6 +51,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   protected twoFactorRoute = "2fa";
   protected successRoute = "vault";
   protected forcePasswordResetRoute = "update-temp-password";
+
+  private destroy$ = new Subject<void>();
 
   get loggedEmail() {
     return this.formGroup.value.email;
@@ -82,20 +84,17 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   }
 
   async ngOnInit() {
-    this.route?.queryParams.subscribe((params) => {
-      if (params != null) {
-        const queryParamsEmail = params["email"];
-        this.redirectPath = params?.["redirectPath"];
-        this.sessionId = params?.["sessionId"];
-        if (queryParamsEmail != null && queryParamsEmail.indexOf("@") > -1) {
-          this.formGroup.get("email").setValue(queryParamsEmail);
-          this.loginService.setEmail(queryParamsEmail);
-          this.paramEmailSet = true;
-        }
-        //use redirectPath to redirect to a specific page after successful login
-        if (this.redirectPath) {
-          this.successRoute = this.redirectPath;
-        }
+    this.route?.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      if (!params) {
+        return;
+      }
+
+      const queryParamsEmail = params.email;
+
+      if (queryParamsEmail != null && queryParamsEmail.indexOf("@") > -1) {
+        this.formGroup.get("email").setValue(queryParamsEmail);
+        this.loginService.setEmail(queryParamsEmail);
+        this.paramEmailSet = true;
       }
     });
     let email = this.loginService.getEmail();
@@ -114,7 +113,20 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     this.formGroup.get("rememberEmail")?.setValue(rememberEmail);
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   async submit(showToast = true) {
+    // The `redirectUrl` parameter determines the target route after a successful login.
+    // If provided in the URL's query parameters, the user will be redirected
+    // to the specified path once they are authenticated.
+    if (this.route.snapshot.queryParams.redirectUrl) {
+      this.redirectUrl = decodeURIComponent(this.route.snapshot.queryParams.redirectUrl);
+      this.successRoute = this.redirectUrl;
+    }
+
     const data = this.formGroup.value;
 
     await this.setupCaptcha();
@@ -152,8 +164,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
         } else {
           this.router.navigate([this.twoFactorRoute], {
             queryParams: {
-              redirectPath: this.redirectPath,
-              sessionId: this.sessionId,
+              redirectUrl: this.redirectUrl,
             },
           });
         }
@@ -170,11 +181,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
         if (this.onSuccessfulLoginNavigate != null) {
           this.onSuccessfulLoginNavigate();
         } else {
-          this.router.navigate([this.successRoute], {
-            queryParams: {
-              sessionId: this.sessionId,
-            },
-          });
+          this.router.navigateByUrl(this.successRoute);
         }
       }
     } catch (e) {

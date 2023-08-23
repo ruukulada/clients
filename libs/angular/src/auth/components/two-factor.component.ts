@@ -39,8 +39,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   formPromise: Promise<any>;
   emailPromise: Promise<any>;
   identifier: string = null;
-  redirectPath: string;
-  sessionId: string;
+  redirectUrl: string;
   onSuccessfulLogin: () => Promise<any>;
   onSuccessfulLoginNavigate: () => Promise<any>;
 
@@ -75,15 +74,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     this.route.queryParams.pipe(first()).subscribe((qParams) => {
       if (qParams.identifier != null) {
         this.identifier = qParams.identifier;
-      }
-
-      if (qParams.redirectPath != null) {
-        this.redirectPath = qParams.redirectPath;
-        this.successRoute = this.redirectPath;
-      }
-
-      if (qParams.sessionId != null) {
-        this.sessionId = qParams.sessionId;
       }
     });
 
@@ -203,6 +193,13 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   }
 
   async doSubmit() {
+    // The `redirectUrl` parameter determines the target route after a successful login.
+    // If provided in the URL's query parameters, the user will be redirected
+    // to the specified path once they are authenticated.
+    if (this.route.snapshot.queryParams.redirectUrl) {
+      this.successRoute = decodeURIComponent(this.route.snapshot.queryParams.redirectUrl);
+    }
+
     this.formPromise = this.authService.logInTwoFactor(
       new TokenTwoFactorRequest(this.selectedProviderType, this.token, this.remember),
       this.captchaToken
@@ -228,12 +225,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       await this.onSuccessfulLoginNavigate();
     } else {
       this.loginService.clearValues();
-      this.router.navigate([this.successRoute], {
-        queryParams: {
-          identifier: this.identifier,
-          sessionId: this.sessionId,
-        },
-      });
+      this.router.navigateByUrl(this.successRoute);
     }
   }
 

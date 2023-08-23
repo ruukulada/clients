@@ -50,8 +50,8 @@ export class LockComponent extends BaseLockComponent {
     policyService: InternalPolicyService,
     passwordStrengthService: PasswordStrengthServiceAbstraction,
     private authService: AuthService,
-    dialogService: DialogServiceAbstraction,
-    route: ActivatedRoute
+    route: ActivatedRoute,
+    dialogService: DialogServiceAbstraction
   ) {
     super(
       router,
@@ -70,8 +70,8 @@ export class LockComponent extends BaseLockComponent {
       policyApiService,
       policyService,
       passwordStrengthService,
-      dialogService,
-      route
+      route,
+      dialogService
     );
     this.successRoute = "/tabs/current";
     this.isInitialLockScreen = (window as any).previousPopupUrl == null;

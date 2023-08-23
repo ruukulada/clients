@@ -63,8 +63,8 @@ export class LockComponent extends BaseLockComponent {
       policyApiService,
       policyService,
       passwordStrengthService,
-      dialogService,
-      route
+      route,
+      dialogService
     );
   }
 
