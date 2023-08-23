@@ -1,3 +1,5 @@
+import { FallbackRequestedError } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
+
 import { WebauthnUtils } from "../../../browser/webauthn-utils";
 
 import { MessageType } from "./messaging/message";
@@ -96,11 +98,11 @@ navigator.credentials.get = async (
 ): Promise<Credential> => {
   const fallbackSupported = browserNativeWebauthnSupport;
 
-  if (options?.mediation && options.mediation !== "optional") {
-    throw new Error("Webauthn Conditional UI not supported in this browser.");
-  }
-
   try {
+    if (options?.mediation && options.mediation !== "optional") {
+      throw new FallbackRequestedError();
+    }
+
     const response = await messenger.request(
       {
         type: MessageType.CredentialGetRequest,
