@@ -52,7 +52,11 @@ export default class RuntimeBackground {
       sender: chrome.runtime.MessageSender,
       sendResponse: any
     ) => {
-      const messagesWithResponse = ["fido2RegisterCredentialRequest", "fido2GetCredentialRequest"];
+      const messagesWithResponse = [
+        "checkFido2FeatureEnabled",
+        "fido2RegisterCredentialRequest",
+        "fido2GetCredentialRequest",
+      ];
 
       if (messagesWithResponse.includes(msg.command)) {
         this.processMessage(msg, sender).then(
@@ -75,6 +79,8 @@ export default class RuntimeBackground {
   }
 
   async processMessage(msg: any, sender: chrome.runtime.MessageSender) {
+    const cipherId = msg.data?.cipherId;
+
     switch (msg.command) {
       case "loggedIn":
       case "unlocked": {
@@ -82,7 +88,7 @@ export default class RuntimeBackground {
 
         if (this.lockedVaultPendingNotifications?.length > 0) {
           item = this.lockedVaultPendingNotifications.pop();
-          await this.browserPopoutWindowService.closeLoginPrompt();
+          await this.browserPopoutWindowService.closeUnlockPrompt();
         }
 
         await this.main.refreshBadge();
@@ -122,13 +128,22 @@ export default class RuntimeBackground {
         break;
       case "promptForLogin":
       case "bgReopenPromptForLogin":
-        await this.browserPopoutWindowService.openLoginPrompt(sender.tab?.windowId);
+        await this.browserPopoutWindowService.openUnlockPrompt(sender.tab?.windowId);
+        break;
+      case "passwordReprompt":
+        if (cipherId) {
+          await this.browserPopoutWindowService.openPasswordRepromptPrompt(sender.tab?.windowId, {
+            cipherId: cipherId,
+            senderTabId: sender.tab.id,
+            action: msg.data?.action,
+          });
+        }
         break;
       case "openAddEditCipher": {
         const addEditCipherUrl =
-          msg.data?.cipherId == null
+          cipherId == null
             ? "popup/index.html#/edit-cipher"
-            : "popup/index.html#/edit-cipher?cipherId=" + msg.data.cipherId;
+            : "popup/index.html#/edit-cipher?cipherId=" + cipherId;
 
         BrowserApi.openBitwardenExtensionTab(addEditCipherUrl, true);
         break;
@@ -233,6 +248,8 @@ export default class RuntimeBackground {
       case "fido2AbortRequest":
         this.abortControllers.get(msg.abortedRequestId)?.abort();
         break;
+      case "checkFido2FeatureEnabled":
+        return await this.main.fido2ClientService.isFido2FeatureEnabled();
       case "fido2RegisterCredentialRequest":
         return await this.main.fido2ClientService
           .createCredential(msg.data, this.createAbortController(msg.requestId))
