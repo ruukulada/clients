@@ -4,5 +4,4 @@ export enum ClientType {
   Desktop = "desktop",
   Mobile = "mobile",
   Cli = "cli",
-  DirectoryConnector = "connector",
 }
