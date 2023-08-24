@@ -26,6 +26,7 @@ import { flagEnabled } from "../../platform/flags";
 })
 export class LoginComponent extends BaseLoginComponent {
   showPasswordless = false;
+
   constructor(
     devicesApiService: DevicesApiServiceAbstraction,
     appIdService: AppIdService,
@@ -66,7 +67,35 @@ export class LoginComponent extends BaseLoginComponent {
     super.onSuccessfulLogin = async () => {
       await syncService.fullSync(true);
     };
+
     super.successRoute = "/tabs/vault";
+
+    super.onSuccessfulLoginNavigate = async () => {
+      // The `redirectUrl` parameter determines the target route after a successful login.
+      // If provided in the URL's query parameters, the user will be redirected
+      // to the specified path once they are authenticated.
+      this.successRoute = this.route.snapshot.queryParams.redirectUrl
+        ? decodeURIComponent(this.route.snapshot.queryParams.redirectUrl)
+        : this.successRoute;
+
+      this.router.navigateByUrl(this.successRoute);
+    };
+
+    super.onSuccessfulLoginTwoFactorNavigate = async () => {
+      // The `redirectUrl` parameter determines the target route after a successful login.
+      // If provided in the URL's query parameters, the user will be redirected
+      // to the specified path once they are authenticated.
+      const redirectUrl = this.route.snapshot.queryParams.redirectUrl
+        ? decodeURIComponent(this.route.snapshot.queryParams.redirectUrl)
+        : undefined;
+
+      this.router.navigate([this.twoFactorRoute], {
+        queryParams: {
+          redirectUrl: redirectUrl,
+        },
+      });
+    };
+
     this.showPasswordless = flagEnabled("showPasswordless");
 
     if (this.showPasswordless) {

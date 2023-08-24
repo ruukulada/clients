@@ -32,7 +32,6 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
 })
 export class TwoFactorComponent extends BaseTwoFactorComponent {
   showNewWindowMessage = false;
-  redirectUrl: string;
 
   constructor(
     authService: AuthService,
@@ -75,16 +74,6 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       syncService.fullSync(true);
     };
 
-    super.onSuccessfulLoginNavigate = async () => {
-      // The `redirectUrl` parameter determines the target route after a successful login.
-      // If provided in the URL's query parameters, the user will be redirected
-      // to the specified path once they are authenticated.
-      if (this.route.snapshot.queryParams.redirectUrl) {
-        this.redirectUrl = decodeURIComponent(this.route.snapshot.queryParams.redirectUrl);
-        this.router.navigateByUrl(this.redirectUrl);
-      }
-    };
-
     super.onSuccessfulLoginTde = async () => {
       syncService.fullSync(true);
     };
@@ -94,6 +83,18 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     };
 
     super.successRoute = "/tabs/vault";
+
+    super.onSuccessfulLoginNavigate = async () => {
+      // The `redirectUrl` parameter determines the target route after a successful login.
+      // If provided in the URL's query parameters, the user will be redirected
+      // to the specified path once they are authenticated.
+      this.successRoute = this.route.snapshot.queryParams.redirectUrl
+        ? decodeURIComponent(this.route.snapshot.queryParams.redirectUrl)
+        : this.successRoute;
+
+      this.router.navigateByUrl(this.successRoute);
+    };
+
     // FIXME: Chromium 110 has broken WebAuthn support in extensions via an iframe
     this.webAuthnNewTab = true;
   }

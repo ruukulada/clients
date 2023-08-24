@@ -40,7 +40,6 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
   showLoginWithDevice: boolean;
   validatedEmail = false;
   paramEmailSet = false;
-  redirectUrl: string;
 
   formGroup = this.formBuilder.group({
     email: ["", [Validators.required, Validators.email]],
@@ -119,14 +118,6 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
   }
 
   async submit(showToast = true) {
-    // The `redirectUrl` parameter determines the target route after a successful login.
-    // If provided in the URL's query parameters, the user will be redirected
-    // to the specified path once they are authenticated.
-    if (this.route.snapshot.queryParams.redirectUrl) {
-      this.redirectUrl = decodeURIComponent(this.route.snapshot.queryParams.redirectUrl);
-      this.successRoute = this.redirectUrl;
-    }
-
     const data = this.formGroup.value;
 
     await this.setupCaptcha();
@@ -162,11 +153,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
         if (this.onSuccessfulLoginTwoFactorNavigate != null) {
           this.onSuccessfulLoginTwoFactorNavigate();
         } else {
-          this.router.navigate([this.twoFactorRoute], {
-            queryParams: {
-              redirectUrl: this.redirectUrl,
-            },
-          });
+          this.router.navigate([this.twoFactorRoute]);
         }
       } else if (response.forcePasswordReset != ForceResetPasswordReason.None) {
         if (this.onSuccessfulLoginForceResetNavigate != null) {
@@ -181,7 +168,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
         if (this.onSuccessfulLoginNavigate != null) {
           this.onSuccessfulLoginNavigate();
         } else {
-          this.router.navigateByUrl(this.successRoute);
+          this.router.navigate([this.successRoute]);
         }
       }
     } catch (e) {
