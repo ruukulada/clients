@@ -45,7 +45,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   formPromise: Promise<any>;
   emailPromise: Promise<any>;
   orgIdentifier: string = null;
-  redirectUrl: string;
   onSuccessfulLogin: () => Promise<void>;
   onSuccessfulLoginNavigate: () => Promise<void>;
 
@@ -207,13 +206,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   }
 
   async doSubmit() {
-    // The `redirectUrl` parameter determines the target route after a successful login.
-    // If provided in the URL's query parameters, the user will be redirected
-    // to the specified path once they are authenticated.
-    if (this.route.snapshot.queryParams.redirectUrl) {
-      this.successRoute = decodeURIComponent(this.route.snapshot.queryParams.redirectUrl);
-    }
-
     this.formPromise = this.authService.logInTwoFactor(
       new TokenTwoFactorRequest(this.selectedProviderType, this.token, this.remember),
       this.captchaToken

@@ -12,6 +12,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { runInsideAngular } from "@bitwarden/angular/utils/run-inside-angular.operator";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -58,11 +59,8 @@ export class Fido2Component implements OnInit, OnDestroy {
       map((queryParamMap) => queryParamMap.get("sessionId"))
     );
 
-    combineLatest([
-      sessionId$,
-      BrowserApi.messageListener$(this.ngZone) as Observable<BrowserFido2Message>,
-    ])
-      .pipe(takeUntil(this.destroy$))
+    combineLatest([sessionId$, BrowserApi.messageListener$() as Observable<BrowserFido2Message>])
+      .pipe(runInsideAngular(this.ngZone), takeUntil(this.destroy$))
       .subscribe(([sessionId, message]) => {
         this.sessionId = sessionId;
         if (message.type === "NewSessionCreatedRequest" && message.sessionId !== sessionId) {

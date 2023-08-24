@@ -1,4 +1,3 @@
-import type { NgZone } from "@angular/core";
 import { Observable } from "rxjs";
 
 import { DeviceType } from "@bitwarden/common/enums";
@@ -245,22 +244,20 @@ export class BrowserApi {
   }
 
   /**
-   * Creates an observable that listens for messages. If an Angular zone is provided,
-   * ensures that the message processing runs within that zone, triggering change detection.
+   * Creates an observable that listens for messages. While this observable might
+   * operate outside the Angular zone, it's recommended to pipe it with the
+   * utility function `runInsideAngular` to ensure proper triggering of change detection
+   * and other zone-related behaviors.
+   *
+   * @see /libs/angular/src/utils/run-inside-angular.operator.ts
+   *
    * This solution was devised to address an issue in the `Fido2Component`, where the
    * original message listener operated outside the Angular zone.
-   *
-   * @param {NgZone} [zone] - An optional Angular zone to ensure UI updates and change
-   * detection are triggered. If omitted, operates outside the Angular zone.
    */
-  static messageListener$(zone?: NgZone) {
+  static messageListener$() {
     return new Observable<unknown>((subscriber) => {
       const handler = (message: unknown) => {
-        if (zone) {
-          zone.run(() => subscriber.next(message));
-        } else {
-          subscriber.next(message);
-        }
+        subscriber.next(message);
       };
       chrome.runtime.onMessage.addListener(handler);
       return () => chrome.runtime.onMessage.removeListener(handler);

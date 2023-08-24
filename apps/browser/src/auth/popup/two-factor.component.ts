@@ -32,6 +32,7 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
 })
 export class TwoFactorComponent extends BaseTwoFactorComponent {
   showNewWindowMessage = false;
+  redirectUrl: string;
 
   constructor(
     authService: AuthService,
@@ -72,6 +73,16 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     );
     super.onSuccessfulLogin = async () => {
       syncService.fullSync(true);
+    };
+
+    super.onSuccessfulLoginNavigate = async () => {
+      // The `redirectUrl` parameter determines the target route after a successful login.
+      // If provided in the URL's query parameters, the user will be redirected
+      // to the specified path once they are authenticated.
+      if (this.route.snapshot.queryParams.redirectUrl) {
+        this.redirectUrl = decodeURIComponent(this.route.snapshot.queryParams.redirectUrl);
+        this.router.navigateByUrl(this.redirectUrl);
+      }
     };
 
     super.onSuccessfulLoginTde = async () => {
