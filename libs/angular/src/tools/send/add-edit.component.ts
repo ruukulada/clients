@@ -87,7 +87,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     text: [],
     textHidden: [false],
     fileContents: [],
-    file: [null],
+    file: [null, Validators.required],
     link: [],
     copyLink: false,
     maxAccessCount: [],
