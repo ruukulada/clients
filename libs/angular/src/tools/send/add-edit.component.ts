@@ -225,6 +225,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
       return false;
     }
 
+    if (
+      this.formGroup.controls.name.value === "" ||
+      (this.formGroup.controls.type.value === SendType.File &&
+        this.formGroup.controls.file.value === null)
+    ) {
+      return;
+    }
+
     this.send.name = this.formGroup.controls.name.value;
     this.send.text.text = this.formGroup.controls.text.value;
     this.send.text.hidden = this.formGroup.controls.textHidden.value;
