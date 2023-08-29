@@ -295,7 +295,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.send.accessId = encSend[0].accessId;
       }
       this.onSavedSend.emit(this.send);
-      if (this.formGroup.controls.copyLink.value && this.formGroup.controls.link.value != null) {
+      if (this.formGroup.controls.copyLink.value && this.link != null) {
         await this.handleCopyLinkToClipboard();
         return;
       }
@@ -424,7 +424,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   private async handleCopyLinkToClipboard() {
-    const copySuccess = await this.copyLinkToClipboard(this.formGroup.controls.link.value);
+    const copySuccess = await this.copyLinkToClipboard(this.link);
     if (copySuccess ?? true) {
       this.platformUtilsService.showToast(
         "success",
@@ -440,7 +440,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
         type: "success",
       });
 
-      await this.copyLinkToClipboard(this.formGroup.controls.link.value);
+      await this.copyLinkToClipboard(this.link);
     }
   }
 
