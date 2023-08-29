@@ -403,7 +403,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       text: this.send?.text?.text ?? "",
       textHidden: this.send?.text?.hidden ?? false,
       link: this.link ?? "",
-      maxAccessCount: this.send?.maxAccessCount ?? 0,
+      maxAccessCount: this.send?.maxAccessCount,
       accessCount: this.send?.accessCount ?? 0,
       notes: this.send?.notes ?? "",
       hideEmail: this.send?.hideEmail ?? false,
