@@ -98,8 +98,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     disabled: false,
     type: [],
     defaultExpirationDateTime: [],
-    defaultDeletionDateTime: [],
-    selectedDeletionDatePreset: [],
+    defaultDeletionDateTime: ["", Validators.required],
+    selectedDeletionDatePreset: [DatePreset.SevenDays, Validators.required],
     selectedExpirationDatePreset: [],
   });
 

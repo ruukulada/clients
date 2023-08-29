@@ -112,7 +112,6 @@
                 id="deletionDate"
                 name="SelectedDeletionDatePreset"
                 formControlName="selectedDeletionDatePreset"
-                required
               >
                 <bit-option
                   *ngFor="let o of deletionDatePresets"
@@ -127,7 +126,6 @@
                   type="datetime-local"
                   name="DeletionDate"
                   formControlName="defaultDeletionDateTime"
-                  required
                   placeholder="MM/DD/YYYY HH:MM AM/PM"
                 />
               </ng-container>
@@ -143,7 +141,6 @@
                 type="datetime-local"
                 name="DeletionDate"
                 formControlName="defaultDeletionDateTime"
-                required
                 placeholder="MM/DD/YYYY HH:MM AM/PM"
               />
               <bit-hint>{{ "deletionDateDesc" | i18n }}</bit-hint>
