@@ -52,13 +52,13 @@ const browserCredentials = {
 
 const messenger = Messenger.forDOMCommunication(window);
 
-const isNotIframeCheck = () => {
+function isSameOriginWithAncestors() {
   try {
     return window.self === window.top;
   } catch {
     return false;
   }
-};
+}
 
 navigator.credentials.create = async (
   options?: CredentialCreationOptions,
@@ -70,7 +70,7 @@ navigator.credentials.create = async (
     (options?.publicKey?.authenticatorSelection.authenticatorAttachment !== "platform" &&
       browserNativeWebauthnSupport);
   try {
-    const isNotIframe = isNotIframeCheck();
+    const isNotIframe = isSameOriginWithAncestors();
 
     const response = await messenger.request(
       {
@@ -105,7 +105,7 @@ navigator.credentials.get = async (
 ): Promise<Credential> => {
   const fallbackSupported = browserNativeWebauthnSupport;
   try {
-    const isNotIframe = isNotIframeCheck();
+    const isNotIframe = isSameOriginWithAncestors();
 
     const response = await messenger.request(
       {
