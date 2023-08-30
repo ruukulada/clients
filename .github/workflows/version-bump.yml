@@ -84,7 +84,7 @@ jobs:
           if [[ ${{ inputs.bump_web }} == true ]]; then
             CLIENTS+=("web")
           fi
-          printf -v joined '%s,' "${data[@]}"
+          printf -v joined '%s,' "${CLIENTS[@]}"
           echo "client=${joined%,}" >> $GITHUB_OUTPUT
           echo "CLIENTS=${CLIENTS}"
           echo "JOINED=${joined%,}"
