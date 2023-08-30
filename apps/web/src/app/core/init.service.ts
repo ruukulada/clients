@@ -5,6 +5,7 @@ import { AbstractThemingService } from "@bitwarden/angular/services/theming/them
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import {
@@ -32,7 +33,8 @@ export class InitService {
     private stateService: StateServiceAbstraction,
     private cryptoService: CryptoServiceAbstraction,
     private themingService: AbstractThemingService,
-    private encryptService: EncryptService
+    private encryptService: EncryptService,
+    private configService: ConfigServiceAbstraction
   ) {}
 
   init() {
@@ -57,6 +59,8 @@ export class InitService {
       await this.themingService.monitorThemeChanges();
       const containerService = new ContainerService(this.cryptoService, this.encryptService);
       containerService.attachToGlobal(this.win);
+
+      this.configService.init();
     };
   }
 }

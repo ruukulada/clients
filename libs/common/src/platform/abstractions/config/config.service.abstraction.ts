@@ -6,6 +6,7 @@ import { Region } from "../environment.service";
 import { ServerConfig } from "./server-config";
 
 export abstract class ConfigServiceAbstraction {
+  init: () => void;
   serverConfig$: Observable<ServerConfig | null>;
   cloudRegion$: Observable<Region>;
   getFeatureFlag$: <T extends boolean | number | string>(

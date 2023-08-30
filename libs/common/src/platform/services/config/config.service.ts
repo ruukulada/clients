@@ -38,10 +38,12 @@ export class ConfigService implements ConfigServiceAbstraction {
     private configApiService: ConfigApiServiceAbstraction,
     private authService: AuthService,
     private environmentService: EnvironmentService,
-    subscribe = true
-  ) {
+    private subscribe = true
+  ) {}
+
+  init() {
     // Used to avoid duplicate subscriptions, e.g. in browser between the background and popup
-    if (!subscribe) {
+    if (!this.subscribe) {
       return;
     }
 
@@ -55,7 +57,7 @@ export class ConfigService implements ConfigServiceAbstraction {
     merge(
       this.serverConfig$.pipe(first()), // after the initial load from storage has emitted (to avoid a race condition)
       timer(ONE_HOUR_IN_MILLISECONDS, ONE_HOUR_IN_MILLISECONDS), // after 1 hour, then every hour
-      environmentService.urls, // when environment URLs change
+      this.environmentService.urls, // when environment URLs change
       this._forceFetchConfig // manual
     )
       .pipe(
