@@ -86,8 +86,6 @@ jobs:
           fi
           printf -v joined '%s,' "${CLIENTS[@]}"
           echo "client=${joined%,}" >> $GITHUB_OUTPUT
-          echo "CLIENTS=$CLIENTS"
-          echo "JOINED=${joined%,}"
 
           BRANCH=version_bump_${VERSION}_${GITHUB_SHA:0:7}
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
