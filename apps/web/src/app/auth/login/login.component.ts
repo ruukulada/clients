@@ -144,11 +144,6 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     }
   }
 
-  // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-  ngOnDestroy(): void {
-    super.ngOnDestroy();
-  }
-
   async goAfterLogIn() {
     const masterPassword = this.formGroup.value.masterPassword;
 

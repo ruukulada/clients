@@ -195,8 +195,8 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     );
 
     this.tabClosed$ = fromEventPattern(
-      (handler: any) => chrome.windows.onRemoved.addListener(handler),
-      (handler: any) => chrome.windows.onRemoved.removeListener(handler)
+      (handler: any) => chrome.tabs.onRemoved.addListener(handler),
+      (handler: any) => chrome.tabs.onRemoved.removeListener(handler)
     );
 
     BrowserFido2UserInterfaceSession.sendMessage({
@@ -303,7 +303,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     this.destroy$.complete();
   }
 
-  async abort(fallback = false) {
+  private async abort(fallback = false) {
     this.abortController.abort(fallback ? UserRequestedFallbackAbortReason : undefined);
   }
 
