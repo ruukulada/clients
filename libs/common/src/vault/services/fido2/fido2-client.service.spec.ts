@@ -342,7 +342,7 @@ describe("FidoAuthenticatorService", () => {
         await rejects.toThrow(FallbackRequestedError);
       });
 
-      // // Spec: If sameOriginWithAncestors is false, return a "NotAllowedError" DOMException.
+      // Spec: If sameOriginWithAncestors is false, return a "NotAllowedError" DOMException.
       it("should throw error if sameOriginWithAncestors is false", async () => {
         const params = createParams();
         params.sameOriginWithAncestors = false; // Simulating the falsey value
