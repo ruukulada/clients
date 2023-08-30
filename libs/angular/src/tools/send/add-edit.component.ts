@@ -410,8 +410,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
       disabled: this.send?.disabled ?? false,
       type: this.send.type ?? this.type,
 
-      selectedDeletionDatePreset: DatePreset.Custom,
-      selectedExpirationDatePreset: DatePreset.Custom,
+      selectedDeletionDatePreset: this.editMode ? DatePreset.Custom : DatePreset.SevenDays,
+      selectedExpirationDatePreset: this.editMode ? DatePreset.Custom : DatePreset.Never,
       defaultExpirationDateTime:
         this.send.expirationDate != null
           ? this.datePipe.transform(new Date(this.send.expirationDate), "yyyy-MM-ddTHH:mm")
