@@ -164,6 +164,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.typeChanged();
     });
 
+    this.formGroup.controls.hideEmail.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((val) => {
+        if (!val && this.disableHideEmail) {
+          this.formGroup.controls.hideEmail.disable();
+        }
+      });
+
     await this.load();
   }
 
