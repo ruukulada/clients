@@ -26,8 +26,16 @@ describe("ConfigService", () => {
 
   // Observables will start emitting as soon as this is created, so only create it
   // after everything is mocked
-  const configServiceFactory = () =>
-    new ConfigService(stateService, configApiService, authService, environmentService);
+  const configServiceFactory = () => {
+    const configService = new ConfigService(
+      stateService,
+      configApiService,
+      authService,
+      environmentService
+    );
+    configService.init();
+    return configService;
+  };
 
   beforeEach(() => {
     stateService = mock();
