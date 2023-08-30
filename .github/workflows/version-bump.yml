@@ -72,16 +72,16 @@ jobs:
           VERSION: ${{ inputs.version_number }}
         run: |
           CLIENTS=()
-          if [[ ${{ inputs.bump_browser }} == 'true' ]]; then
+          if [[ ${{ inputs.bump_browser }} == true ]]; then
             CLIENTS+=("browser")
           fi
-          if [[ ${{ inputs.bump_cli }} == 'true' ]]; then
+          if [[ ${{ inputs.bump_cli }} == true ]]; then
             CLIENTS+=("cli")
           fi
-          if [[ ${{ inputs.bump_desktop }} == 'true' ]]; then
+          if [[ ${{ inputs.bump_desktop }} == true ]]; then
             CLIENTS+=("desktop")
           fi
-          if [[ ${{ inputs.bump_web }} == 'true' ]]; then
+          if [[ ${{ inputs.bump_web }} == true ]]; then
             CLIENTS+=("web")
           fi
           printf -v joined '%s,' "${data[@]}"
@@ -125,20 +125,20 @@ jobs:
 
       ### CLI
       - name: Bump CLI Version
-        if: ${{ inputs.bump_cli == 'true' }}
+        if: ${{ inputs.bump_cli == true }}
         env:
           VERSION: ${{ inputs.version_number }}
         run: npm version --workspace=@bitwarden/cli ${VERSION}
 
       ### Desktop
       - name: Bump Desktop Version - Root
-        if: ${{ inputs.bump_desktop == 'true' }}
+        if: ${{ inputs.bump_desktop == true }}
         env:
           VERSION: ${{ inputs.version_number }}
         run: npm version --workspace=@bitwarden/desktop ${VERSION}
 
       - name: Bump Desktop Version - App
-        if: ${{ inputs.bump_desktop == 'true' }}
+        if: ${{ inputs.bump_desktop == true }}
         env:
           VERSION: ${{ inputs.version_number }}
         run: npm version ${VERSION}
@@ -146,7 +146,7 @@ jobs:
 
       ### Web
       - name: Bump Web Version
-        if: ${{ inputs.bump_web == 'true' }}
+        if: ${{ inputs.bump_web == true }}
         env:
           VERSION: ${{ inputs.version_number }}
         run: npm version --workspace=@bitwarden/web-vault ${VERSION}
