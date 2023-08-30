@@ -242,12 +242,13 @@ export default class AutofillService implements AutofillServiceInterface {
 
     if (
       cipher.reprompt === CipherRepromptType.Password &&
-      (await this.userVerificationService.hasMasterPassword())
+      // If the master password has is not available, reprompt will error
+      (await this.userVerificationService.hasMasterPasswordAndMasterKeyHash())
     ) {
       if (fromCommand) {
         this.cipherService.updateLastUsedIndexForUrl(tab.url);
       }
-      
+
       await BrowserApi.tabSendMessageData(tab, "passwordReprompt", {
         cipherId: cipher.id,
         action: "autofill",
