@@ -211,6 +211,9 @@ export class BrowserApi {
 
   private static registeredMessageListeners: any[] = [];
 
+  /**
+   * Use ngzone.run() to ensure callback run inside the Angular zone.
+   */
   static messageListener(
     name: string,
     callback: (message: any, sender: chrome.runtime.MessageSender, response: any) => unknown
@@ -250,16 +253,16 @@ export class BrowserApi {
    * and other zone-related behaviors.
    *
    * @see /libs/angular/src/utils/run-inside-angular.operator.ts
-   *
-   * This solution was devised to address an issue in the `Fido2Component`, where the
-   * original message listener operated outside the Angular zone.
    */
   static messageListener$() {
     return new Observable<unknown>((subscriber) => {
       const handler = (message: unknown) => {
         subscriber.next(message);
       };
-      chrome.runtime.onMessage.addListener(handler);
+
+      // using the messageListener logic
+      BrowserApi.messageListener("message", handler);
+
       return () => chrome.runtime.onMessage.removeListener(handler);
     });
   }
