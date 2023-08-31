@@ -8,6 +8,7 @@ import { ServerConfig } from "./server-config";
 export abstract class ConfigServiceAbstraction {
   serverConfig$: Observable<ServerConfig | null>;
   cloudRegion$: Observable<Region>;
+  init: () => void;
   getFeatureFlag$: <T extends boolean | number | string>(
     key: FeatureFlag,
     defaultValue?: T
