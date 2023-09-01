@@ -44,7 +44,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     email: ["", [Validators.required, Validators.email]],
     masterPassword: [
       "",
-      [Validators.required, Validators.minLength(Utils.previousMinimumPasswordLength)],
+      [Validators.required, Validators.minLength(Utils.originalMinimumPasswordLength)],
     ],
     rememberEmail: [false],
   });
@@ -282,7 +282,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
         case "email":
           return this.i18nService.t("invalidEmail");
         case "minlength":
-          return this.i18nService.t("masterPasswordMinlength", Utils.previousMinimumPasswordLength);
+          return this.i18nService.t("masterPasswordMinlength", Utils.originalMinimumPasswordLength);
         default:
           return this.i18nService.t(this.errorTag(error));
       }
