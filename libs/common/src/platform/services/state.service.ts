@@ -21,6 +21,7 @@ import {
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { EventData } from "../../models/data/event.data";
 import { WindowState } from "../../models/domain/window-state";
+import { migrate } from "../../state-migrations";
 import { GeneratorOptions } from "../../tools/generator/generator-options";
 import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
 import { UsernameGeneratorOptions } from "../../tools/generator/username";
@@ -34,7 +35,6 @@ import { CipherView } from "../../vault/models/view/cipher.view";
 import { CollectionView } from "../../vault/models/view/collection.view";
 import { AddEditCipherInfo } from "../../vault/types/add-edit-cipher-info";
 import { LogService } from "../abstractions/log.service";
-import { StateMigrationService } from "../abstractions/state-migration.service";
 import { StateService as StateServiceAbstraction } from "../abstractions/state.service";
 import {
   AbstractMemoryStorageService,
@@ -63,6 +63,7 @@ import {
 
 const keys = {
   state: "state",
+  stateVersion: "stateVersion",
   global: "global",
   authenticatedAccounts: "authenticatedAccounts",
   activeUserId: "activeUserId",
@@ -108,7 +109,6 @@ export class StateService<
     protected secureStorageService: AbstractStorageService,
     protected memoryStorageService: AbstractMemoryStorageService,
     protected logService: LogService,
-    protected stateMigrationService: StateMigrationService,
     protected stateFactory: StateFactory<TGlobalState, TAccount>,
     protected useAccountCache: boolean = true
   ) {
@@ -135,9 +135,7 @@ export class StateService<
       return;
     }
 
-    if (await this.stateMigrationService.needsMigration()) {
-      await this.stateMigrationService.migrate();
-    }
+    await migrate(this.storageService, this.logService);
 
     await this.state().then(async (state) => {
       if (state == null) {
@@ -2732,16 +2730,6 @@ export class StateService<
     );
   }
 
-  async getStateVersion(): Promise<number> {
-    return (await this.getGlobals(await this.defaultOnDiskLocalOptions())).stateVersion ?? 1;
-  }
-
-  async setStateVersion(value: number): Promise<void> {
-    const globals = await this.getGlobals(await this.defaultOnDiskOptions());
-    globals.stateVersion = value;
-    await this.saveGlobals(globals, await this.defaultOnDiskOptions());
-  }
-
   async getWindow(): Promise<WindowState> {
     const globals = await this.getGlobals(await this.defaultOnDiskOptions());
     return globals?.window != null && Object.keys(globals.window).length > 0
@@ -2846,7 +2834,11 @@ export class StateService<
       globals = await this.getGlobalsFromDisk(options);
     }
 
-    return globals ?? this.createGlobals();
+    if (globals == null) {
+      globals = this.createGlobals();
+    }
+
+    return globals;
   }
 
   protected async saveGlobals(globals: TGlobalState, options: StorageOptions) {
