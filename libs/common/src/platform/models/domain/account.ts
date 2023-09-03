@@ -342,7 +342,7 @@ export class AccountDecryptionOptions {
       // we must base our decryption options on the presence of the keyConnectorUrl.
       // Note that the presence of keyConnectorUrl implies that the user does not have a master password, as in pre-TDE
       // server versions, a master password short-circuited the addition of the keyConnectorUrl to the response.
-      // TODO: remove compatibility check after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
+      // TODO: remove this check after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
       const usingKeyConnector = response.keyConnectorUrl != null;
       accountDecryptionOptions.hasMasterPassword = !usingKeyConnector;
       if (usingKeyConnector) {
