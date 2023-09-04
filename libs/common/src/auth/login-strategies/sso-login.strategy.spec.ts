@@ -320,6 +320,7 @@ describe("SsoLogInStrategy", () => {
     let tokenResponse: IdentityTokenResponse;
     beforeEach(() => {
       tokenResponse = identityTokenResponseFactory();
+      tokenResponse.userDecryptionOptions = null;
       tokenResponse.keyConnectorUrl = keyConnectorUrl;
     });
 
