@@ -24,7 +24,7 @@ export default {
               required: "required",
               inputRequired: "Input is required.",
               inputEmail: "Input is not an email-address.",
-              fieldsNeedAttention: "$COUNT$ field(s) above need your attention.",
+              fieldsNeedAttention: "__$1__ field(s) above need your attention.",
             });
           },
         },
@@ -34,7 +34,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881%3A17689",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=13213-55392&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
@@ -63,12 +63,12 @@ export const Default: StoryObj<BitFormFieldComponent> = {
           <bit-label>Name</bit-label>
           <input bitInput formControlName="name" />
         </bit-form-field>
-  
+
         <bit-form-field>
           <bit-label>Email</bit-label>
           <input bitInput formControlName="email" />
         </bit-form-field>
-  
+
         <button type="submit" bitButton buttonType="primary">Submit</button>
         <bit-error-summary [formGroup]="formObj"></bit-error-summary>
       </form>

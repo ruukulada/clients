@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ImportResult } from "../models/import-result";
 
 import { BaseImporter } from "./base-importer";
@@ -19,7 +21,7 @@ export class BlurCsvImporter extends BaseImporter implements Importer {
       const cipher = this.initLoginCipher();
       cipher.name = this.getValueOrDefault(
         value.label,
-        this.getValueOrDefault(this.nameFromUrl(value.domain), "--")
+        this.getValueOrDefault(this.nameFromUrl(value.domain), "--"),
       );
       cipher.login.uris = this.makeUriArray(value.domain);
       cipher.login.password = this.getValueOrDefault(value.password);

@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
+import { CollectionAdminView, CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { TreeNode } from "@bitwarden/common/src/models/domain/tree-node";
-import { CollectionView } from "@bitwarden/common/src/vault/models/view/collection.view";
-import { FolderView } from "@bitwarden/common/src/vault/models/view/folder.view";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import {
   CipherTypeFilter,
@@ -20,13 +22,16 @@ export abstract class VaultFilterService {
   folderTree$: Observable<TreeNode<FolderFilter>>;
   collectionTree$: Observable<TreeNode<CollectionFilter>>;
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>>;
-  reloadCollections: (collections: CollectionView[]) => void;
   getCollectionNodeFromTree: (id: string) => Promise<TreeNode<CollectionFilter>>;
   setCollapsedFilterNodes: (collapsedFilterNodes: Set<string>) => Promise<void>;
   expandOrgFilter: () => Promise<void>;
+  getOrganizationFilter: () => Observable<Organization>;
   setOrganizationFilter: (organization: Organization) => void;
   buildTypeTree: (
     head: CipherTypeFilter,
-    array: CipherTypeFilter[]
+    array: CipherTypeFilter[],
   ) => Observable<TreeNode<CipherTypeFilter>>;
+  // TODO: Remove this from org vault when collection admin service adopts state management
+  reloadCollections?: (collections: CollectionAdminView[]) => void;
+  clearOrganizationFilter: () => void;
 }

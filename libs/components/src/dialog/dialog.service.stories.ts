@@ -19,7 +19,7 @@ interface Animal {
 }
 
 @Component({
-  template: `<button bitButton (click)="openDialog()">Open Dialog</button>`,
+  template: `<button bitButton type="button" (click)="openDialog()">Open Dialog</button>`,
 })
 class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
@@ -35,22 +35,26 @@ class StoryDialogComponent {
 
 @Component({
   template: `
-    <bit-dialog dialogSize="large">
-      <span bitDialogTitle>Dialog Title</span>
+    <bit-dialog title="Dialog Title" dialogSize="large">
       <span bitDialogContent>
         Dialog body text goes here.
         <br />
         Animal: {{ animal }}
       </span>
       <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" (click)="dialogRef.close()">Save</button>
-        <button bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
       </ng-container>
     </bit-dialog>
   `,
 })
 class StoryDialogContentComponent {
-  constructor(public dialogRef: DialogRef, @Inject(DIALOG_DATA) private data: Animal) {}
+  constructor(
+    public dialogRef: DialogRef,
+    @Inject(DIALOG_DATA) private data: Animal,
+  ) {}
 
   get animal() {
     return this.data?.animal;
@@ -62,13 +66,16 @@ export default {
   component: StoryDialogComponent,
   decorators: [
     moduleMetadata({
-      declarations: [
+      declarations: [StoryDialogContentComponent],
+      imports: [
+        SharedModule,
+        ButtonModule,
+        DialogModule,
+        IconButtonModule,
         DialogCloseDirective,
         DialogComponent,
         DialogTitleContainerDirective,
-        StoryDialogContentComponent,
       ],
-      imports: [SharedModule, ButtonModule, DialogModule, IconButtonModule],
       providers: [
         DialogService,
         {
@@ -76,6 +83,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               close: "Close",
+              loading: "Loading",
             });
           },
         },
@@ -85,7 +93,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-30495&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;

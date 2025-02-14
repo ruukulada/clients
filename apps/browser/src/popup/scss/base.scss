@@ -6,6 +6,10 @@
   margin: 0;
 }
 
+html {
+  overflow: hidden;
+}
+
 html,
 body {
   font-family: $font-family-sans-serif;
@@ -15,8 +19,10 @@ body {
 }
 
 body {
-  width: 375px !important;
-  height: 600px !important;
+  width: 380px;
+  height: 600px;
+  position: relative;
+  min-height: 100vh;
   overflow: hidden;
   color: $text-color;
   background-color: $background-color;
@@ -27,18 +33,20 @@ body {
   }
 
   &.body-sm {
-    width: 375px !important;
-    height: 500px !important;
+    height: 500px;
   }
 
   &.body-xs {
-    width: 375px !important;
-    height: 300px !important;
+    height: 400px;
+  }
+
+  &.body-xxs {
+    height: 300px;
   }
 
   &.body-full {
-    width: 100% !important;
-    height: 100% !important;
+    width: 100%;
+    height: 100%;
   }
 }
 
@@ -66,7 +74,7 @@ img {
   border: none;
 }
 
-a {
+a:not(popup-page a, popup-tab-navigation a) {
   text-decoration: none;
 
   @include themify($themes) {
@@ -81,9 +89,9 @@ a {
   }
 }
 
-input,
-select,
-textarea {
+input:not(bit-form-field input, bit-search input),
+select:not(bit-form-field select),
+textarea:not(bit-form-field textarea) {
   @include themify($themes) {
     color: themed("textColor");
     background-color: themed("inputBackgroundColor");
@@ -93,7 +101,7 @@ textarea {
 input,
 select,
 textarea,
-button {
+button:not(bit-chip-select button) {
   font-size: $font-size-base;
   font-family: $font-family-sans-serif;
 }
@@ -169,16 +177,28 @@ cdk-virtual-scroll-viewport::-webkit-scrollbar-thumb,
   }
 }
 
-header {
-  min-height: 44px;
-  max-height: 44px;
+header:not(bit-callout header, bit-dialog header, popup-page header) {
+  height: 44px;
   display: flex;
-  border-bottom: 1px solid #000000;
 
-  @include themify($themes) {
-    color: themed("headerColor");
-    background-color: themed("headerBackgroundColor");
-    border-bottom-color: themed("headerBorderColor");
+  &:not(.no-theme) {
+    border-bottom: 1px solid #000000;
+
+    @include themify($themes) {
+      color: themed("headerColor");
+      background-color: themed("headerBackgroundColor");
+      border-bottom-color: themed("headerBorderColor");
+    }
+  }
+
+  .header-content {
+    display: flex;
+    flex: 1 1 auto;
+  }
+
+  .header-content > .right,
+  .header-content > .right > .right {
+    height: 100%;
   }
 
   .left,
@@ -212,7 +232,7 @@ header {
   }
 
   app-pop-out > button,
-  div > button,
+  div > button:not(app-current-account button):not(.home-acc-switcher-btn),
   div > a {
     border: none;
     padding: 0 10px;
@@ -224,13 +244,8 @@ header {
     height: 100%;
     white-space: pre;
 
-    @include themify($themes) {
-      color: themed("headerColor");
-      background-color: themed("headerBackgroundColor");
-    }
-
-    &:hover,
-    &:focus {
+    &:not(.home-acc-switcher-btn):hover,
+    &:not(.home-acc-switcher-btn):focus {
       @include themify($themes) {
         background-color: themed("headerBackgroundHoverColor");
         color: themed("headerColor");
@@ -277,7 +292,7 @@ header {
       }
     }
 
-    input {
+    input:not(bit-form-field input) {
       width: 100%;
       margin: 0;
       border: none;
@@ -439,7 +454,7 @@ app-root {
   }
 }
 
-main {
+main:not(popup-page main) {
   position: absolute;
   top: 44px;
   bottom: 0;

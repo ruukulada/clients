@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BillingSyncConfigApi } from "../../../billing/models/api/billing-sync-config.api";
 import { BaseResponse } from "../../../models/response/base.response";
 import { OrganizationConnectionType } from "../../enums";
@@ -7,7 +9,7 @@ import { ScimConfigApi } from "../api/scim-config.api";
 export type OrganizationConnectionConfigApis = BillingSyncConfigApi | ScimConfigApi;
 
 export class OrganizationConnectionResponse<
-  TConfig extends OrganizationConnectionConfigApis
+  TConfig extends OrganizationConnectionConfigApis,
 > extends BaseResponse {
   id: string;
   type: OrganizationConnectionType;

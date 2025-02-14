@@ -1,5 +1,6 @@
-import { FieldType } from "@bitwarden/common/enums";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -190,7 +191,7 @@ export abstract class OnePasswordCsvImporter extends BaseImporter implements Imp
         context.lowerProperty === "modified date"
       ) {
         const readableDate = new Date(
-          parseInt(context.importRecord[context.property], 10) * 1000
+          parseInt(context.importRecord[context.property], 10) * 1000,
         ).toUTCString();
         this.processKvp(context.cipher, "1Password " + context.property, readableDate);
         return null;
@@ -204,7 +205,7 @@ export abstract class OnePasswordCsvImporter extends BaseImporter implements Imp
           context.cipher,
           context.property,
           context.importRecord[context.property],
-          FieldType.Hidden
+          FieldType.Hidden,
         );
       } else {
         this.processKvp(context.cipher, context.property, context.importRecord[context.property]);
@@ -332,7 +333,7 @@ export abstract class OnePasswordCsvImporter extends BaseImporter implements Imp
     ) {
       context.cipher.card.expMonth = (context.importRecord[context.property] as string).substr(
         0,
-        2
+        2,
       );
       if (context.cipher.card.expMonth[0] === "0") {
         context.cipher.card.expMonth = context.cipher.card.expMonth.substr(1, 1);

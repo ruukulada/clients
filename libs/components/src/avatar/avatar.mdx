@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./avatar.stories";
 
@@ -18,15 +18,15 @@ visual indicator to recognize which of a personal or work account a user is logg
 
 ### Large: 64px
 
-<Story of={stories.Large} />
+<Canvas of={stories.Large} />
 
 ### Default: 48px
 
-<Story of={stories.Default} />
+<Canvas of={stories.Default} />
 
 ### Small 28px
 
-<Story of={stories.Small} />
+<Canvas of={stories.Small} />
 
 ## Background color
 
@@ -37,17 +37,17 @@ priority:
 - ID
 - Text, usually set to the user's Name field
 
-<Story of={stories.ColorByText} />
+<Canvas of={stories.ColorByText} />
 Use the user 'ID' field if `Name` is not defined.
-<Story of={stories.ColorByID} />
+<Canvas of={stories.ColorByID} />
 
 ## Outline
 
 If the avatar is displayed on one of the theme's `background` color variables or is interactive,
-display the avatar with a 1 pixel `secondary-500` border to meet WCAG AA graphic contrast guidelines
+display the avatar with a 1 pixel `secondary-600` border to meet WCAG AA graphic contrast guidelines
 for interactive elements.
 
-<Story of={stories.Border} />
+<Canvas of={stories.Border} />
 
 ## Avatar as a button
 
@@ -64,4 +64,4 @@ When the avatar is used as a button, the following states should be used:
 ## Accessibility
 
 Avatar background color should have 3.1:1 contrast with it’s background; or include the
-`secondary-500` border Avatar text should have 4.5:1 contrast with the avatar background color
+`secondary-600` border Avatar text should have 4.5:1 contrast with the avatar background color

@@ -1,6 +1,6 @@
-import { KdfType } from "../../../enums";
+import { KdfConfig, KdfType } from "@bitwarden/key-management";
+
 import { KeysRequest } from "../../../models/request/keys.request";
-import { KdfConfig } from "../domain/kdf-config";
 
 export class SetKeyConnectorKeyRequest {
   key: string;
@@ -11,18 +11,14 @@ export class SetKeyConnectorKeyRequest {
   kdfParallelism?: number;
   orgIdentifier: string;
 
-  constructor(
-    key: string,
-    kdf: KdfType,
-    kdfConfig: KdfConfig,
-    orgIdentifier: string,
-    keys: KeysRequest
-  ) {
+  constructor(key: string, kdfConfig: KdfConfig, orgIdentifier: string, keys: KeysRequest) {
     this.key = key;
-    this.kdf = kdf;
+    this.kdf = kdfConfig.kdfType;
     this.kdfIterations = kdfConfig.iterations;
-    this.kdfMemory = kdfConfig.memory;
-    this.kdfParallelism = kdfConfig.parallelism;
+    if (kdfConfig.kdfType === KdfType.Argon2id) {
+      this.kdfMemory = kdfConfig.memory;
+      this.kdfParallelism = kdfConfig.parallelism;
+    }
     this.orgIdentifier = orgIdentifier;
     this.keys = keys;
   }

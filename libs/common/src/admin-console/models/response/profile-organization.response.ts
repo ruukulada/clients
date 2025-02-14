@@ -1,6 +1,6 @@
-import { ProductType, ProviderType } from "../../../enums";
+import { ProductTierType } from "../../../billing/enums";
 import { BaseResponse } from "../../../models/response/base.response";
-import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
+import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 
 export class ProfileOrganizationResponse extends BaseResponse {
@@ -36,18 +36,25 @@ export class ProfileOrganizationResponse extends BaseResponse {
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   userId: string;
+  organizationUserId: string;
   providerId: string;
   providerName: string;
   providerType?: ProviderType;
   familySponsorshipFriendlyName: string;
   familySponsorshipAvailable: boolean;
-  planProductType: ProductType;
+  productTierType: ProductTierType;
   keyConnectorEnabled: boolean;
   keyConnectorUrl: string;
   familySponsorshipLastSyncDate?: Date;
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
   accessSecretsManager: boolean;
+  limitCollectionCreation: boolean;
+  limitCollectionDeletion: boolean;
+  limitItemDeletion: boolean;
+  allowAdminAccessToAllCollectionItems: boolean;
+  userIsManagedByOrganization: boolean;
+  useRiskInsights: boolean;
 
   constructor(response: any) {
     super(response);
@@ -83,27 +90,36 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.permissions = new PermissionsApi(this.getResponseProperty("permissions"));
     this.resetPasswordEnrolled = this.getResponseProperty("ResetPasswordEnrolled");
     this.userId = this.getResponseProperty("UserId");
+    this.organizationUserId = this.getResponseProperty("OrganizationUserId");
     this.providerId = this.getResponseProperty("ProviderId");
     this.providerName = this.getResponseProperty("ProviderName");
     this.providerType = this.getResponseProperty("ProviderType");
     this.familySponsorshipFriendlyName = this.getResponseProperty("FamilySponsorshipFriendlyName");
     this.familySponsorshipAvailable = this.getResponseProperty("FamilySponsorshipAvailable");
-    this.planProductType = this.getResponseProperty("PlanProductType");
+    this.productTierType = this.getResponseProperty("ProductTierType");
     this.keyConnectorEnabled = this.getResponseProperty("KeyConnectorEnabled") ?? false;
     this.keyConnectorUrl = this.getResponseProperty("KeyConnectorUrl");
     const familySponsorshipLastSyncDateString = this.getResponseProperty(
-      "FamilySponsorshipLastSyncDate"
+      "FamilySponsorshipLastSyncDate",
     );
     if (familySponsorshipLastSyncDateString) {
       this.familySponsorshipLastSyncDate = new Date(familySponsorshipLastSyncDateString);
     }
     const familySponsorshipValidUntilString = this.getResponseProperty(
-      "FamilySponsorshipValidUntil"
+      "FamilySponsorshipValidUntil",
     );
     if (familySponsorshipValidUntilString) {
       this.familySponsorshipValidUntil = new Date(familySponsorshipValidUntilString);
     }
     this.familySponsorshipToDelete = this.getResponseProperty("FamilySponsorshipToDelete");
     this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager");
+    this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
+    this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
+    this.limitItemDeletion = this.getResponseProperty("LimitItemDeletion");
+    this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
+      "AllowAdminAccessToAllCollectionItems",
+    );
+    this.userIsManagedByOrganization = this.getResponseProperty("UserIsManagedByOrganization");
+    this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
   }
 }

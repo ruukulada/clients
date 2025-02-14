@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import Domain from "../../../../platform/models/domain/domain-base";
 import { EncString } from "../../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
@@ -32,7 +34,7 @@ export class SendAccess extends Domain {
         expirationDate: null,
         creatorIdentifier: null,
       },
-      ["id", "expirationDate", "creatorIdentifier"]
+      ["id", "expirationDate", "creatorIdentifier"],
     );
 
     this.type = obj.type;
@@ -58,7 +60,7 @@ export class SendAccess extends Domain {
         name: null,
       },
       null,
-      key
+      key,
     );
 
     switch (this.type) {

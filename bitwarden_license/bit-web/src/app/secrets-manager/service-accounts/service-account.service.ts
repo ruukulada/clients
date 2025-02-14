@@ -1,12 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   ServiceAccountSecretsDetailsView,
@@ -29,14 +31,14 @@ export class ServiceAccountService {
   serviceAccount$ = this._serviceAccount.asObservable();
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
-    private encryptService: EncryptService
+    private encryptService: EncryptService,
   ) {}
 
   async getServiceAccounts(
     organizationId: string,
-    includeAccessToSecrets?: boolean
+    includeAccessToSecrets?: boolean,
   ): Promise<ServiceAccountSecretsDetailsView[]> {
     const params = new URLSearchParams();
     if (includeAccessToSecrets) {
@@ -48,7 +50,7 @@ export class ServiceAccountService {
       "/organizations/" + organizationId + "/service-accounts?" + params.toString(),
       null,
       true,
-      true
+      true,
     );
     const results = new ListResponse(r, ServiceAccountSecretsDetailsResponse);
     return await this.createServiceAccountSecretsDetailsViews(organizationId, results.data);
@@ -56,7 +58,7 @@ export class ServiceAccountService {
 
   async getByServiceAccountId(
     serviceAccountId: string,
-    organizationId: string
+    organizationId: string,
   ): Promise<ServiceAccountView> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const r = await this.apiService.send(
@@ -64,7 +66,7 @@ export class ServiceAccountService {
       "/service-accounts/" + serviceAccountId,
       null,
       true,
-      true
+      true,
     );
 
     return await this.createServiceAccountView(orgKey, new ServiceAccountResponse(r));
@@ -73,7 +75,7 @@ export class ServiceAccountService {
   async update(
     serviceAccountId: string,
     organizationId: string,
-    serviceAccountView: ServiceAccountView
+    serviceAccountView: ServiceAccountView,
   ) {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = await this.getServiceAccountRequest(orgKey, serviceAccountView);
@@ -82,10 +84,10 @@ export class ServiceAccountService {
       "/service-accounts/" + serviceAccountId,
       request,
       true,
-      true
+      true,
     );
     this._serviceAccount.next(
-      await this.createServiceAccountView(orgKey, new ServiceAccountResponse(r))
+      await this.createServiceAccountView(orgKey, new ServiceAccountResponse(r)),
     );
   }
 
@@ -97,10 +99,10 @@ export class ServiceAccountService {
       "/organizations/" + organizationId + "/service-accounts",
       request,
       true,
-      true
+      true,
     );
     this._serviceAccount.next(
-      await this.createServiceAccountView(orgKey, new ServiceAccountResponse(r))
+      await this.createServiceAccountView(orgKey, new ServiceAccountResponse(r)),
     );
   }
 
@@ -120,12 +122,12 @@ export class ServiceAccountService {
   }
 
   private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.cryptoService.getOrgKey(organizationId);
+    return await this.keyService.getOrgKey(organizationId);
   }
 
   private async getServiceAccountRequest(
     organizationKey: SymmetricCryptoKey,
-    serviceAccountView: ServiceAccountView
+    serviceAccountView: ServiceAccountView,
   ) {
     const request = new ServiceAccountRequest();
     request.name = await this.encryptService.encrypt(serviceAccountView.name, organizationKey);
@@ -134,7 +136,7 @@ export class ServiceAccountService {
 
   private async createServiceAccountView(
     organizationKey: SymmetricCryptoKey,
-    serviceAccountResponse: ServiceAccountResponse
+    serviceAccountResponse: ServiceAccountResponse,
   ): Promise<ServiceAccountView> {
     const serviceAccountView = new ServiceAccountView();
     serviceAccountView.id = serviceAccountResponse.id;
@@ -144,7 +146,7 @@ export class ServiceAccountService {
     serviceAccountView.name = serviceAccountResponse.name
       ? await this.encryptService.decryptToUtf8(
           new EncString(serviceAccountResponse.name),
-          organizationKey
+          organizationKey,
         )
       : null;
     return serviceAccountView;
@@ -152,7 +154,7 @@ export class ServiceAccountService {
 
   private async createServiceAccountSecretsDetailsView(
     organizationKey: SymmetricCryptoKey,
-    response: ServiceAccountSecretsDetailsResponse
+    response: ServiceAccountSecretsDetailsResponse,
   ): Promise<ServiceAccountSecretsDetailsView> {
     const view = new ServiceAccountSecretsDetailsView();
     view.id = response.id;
@@ -168,13 +170,13 @@ export class ServiceAccountService {
 
   private async createServiceAccountSecretsDetailsViews(
     organizationId: string,
-    serviceAccountResponses: ServiceAccountSecretsDetailsResponse[]
+    serviceAccountResponses: ServiceAccountSecretsDetailsResponse[],
   ): Promise<ServiceAccountSecretsDetailsView[]> {
     const orgKey = await this.getOrganizationKey(organizationId);
     return await Promise.all(
       serviceAccountResponses.map(async (s: ServiceAccountSecretsDetailsResponse) => {
         return await this.createServiceAccountSecretsDetailsView(orgKey, s);
-      })
+      }),
     );
   }
 }

@@ -4,7 +4,7 @@
       <div class="modal-body form" [formGroup]="form">
         <div class="box">
           <h1 class="box-header" id="settingsTitle">
-            {{ "settingsTitle" | i18n : currentUserEmail }}
+            {{ "settingsTitle" | i18n: currentUserEmail }}
           </h1>
           <div class="box-content box-content-padded">
             <h2>
@@ -30,26 +30,23 @@
               </button>
             </h2>
             <ng-container *ngIf="showSecurity">
-              <app-callout type="info" *ngIf="vaultTimeoutPolicyCallout | async as policy">
+              <bit-callout type="info" *ngIf="vaultTimeoutPolicyCallout | async as policy">
                 <span *ngIf="policy.timeout && policy.action">
                   {{
                     "vaultTimeoutPolicyWithActionInEffect"
-                      | i18n
-                        : policy.timeout.hours
-                        : policy.timeout.minutes
-                        : (policy.action | i18n)
+                      | i18n: policy.timeout.hours : policy.timeout.minutes : (policy.action | i18n)
                   }}
                 </span>
                 <span *ngIf="policy.timeout && !policy.action">
                   {{
                     "vaultTimeoutPolicyInEffect"
-                      | i18n : policy.timeout.hours : policy.timeout.minutes
+                      | i18n: policy.timeout.hours : policy.timeout.minutes
                   }}
                 </span>
                 <span *ngIf="!policy.timeout && policy.action">
-                  {{ "vaultTimeoutActionPolicyInEffect" | i18n : (policy.action | i18n) }}
+                  {{ "vaultTimeoutActionPolicyInEffect" | i18n: (policy.action | i18n) }}
                 </span>
-              </app-callout>
+              </bit-callout>
               <app-vault-timeout-input
                 [vaultTimeoutOptions]="vaultTimeoutOptions"
                 [formControl]="form.controls.vaultTimeout"
@@ -129,11 +126,14 @@
                     {{ biometricText | i18n }}
                   </label>
                 </div>
-                <small class="help-block" *ngIf="this.form.value.biometric">{{
+                <small class="help-block" *ngIf="this.form.value.biometric && !this.isLinux">{{
                   additionalBiometricSettingsText | i18n
                 }}</small>
               </div>
-              <div class="form-group" *ngIf="supportsBiometric && this.form.value.biometric">
+              <div
+                class="form-group"
+                *ngIf="supportsBiometric && this.form.value.biometric && !this.isLinux"
+              >
                 <div class="checkbox form-group-child">
                   <label for="autoPromptBiometrics">
                     <input
@@ -151,7 +151,8 @@
                 *ngIf="
                   supportsBiometric &&
                   this.form.value.biometric &&
-                  (userHasMasterPassword || (this.form.value.pin && userHasPinSet))
+                  (userHasMasterPassword || (this.form.value.pin && userHasPinSet)) &&
+                  !this.isLinux
                 "
               >
                 <div class="checkbox form-group-child">
@@ -168,20 +169,6 @@
                 <small class="help-block form-group-child" *ngIf="isWindows">{{
                   "recommendedForSecurity" | i18n
                 }}</small>
-              </div>
-              <div class="form-group">
-                <div class="checkbox">
-                  <label for="approveLoginRequests">
-                    <input
-                      id="approveLoginRequests"
-                      type="checkbox"
-                      formControlName="approveLoginRequests"
-                      (change)="updateApproveLoginRequests()"
-                    />
-                    {{ "approveLoginRequests" | i18n }}
-                  </label>
-                </div>
-                <small class="help-block">{{ "approveLoginRequestDesc" | i18n }}</small>
               </div>
             </ng-container>
           </div>
@@ -347,7 +334,7 @@
                 </div>
                 <small id="startToTrayHelp" class="help-block">{{ startToTrayDescText }}</small>
               </div>
-              <div class="form-group">
+              <div class="form-group" *ngIf="showOpenAtLoginOption">
                 <div class="checkbox">
                   <label for="openAtLogin">
                     <input
@@ -395,7 +382,7 @@
                   </label>
                 </div>
                 <small id="enableBrowserIntegrationHelp" class="help-block">{{
-                  "enableBrowserIntegrationDesc" | i18n
+                  "enableBrowserIntegrationDesc1" | i18n
                 }}</small>
               </div>
               <div class="form-group">
@@ -413,6 +400,57 @@
                 </div>
                 <small id="enableBrowserIntegrationFingerprintHelp" class="help-block">{{
                   "enableBrowserIntegrationFingerprintDesc" | i18n
+                }}</small>
+              </div>
+              <div class="form-group">
+                <div class="checkbox">
+                  <label for="enableHardwareAcceleration">
+                    <input
+                      id="enableHardwareAcceleration"
+                      type="checkbox"
+                      aria-describedby="enableHardwareAccelerationHelp"
+                      formControlName="enableHardwareAcceleration"
+                      (change)="saveHardwareAcceleration()"
+                    />
+                    {{ "enableHardwareAcceleration" | i18n }}
+                  </label>
+                </div>
+                <small id="enableHardwareAccelerationHelp" class="help-block">{{
+                  "enableHardwareAccelerationDesc" | i18n
+                }}</small>
+              </div>
+              <div class="form-group" *ngIf="showSshAgentOption">
+                <div class="checkbox">
+                  <label for="enableSshAgent">
+                    <input
+                      id="enableSshAgent"
+                      type="checkbox"
+                      aria-describedby="enableSshAgentHelp"
+                      formControlName="enableSshAgent"
+                      (change)="saveSshAgent()"
+                    />
+                    {{ "enableSshAgent" | i18n }}
+                  </label>
+                </div>
+                <small id="enableSshAgentHelp" class="help-block">{{
+                  "enableSshAgentDesc" | i18n
+                }}</small>
+              </div>
+              <div class="form-group" *ngIf="!isLinux">
+                <div class="checkbox">
+                  <label for="allowScreenshots">
+                    <input
+                      id="allowScreenshots"
+                      type="checkbox"
+                      aria-describedby="allowScreenshotsHelp"
+                      formControlName="allowScreenshots"
+                      (change)="savePreventScreenshots()"
+                    />
+                    {{ "allowScreenshots" | i18n }}
+                  </label>
+                </div>
+                <small id="allowScreenshotsHelp" class="help-block">{{
+                  "allowScreenshotsDesc" | i18n
                 }}</small>
               </div>
               <div class="form-group" *ngIf="showDuckDuckGoIntegrationOption">

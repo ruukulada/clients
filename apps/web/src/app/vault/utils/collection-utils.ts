@@ -1,19 +1,24 @@
-import { ServiceUtils } from "@bitwarden/common/misc/serviceUtils";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
+  CollectionAdminView,
   CollectionView,
   NestingDelimiter,
-} from "@bitwarden/common/vault/models/view/collection.view";
-
-import { CollectionAdminView } from "../../vault/core/views/collection-admin.view";
+} from "@bitwarden/admin-console/common";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 
 export function getNestedCollectionTree(
-  collections: CollectionAdminView[]
+  collections: CollectionAdminView[],
 ): TreeNode<CollectionAdminView>[];
 export function getNestedCollectionTree(collections: CollectionView[]): TreeNode<CollectionView>[];
 export function getNestedCollectionTree(
-  collections: (CollectionView | CollectionAdminView)[]
+  collections: (CollectionView | CollectionAdminView)[],
 ): TreeNode<CollectionView | CollectionAdminView>[] {
+  if (!collections) {
+    return [];
+  }
+
   // Collections need to be cloned because ServiceUtils.nestedTraverse actively
   // modifies the names of collections.
   // These changes risk affecting collections store in StateService.
@@ -35,7 +40,7 @@ export function getNestedCollectionTree(
 function cloneCollection(collection: CollectionView): CollectionView;
 function cloneCollection(collection: CollectionAdminView): CollectionAdminView;
 function cloneCollection(
-  collection: CollectionView | CollectionAdminView
+  collection: CollectionView | CollectionAdminView,
 ): CollectionView | CollectionAdminView {
   let cloned;
 
@@ -44,6 +49,7 @@ function cloneCollection(
     cloned.groups = [...collection.groups];
     cloned.users = [...collection.users];
     cloned.assigned = collection.assigned;
+    cloned.unmanaged = collection.unmanaged;
   } else {
     cloned = new CollectionView();
   }
@@ -54,5 +60,6 @@ function cloneCollection(
   cloned.name = collection.name;
   cloned.organizationId = collection.organizationId;
   cloned.readOnly = collection.readOnly;
+  cloned.manage = collection.manage;
   return cloned;
 }

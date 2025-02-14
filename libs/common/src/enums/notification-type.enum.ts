@@ -20,4 +20,8 @@ export enum NotificationType {
 
   AuthRequest = 15,
   AuthRequestResponse = 16,
+
+  SyncOrganizations = 17,
+  SyncOrganizationStatusChanged = 18,
+  SyncOrganizationCollectionSettingChanged = 19,
 }

@@ -20,9 +20,12 @@
         </button>
       </div>
       <div class="modal-body" *ngIf="cipher">
-        <app-callout type="info" *ngIf="allowOwnershipAssignment() && !allowPersonal">
+        <bit-callout type="info" *ngIf="allowOwnershipAssignment() && !allowPersonal">
           {{ "personalOwnershipPolicyInEffect" | i18n }}
-        </app-callout>
+        </bit-callout>
+        <bit-callout *ngIf="cardIsExpired" type="info" [title]="'cardExpiredTitle' | i18n">
+          {{ "cardExpiredMessage" | i18n }}
+        </bit-callout>
         <div class="row" *ngIf="!editMode && !viewOnly">
           <div class="col-6 form-group">
             <label for="type">{{ "whatTypeOfItem" | i18n }}</label>
@@ -32,6 +35,7 @@
               [(ngModel)]="cipher.type"
               class="form-control"
               [disabled]="cipher.isDeleted"
+              (change)="typeChange()"
               appAutofocus
             >
               <option *ngFor="let o of typeOptions" [ngValue]="o.value">{{ o.name }}</option>
@@ -191,6 +195,40 @@
               </button>
             </div>
           </div>
+          <ng-container *ngIf="cipher.login.hasFido2Credentials">
+            <div class="tw-flex tw-flex-row">
+              <div class="tw-mb-4 tw-w-1/2">
+                <label for="loginFido2credential">{{ "typePasskey" | i18n }}</label>
+                <div
+                  class="tw-flex tw-flex-row"
+                  tabindex="0"
+                  attr.aria-label="{{ 'typePasskey' | i18n }} {{
+                    fido2CredentialCreationDateValue
+                  }}"
+                >
+                  <input
+                    id="loginFido2credential"
+                    class="form-control"
+                    type="text"
+                    name="Login.Fido2credential"
+                    [value]="fido2CredentialCreationDateValue"
+                    appInputVerbatim
+                    disabled
+                    readonly
+                  />
+                  <button
+                    type="button"
+                    class="tw-items-center tw-border-none tw-bg-transparent tw-text-danger tw-ml-3"
+                    appA11yTitle="{{ 'removePasskey' | i18n }}"
+                    (click)="removePasskey()"
+                    *ngIf="!cipher.isDeleted && !viewOnly"
+                  >
+                    <i class="bwi bwi-lg bwi-minus-circle"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-container>
           <div class="tw-flex tw-flex-row">
             <div class="tw-mb-4 tw-w-1/2">
               <label for="loginTotp">{{ "authenticatorKeyTotp" | i18n }}</label>
@@ -248,7 +286,7 @@
                   href="#"
                   appStopClick
                   bitBadge
-                  badgeType="primary"
+                  variant="primary"
                   class="tw-ml-4"
                   (click)="upgradeOrganization()"
                   *ngIf="
@@ -288,7 +326,7 @@
                 >
                 <button
                   type="button"
-                  class="tw-items-center tw-border-none tw-bg-transparent tw-text-primary-500"
+                  class="tw-items-center tw-border-none tw-bg-transparent tw-text-primary-600"
                   appA11yTitle="{{ 'copyVerificationCode' | i18n }}"
                   (click)="copy(totpCode, 'verificationCodeTotp', 'TOTP')"
                 >
@@ -302,10 +340,10 @@
               role="group"
               class="row"
               *ngFor="let u of cipher.login.uris; let i = index; trackBy: trackByFunction"
-              attr.aria-label="{{ 'uriPosition' | i18n : i + 1 }}"
+              attr.aria-label="{{ 'uriPosition' | i18n: i + 1 }}"
             >
               <div class="col-7 form-group">
-                <label for="loginUri{{ i }}">{{ "uriPosition" | i18n : i + 1 }}</label>
+                <label for="loginUri{{ i }}">{{ "uriPosition" | i18n: i + 1 }}</label>
                 <div class="input-group">
                   <input
                     class="form-control"
@@ -347,8 +385,8 @@
                     class="ml-auto"
                     href="https://bitwarden.com/help/uri-match-detection/"
                     target="_blank"
-                    rel="noopener"
-                    appA11yTitle="{{ 'learnMore' | i18n }}"
+                    rel="noreferrer"
+                    appA11yTitle="{{ 'learnMoreAboutMatchDetection' | i18n }}"
                   >
                     <i class="bwi bwi-question-circle" aria-hidden="true"></i>
                   </a>
@@ -381,6 +419,7 @@
           </ng-container>
           <a
             href="#"
+            bitLink
             appStopClick
             (click)="addUri()"
             class="d-inline-block mb-3"
@@ -459,7 +498,7 @@
                       aria-hidden="true"
                       [ngClass]="{
                         'bwi-eye': !showCardNumber,
-                        'bwi-eye-slash': showCardNumber
+                        'bwi-eye-slash': showCardNumber,
                       }"
                     ></i>
                   </button>
@@ -813,6 +852,99 @@
             </div>
           </div>
         </ng-container>
+        <!-- Ssh Key -->
+        <ng-container *ngIf="cipher.type === cipherType.SshKey">
+          <div class="row">
+            <div class="col-12 form-group">
+              <label for="sshKeyPrivateKey">{{ "sshKeyPrivateKey" | i18n }}</label>
+              <div class="input-group">
+                <input
+                  id="sshKeyPrivateKey"
+                  class="form-control"
+                  type="{{ showPrivateKey ? 'text' : 'password' }}"
+                  name="SSHKey.PrivateKey"
+                  [(ngModel)]="cipher.sshKey.privateKey"
+                  appInputVerbatim
+                  disabled
+                  readonly
+                />
+                <div class="input-group-append" *ngIf="!cipher.isDeleted">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'toggleVisibility' | i18n }}"
+                    (click)="togglePrivateKey()"
+                    [disabled]="!cipher.viewPassword"
+                  >
+                    <i
+                      class="bwi bwi-lg"
+                      aria-hidden="true"
+                      [ngClass]="{ 'bwi-eye': !showPrivateKey, 'bwi-eye-slash': showPrivateKey }"
+                    ></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'copySSHPrivateKey' | i18n }}"
+                    (click)="copy(cipher.sshKey.privateKey, 'sshKeyPrivateKey', 'PrivateKey')"
+                  >
+                    <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 form-group">
+              <label for="sshKeyPublicKey">{{ "sshKeyPublicKey" | i18n }}</label>
+              <div class="input-group">
+                <input
+                  id="sshKeyPublicKey"
+                  class="form-control"
+                  type="text"
+                  name="SshKey.PublicKey"
+                  [(ngModel)]="cipher.sshKey.publicKey"
+                  appInputVerbatim
+                  disabled
+                  readonly
+                />
+                <div class="input-group-append" *ngIf="!cipher.isDeleted">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'copySshPublicKey' | i18n }}"
+                    (click)="copy(cipher.sshKey.publicKey, 'sshKeyPublicKey', 'PublicKey')"
+                  >
+                    <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 form-group">
+              <label for="sshKeyFingerprint">{{ "sshKeyFingerprint" | i18n }}</label>
+              <div class="input-group">
+                <input
+                  id="sshKeyFingerprint"
+                  class="form-control"
+                  type="text"
+                  name="SshKey.Fingerprint"
+                  [(ngModel)]="cipher.sshKey.keyFingerprint"
+                  appInputVerbatim
+                  disabled
+                  readonly
+                />
+                <div class="input-group-append" *ngIf="!cipher.isDeleted">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    appA11yTitle="{{ 'copySshFingerprint' | i18n }}"
+                    (click)="copy(cipher.sshKey.keyFingerprint, 'sshKeyFingerprint', 'Fingerprint')"
+                  >
+                    <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
         <div class="form-group">
           <label for="notes">{{ "notes" | i18n }}</label>
           <textarea
@@ -874,25 +1006,25 @@
           <div class="small text-muted mt-4">
             <div>
               <b class="font-weight-semibold">{{ "dateUpdated" | i18n }}:</b>
-              {{ cipher.revisionDate | date : "medium" }}
+              {{ cipher.revisionDate | date: "medium" }}
             </div>
             <div *ngIf="cipher.creationDate">
               <b class="font-weight-semibold">{{ "dateCreated" | i18n }}:</b>
-              {{ cipher.creationDate | date : "medium" }}
+              {{ cipher.creationDate | date: "medium" }}
             </div>
             <div *ngIf="showRevisionDate">
               <b class="font-weight-semibold">{{ "datePasswordUpdated" | i18n }}:</b>
-              {{ cipher.passwordRevisionDisplayDate | date : "medium" }}
+              {{ cipher.passwordRevisionDisplayDate | date: "medium" }}
             </div>
             <div *ngIf="hasPasswordHistory">
               <b class="font-weight-semibold">{{ "passwordHistory" | i18n }}:</b>
-              <a href="#" appStopClick (click)="viewHistory()" title="{{ 'view' | i18n }}">
+              <a href="#" bitLink appStopClick (click)="viewHistory()" title="{{ 'view' | i18n }}">
                 {{ cipher.passwordHistory.length }}
               </a>
             </div>
             <div class="ml-3" *ngIf="viewingPasswordHistory">
               <div *ngFor="let ph of cipher.passwordHistory">
-                {{ ph.lastUsedDate | date : "short" }} -
+                {{ ph.lastUsedDate | date: "short" }} -
                 <bit-color-password [password]="ph.password"></bit-color-password>
               </div>
             </div>
@@ -915,8 +1047,8 @@
             }}</label>
             <a
               target="_blank"
-              rel="noopener"
-              appA11yTitle="{{ 'learnMore' | i18n }}"
+              rel="noreferrer"
+              appA11yTitle="{{ 'learnMoreAboutMasterPasswordReprompt' | i18n }}"
               href="https://bitwarden.com/help/managing-items/#protect-individual-items"
             >
               <i class="bwi bwi-question-circle" aria-hidden="true"></i>
@@ -957,7 +1089,7 @@
             (click)="delete()"
             class="btn btn-outline-danger"
             appA11yTitle="{{ (cipher.isDeleted ? 'permanentlyDelete' : 'delete') | i18n }}"
-            *ngIf="editMode && !cloneMode && !(!cipher.edit && editMode)"
+            *ngIf="editMode && !cloneMode && (canDeleteCipher$ | async)"
             [disabled]="$any(deleteBtn).loading"
             [appApiAction]="deletePromise"
           >

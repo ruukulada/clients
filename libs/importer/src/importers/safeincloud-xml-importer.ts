@@ -1,5 +1,6 @@
-import { FieldType, SecureNoteType } from "@bitwarden/common/enums";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -82,7 +83,7 @@ export class SafeInCloudXmlImporter extends BaseImporter implements Importer {
           } else if (fieldType === "notes") {
             cipher.notes += text + "\n";
           } else if (fieldType === "weblogin" || fieldType === "website") {
-            cipher.login.uris = this.makeUriArray(text);
+            cipher.login.uris.push(...this.makeUriArray(text));
           } else {
             this.processKvp(cipher, name, text);
           }

@@ -1,8 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as inquirer from "inquirer";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  EnvironmentService,
+  Region,
+} from "@bitwarden/common/platform/abstractions/environment.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { Response } from "../models/response";
@@ -10,11 +17,12 @@ import { MessageResponse } from "../models/response/message.response";
 
 export class ConvertToKeyConnectorCommand {
   constructor(
+    private readonly userId: UserId,
     private keyConnectorService: KeyConnectorService,
     private environmentService: EnvironmentService,
     private syncService: SyncService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private logout: () => Promise<void>
+    private logout: () => Promise<void>,
   ) {}
 
   async run(): Promise<Response> {
@@ -26,8 +34,8 @@ export class ConvertToKeyConnectorCommand {
         new MessageResponse(
           "An organization you are a member of is using Key Connector. " +
             "In order to access the vault, you must opt-in to Key Connector now via the web vault. You have been logged out.",
-          null
-        )
+          null,
+        ),
       );
     }
 
@@ -64,12 +72,13 @@ export class ConvertToKeyConnectorCommand {
       }
 
       await this.keyConnectorService.removeConvertAccountRequired();
-      await this.keyConnectorService.setUsesKeyConnector(true);
+      await this.keyConnectorService.setUsesKeyConnector(true, this.userId);
 
       // Update environment URL - required for api key login
-      const urls = this.environmentService.getUrls();
+      const env = await firstValueFrom(this.environmentService.environment$);
+      const urls = env.getUrls();
       urls.keyConnector = organization.keyConnectorUrl;
-      await this.environmentService.setUrls(urls);
+      await this.environmentService.setEnvironment(Region.SelfHosted, urls);
 
       return Response.success();
     } else if (answer.convert === "leave") {

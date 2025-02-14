@@ -13,6 +13,8 @@ console.log("Renderer process config");
 const envConfig = configurator.load(NODE_ENV);
 configurator.log(envConfig);
 
+const ENV = process.env.ENV == null ? "development" : process.env.ENV;
+
 const common = {
   module: {
     rules: [
@@ -22,8 +24,7 @@ const common = {
           {
             loader: "babel-loader",
             options: {
-              configFile: false,
-              plugins: ["@angular/compiler-cli/linker/babel"],
+              configFile: "../../babel.config.json",
             },
           },
         ],
@@ -41,7 +42,7 @@ const common = {
         type: "asset/resource",
       },
       {
-        test: /\.wasm$/,
+        test: /argon2(-simd)?\.wasm$/,
         loader: "base64-loader",
         type: "javascript/auto",
       },
@@ -52,6 +53,10 @@ const common = {
     extensions: [".tsx", ".ts", ".js"],
     symlinks: false,
     modules: [path.resolve("../../node_modules")],
+    fallback: {
+      path: require.resolve("path-browserify"),
+      fs: false,
+    },
   },
   output: {
     filename: "[name].js",
@@ -62,7 +67,7 @@ const common = {
 const renderer = {
   mode: NODE_ENV,
   devtool: "source-map",
-  target: "electron-renderer",
+  target: "web",
   node: {
     __dirname: false,
   },
@@ -138,11 +143,15 @@ const renderer = {
         parser: { system: true },
       },
       {
-        test: /\.wasm$/,
+        test: /argon2(-simd)?\.wasm$/,
         loader: "base64-loader",
         type: "javascript/auto",
       },
     ],
+    noParse: /argon2(-simd)?\.wasm$/,
+  },
+  experiments: {
+    asyncWebAssembly: true,
   },
   plugins: [
     new AngularWebpackPlugin({
@@ -153,7 +162,7 @@ const renderer = {
     // ref: https://github.com/angular/angular/issues/20357
     new webpack.ContextReplacementPlugin(
       /\@angular(\\|\/)core(\\|\/)fesm5/,
-      path.resolve(__dirname, "./src")
+      path.resolve(__dirname, "./src"),
     ),
     new HtmlWebpackPlugin({
       template: "./src/index.html",
@@ -168,8 +177,10 @@ const renderer = {
       chunkFilename: "[id].[contenthash].css",
     }),
     new webpack.EnvironmentPlugin({
+      ENV: ENV,
       FLAGS: envConfig.flags,
       DEV_FLAGS: NODE_ENV === "development" ? envConfig.devFlags : {},
+      ADDITIONAL_REGIONS: envConfig.additionalRegions ?? [],
     }),
   ],
 };

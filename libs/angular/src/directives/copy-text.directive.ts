@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, ElementRef, HostListener, Input } from "@angular/core";
 
 import { ClientType } from "@bitwarden/common/enums";
@@ -7,7 +9,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
   selector: "[appCopyText]",
 })
 export class CopyTextDirective {
-  constructor(private el: ElementRef, private platformUtilsService: PlatformUtilsService) {}
+  constructor(
+    private el: ElementRef,
+    private platformUtilsService: PlatformUtilsService,
+  ) {}
 
   @Input("appCopyText") copyText: string;
 

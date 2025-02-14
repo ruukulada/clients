@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import {
@@ -52,7 +54,10 @@ export class ExpirationOptionsComponent
     expireDateTime: new FormControl("", [Validators.required, this.expiresInFutureValidator()]),
   });
 
-  constructor(private datePipe: DatePipe, private i18nService: I18nService) {}
+  constructor(
+    private datePipe: DatePipe,
+    private i18nService: I18nService,
+  ) {}
 
   async ngOnInit() {
     this.form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {

@@ -1,5 +1,7 @@
-import { FieldType, LinkedIdType } from "../../../enums";
-import { FieldApi } from "../../../models/api/field.api";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { FieldType, LinkedIdType } from "../../enums";
+import { FieldApi } from "../api/field.api";
 
 export class FieldData {
   type: FieldType;

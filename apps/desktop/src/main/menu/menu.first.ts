@@ -16,7 +16,7 @@ export class FirstMenu {
     protected readonly _window: BrowserWindow,
     protected readonly _accounts: { [userId: string]: MenuAccount },
     protected readonly _isLocked: boolean,
-    protected readonly _isLockable: boolean
+    protected readonly _isLockable: boolean,
   ) {}
 
   protected get hasAccounts(): boolean {
@@ -25,6 +25,10 @@ export class FirstMenu {
 
   protected get hasLockableAccounts(): boolean {
     return this._accounts != null && Object.values(this._accounts).some((a) => a.isLockable);
+  }
+
+  protected get hasAuthenticatedAccounts(): boolean {
+    return this._accounts != null && Object.values(this._accounts).some((a) => a.isAuthenticated);
   }
 
   protected get checkForUpdates(): MenuItemConstructorOptions {
@@ -140,6 +144,8 @@ export class FirstMenu {
 
   protected async checkForUpdate(menuItem: MenuItem) {
     menuItem.enabled = false;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this._updater.checkForUpdate(true);
     menuItem.enabled = true;
   }

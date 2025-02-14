@@ -1,8 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 import { SecretService } from "../../secrets/secret.service";
 
@@ -20,7 +23,8 @@ export class SecretRestoreDialogComponent {
     private secretService: SecretService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    @Inject(DIALOG_DATA) public data: SecretRestoreOperation
+    @Inject(DIALOG_DATA) public data: SecretRestoreOperation,
+    private toastService: ToastService,
   ) {}
 
   get title() {
@@ -35,6 +39,10 @@ export class SecretRestoreDialogComponent {
         ? "secretRestoredSuccessToast"
         : "secretsRestoredSuccessToast";
     this.dialogRef.close(this.data.secretIds);
-    this.platformUtilsService.showToast("success", null, this.i18nService.t(message));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(message),
+    });
   };
 }

@@ -27,7 +27,7 @@
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
-        <span class="sr-only">{{ "loading" | i18n }}</span>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
       </div>
       <div class="modal-body" *ngIf="!loading">
         <ng-container *ngIf="!editMode">
@@ -43,14 +43,14 @@
               required
               appAutoFocus
             />
-            <small class="text-muted">{{ "inviteMultipleEmailDesc" | i18n : "20" }}</small>
+            <small class="text-muted">{{ "inviteMultipleEmailDesc" | i18n: "20" }}</small>
           </div>
         </ng-container>
         <h3>
           {{ "userType" | i18n }}
           <a
             target="_blank"
-            rel="noopener"
+            rel="noreferrer"
             appA11yTitle="{{ 'learnMore' | i18n }}"
             href="https://bitwarden.com/help/provider-users/"
           >

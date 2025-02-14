@@ -15,7 +15,7 @@
     "message": "Видове"
   },
   "typeLogin": {
-    "message": "Запис"
+    "message": "Вход"
   },
   "typeCard": {
     "message": "Карта"
@@ -25,6 +25,9 @@
   },
   "typeSecureNote": {
     "message": "Защитена бележка"
+  },
+  "typeSshKey": {
+    "message": "SSH ключ"
   },
   "folders": {
     "message": "Папки"
@@ -59,6 +62,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "Добре дошли отново"
   },
   "moveToOrgDesc": {
     "message": "Изберете организацията, в която искате да преместите записа. Преместването прехвърля собствеността му към новата организация. След това няма вече директно да го притежавате."
@@ -174,6 +180,63 @@
   "address": {
     "message": "Адрес"
   },
+  "sshPrivateKey": {
+    "message": "Частен ключ"
+  },
+  "sshPublicKey": {
+    "message": "Публичен ключ"
+  },
+  "sshFingerprint": {
+    "message": "Отпечатък"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Тип на ключа"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048 бита"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072 бита"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096 бита"
+  },
+  "sshKeyGenerated": {
+    "message": "Генериран е нов SSH ключ"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Въведената парола е неправилна."
+  },
+  "importSshKey": {
+    "message": "Внасяне"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потвърждаване на паролата"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Въведете паролата за SSH-ключа."
+  },
+  "enterSshKeyPassword": {
+    "message": "Въведете паролата"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Отключете трезора си, за да одобрите заявката за SSH ключ."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "Времето на заявката за SSH ключ е изтекло."
+  },
+  "enableSshAgent": {
+    "message": "Включване на SSH-агента"
+  },
+  "enableSshAgentDesc": {
+    "message": "Включете SSH-агента, за да подписвате заявки за SSH направо от трезора си в Битуорден."
+  },
+  "enableSshAgentHelp": {
+    "message": "SSH-агентът е услуга, предназначена за разработчици, чрез която можете да подписвате заявки за SSH направо от трезора си в Битуорден."
+  },
   "premiumRequired": {
     "message": "Изисква се платен абонамент"
   },
@@ -185,6 +248,20 @@
   },
   "error": {
     "message": "Грешка"
+  },
+  "decryptionError": {
+    "message": "Грешка при дешифриране"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Свържете се с поддръжката",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "за да избегнете загубата на данни.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "януари"
@@ -258,6 +335,9 @@
   },
   "generatePassword": {
     "message": "Нова парола"
+  },
+  "generatePassphrase": {
+    "message": "Генериране на парола-фраза"
   },
   "type": {
     "message": "Вид"
@@ -394,6 +474,16 @@
   "copyPassword": {
     "message": "Копиране на паролата"
   },
+  "regenerateSshKey": {
+    "message": "Генериране на нов SSH ключ"
+  },
+  "copySshPrivateKey": {
+    "message": "Копиране на частния SSH ключ"
+  },
+  "copyPassphrase": {
+    "message": "Копиране на паролата-фраза",
+    "description": "Copy passphrase to clipboard"
+  },
   "copyUri": {
     "message": "Копиране на адреса"
   },
@@ -403,17 +493,59 @@
   "length": {
     "message": "Дължина"
   },
+  "passwordMinLength": {
+    "message": "Минимална дължина на паролата"
+  },
   "uppercase": {
-    "message": "Главни букви (A-Z)"
+    "message": "Главни букви (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Малки букви (a-z)"
+    "message": "Малки букви (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Числа (0-9)"
+    "message": "Числа (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
     "message": "Специални знаци (!@#$%^&*)"
+  },
+  "include": {
+    "message": "Включване",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Включване на главни букви",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Включване на малки букви",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Включване на цифри",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Включване на специални знаци",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Брой думи"
@@ -439,7 +571,16 @@
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "Без нееднозначни знаци"
+    "message": "Без нееднозначни знаци",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Без нееднозначни знаци",
+    "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на генератора.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
     "message": "Търсене в колекцията"
@@ -475,8 +616,8 @@
   "maxFileSize": {
     "message": "Големината на файла е най-много 500 MB."
   },
-  "updateKey": {
-    "message": "Трябва да обновите шифриращия си ключ, за да използвате тази възможност."
+  "encryptionKeyMigrationRequired": {
+    "message": "Необходима е промяна на шифриращия ключ. Впишете се в трезора си по уеб, за да обновите своя шифриращ ключ."
   },
   "editedFolder": {
     "message": "Редактирана папка"
@@ -496,8 +637,29 @@
   "createAccount": {
     "message": "Създаване на абонамент"
   },
+  "newToBitwarden": {
+    "message": "За пръв път ли ползвате Битуорден?"
+  },
+  "setAStrongPassword": {
+    "message": "Използвайте сложна парола"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "Завършете регистрацията си като зададете парола"
+  },
   "logIn": {
     "message": "Вписване"
+  },
+  "logInToBitwarden": {
+    "message": "Впишете се в Битуорден"
+  },
+  "logInWithPasskey": {
+    "message": "Вписване със секретен ключ"
+  },
+  "loginWithDevice": {
+    "message": "Вписване с устройство"
+  },
+  "useSingleSignOn": {
+    "message": "Използване на еднократна идентификация"
   },
   "submit": {
     "message": "Подаване"
@@ -517,8 +679,60 @@
   "masterPassHint": {
     "message": "Подсказване за главната парола (по избор)"
   },
+  "masterPassHintText": {
+    "message": "Ако забравите паролата си, подсказката може да бъде изпратена на е-пощата Ви. $CURRENT$/$MAXIMUM$ максимален брой знаци.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "masterPassword": {
+    "message": "Главна парола"
+  },
+  "masterPassImportant": {
+    "message": "Главната парола не може да бъде възстановена, ако я забравите!"
+  },
+  "confirmMasterPassword": {
+    "message": "Потвърждаване на главната парола"
+  },
+  "masterPassHintLabel": {
+    "message": "Подсказка за главната парола"
+  },
+  "joinOrganization": {
+    "message": "Присъединяване към организацията"
+  },
+  "joinOrganizationName": {
+    "message": "Присъединяване към $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Завършете присъединяването си към тази организация като зададете главна парола."
+  },
   "settings": {
     "message": "Настройки"
+  },
+  "accountEmail": {
+    "message": "Е-поща на регистрацията"
+  },
+  "requestHint": {
+    "message": "Заявка за подсказка"
+  },
+  "requestPasswordHint": {
+    "message": "Заявка за подсказка за паролата"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
   },
   "passwordHint": {
     "message": "Подсказка за паролата"
@@ -542,7 +756,7 @@
     "message": "Повторното въвеждане на главната парола е задължително."
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least $VALUE$ characters long.",
+    "message": "Главната парола трябва да е дълга поне $VALUE$ знака.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -551,11 +765,23 @@
       }
     }
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Вписахте се успешно"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Може да затворите този прозорец"
+  },
   "masterPassDoesntMatch": {
     "message": "Главната парола и потвърждението ѝ не съвпадат."
   },
   "newAccountCreated": {
     "message": "Абонаментът ви бе създаден. Вече можете да се впишете."
+  },
+  "newAccountCreated2": {
+    "message": "Новата Ви регистрация беше създадена!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Вече сте вписан(а)!"
   },
   "masterPassSent": {
     "message": "Изпратили сме ви е-писмо с подсказка за главната ви парола."
@@ -586,6 +812,9 @@
   },
   "verificationCodeRequired": {
     "message": "Кодът за потвърждение е задължителен."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "Удостоверяването беше отменено или отне твърде много време. Моля, опитайте отново."
   },
   "invalidVerificationCode": {
     "message": "Грешен код за потвърждаване"
@@ -638,23 +867,32 @@
   "authenticatorAppTitle": {
     "message": "Приложение за удостоверяване"
   },
-  "authenticatorAppDesc": {
-    "message": "Използвайте приложение за удостоверяване (като Authy или Google Authenticator) за генерирането на временни кодове за потвърждение.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Въведете код създаден чрез приложение за удостоверяване, като например това на Битуорден.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "Устройство YubiKey OTP"
+  "yubiKeyTitleV2": {
+    "message": "Ключ за сигурност YubiKey OTP"
   },
   "yubiKeyDesc": {
     "message": "Използвайте устройство на YubiKey, за да влезете в абонамента си. Поддържат се моделите YubiKey 4, 4 Nano, 4C и NEO."
   },
-  "duoDesc": {
-    "message": "Удостоверяване чрез Duo Security, с ползване на приложението Duo Mobile, SMS, телефонен разговор или устройство U2F.",
+  "duoDescV2": {
+    "message": "Въведете код създаден чрез Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
     "message": "Удостоверяване чрез Duo Security за организацията ви, с ползване на приложението Duo Mobile, SMS, телефонен разговор или устройство U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+  },
+  "verifyIdentity": {
+    "message": "Потвърдете самоличността си"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си."
+  },
+  "continueLoggingIn": {
+    "message": "Продължаване с вписването"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -665,8 +903,8 @@
   "emailTitle": {
     "message": "Електронна поща"
   },
-  "emailDesc": {
-    "message": "Кодовете за потвърждение ще ви бъдат пратени по е-поща."
+  "emailDescV2": {
+    "message": "Въведете кода изпратен на е-пощата Ви."
   },
   "loginUnavailable": {
     "message": "Записът липсва"
@@ -686,6 +924,15 @@
   "selfHostedEnvironmentFooter": {
     "message": "Укажете базовия адрес за собствената ви инсталирана среда на Bitwarden."
   },
+  "selfHostedBaseUrlHint": {
+    "message": "Посочете базовия адрес на Вашата собствена инсталация на Битуорден. Пример: https://bitwarden.company.com"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "За по-детайлна настройка, може да укажете основния адрес на всяка услуга поотделно."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "Трябва да добавите или основния адрес на сървъра, или поне една специална среда."
+  },
   "customEnvironment": {
     "message": "Специална среда"
   },
@@ -694,6 +941,16 @@
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
+  },
+  "authenticationTimeout": {
+    "message": "Време на давност за удостоверяването"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сесията за удостоверяване е изтекла. Моля, започнете отначало процеса по вписване."
+  },
+  "selfHostBaseUrl": {
+    "message": "Адрес на собствения сървър",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "Адрес на ППИ-сървъра"
@@ -734,8 +991,23 @@
   "loggedOut": {
     "message": "Бяхте отписани"
   },
+  "loggedOutDesc": {
+    "message": "Бяхте отписан(а) от регистрацията си."
+  },
   "loginExpired": {
     "message": "Сесията ви изтече."
+  },
+  "restartRegistration": {
+    "message": "Рестартиране на регистрацията"
+  },
+  "expiredLink": {
+    "message": "Връзка с изтекла давност"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Рестартирайте регистрацията или опитайте да се впишете."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Може вече да имате регистрация"
   },
   "logOutConfirmation": {
     "message": "Сигурни ли сте, че искате да се отпишете?"
@@ -791,8 +1063,11 @@
   "changeMasterPass": {
     "message": "Промяна на главната парола"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Главната парола на трезор може да се промени чрез сайта bitwarden.com. Искате ли да го посетите?"
+  "continueToWebApp": {
+    "message": "Продължаване към уеб приложението?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Може да промените главната си парола в уеб приложението на Битуорден."
   },
   "fingerprintPhrase": {
     "message": "Уникална фраза",
@@ -820,6 +1095,18 @@
   "yourVaultIsLocked": {
     "message": "Трезорът е заключен — въведете главната си парола, за да продължите."
   },
+  "yourAccountIsLocked": {
+    "message": "Регистрацията Ви е заключена"
+  },
+  "or": {
+    "message": "или"
+  },
+  "unlockWithBiometrics": {
+    "message": "Отключване с биометрични данни"
+  },
+  "unlockWithMasterPassword": {
+    "message": "Отключване с главната парола"
+  },
   "unlock": {
     "message": "Отключване"
   },
@@ -846,6 +1133,9 @@
     "message": "Двустепенно удостоверяване"
   },
   "vaultTimeout": {
+    "message": "Време за достъп"
+  },
+  "vaultTimeout1": {
     "message": "Време за достъп"
   },
   "vaultTimeoutDesc": {
@@ -1052,6 +1342,9 @@
     "message": "Копиране на но̀мера",
     "description": "Copy credit card number"
   },
+  "copyEmail": {
+    "message": "Копиране на е-пощата"
+  },
   "copySecurityCode": {
     "message": "Копиране на кода за сигурност",
     "description": "Copy credit card security code (CVV)"
@@ -1078,7 +1371,7 @@
     "message": "1 ГБ пространство за файлове, които се шифроват."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
   },
   "premiumSignUpReports": {
     "message": "Проверки в списъците с публикувани пароли, проверка на регистрациите и доклади за пробивите в сигурността, което спомага трезорът ви да е допълнително защитен."
@@ -1095,8 +1388,8 @@
   "premiumPurchase": {
     "message": "Покупка на платен абонамент"
   },
-  "premiumPurchaseAlert": {
-    "message": "Може да платите абонамента си през сайта bitwarden.com. Искате ли да го посетите сега?"
+  "premiumPurchaseAlertV2": {
+    "message": "Можете да закупите платената версия от настройките на регистрацията си, в приложението по уеб на Битуорден."
   },
   "premiumCurrentMember": {
     "message": "Честито, ползвате платен абонамент!"
@@ -1119,12 +1412,30 @@
   "passwordHistory": {
     "message": "Хронология на паролата"
   },
+  "generatorHistory": {
+    "message": "История на генерирането"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Изчистване на историята на генериране"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ако продължите, всички записи в историята на генериране ще бъдат изтрити завинаги. Наистина ли искате това?"
+  },
   "clear": {
     "message": "Изчистване",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Няма пароли за показване."
+  },
+  "clearHistory": {
+    "message": "Изчистване на историята"
+  },
+  "nothingToShow": {
+    "message": "Няма нищо за показване"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Скоро не сте генерирали нищо"
   },
   "undo": {
     "message": "Отмяна"
@@ -1199,6 +1510,15 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Копирането е успешно"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "Грешка при опресняването на идентификатора за достъп"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "Няма намерен идентификатор за опресняване или ключове за ППИ. Опитайте да се отпишете и да се впишете отново."
   },
   "help": {
     "message": "Помощ"
@@ -1287,11 +1607,41 @@
     "message": "Обновена парола",
     "description": "ex. Date this password was updated"
   },
+  "exportFrom": {
+    "message": "Изнасяне от"
+  },
   "exportVault": {
     "message": "Изнасяне на трезора"
   },
   "fileFormat": {
     "message": "Формат на файла"
+  },
+  "fileEncryptedExportWarningDesc": {
+    "message": "Изнесеният файл ще бъде защитен с парола, която ще бъде необходима за дешифриране на файла."
+  },
+  "filePassword": {
+    "message": "Парола на файла"
+  },
+  "exportPasswordDescription": {
+    "message": "Парола ще се използва при изнасянето и при внасянето на този файл"
+  },
+  "accountRestrictedOptionDescription": {
+    "message": "Използвайте ключа си за шифриране, който се получава чрез комбиниране на потребителското име на регистрацията Ви и главната парола. С него изнасянето ще се шифрира и внасянето ще бъда възможно само в текущата регистрация в Битуорден."
+  },
+  "passwordProtected": {
+    "message": "Защита с парола"
+  },
+  "passwordProtectedOptionDescription": {
+    "message": "Задайте парола за файла, за да шифровате изнесените данни. Ще можете да внесете данните във всяка регистрация в Битуорден използвайки паролата за дешифриране."
+  },
+  "exportTypeHeading": {
+    "message": "Вид изнасяне"
+  },
+  "accountRestricted": {
+    "message": "Регистрацията е ограничена"
+  },
+  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+    "message": "Дънните в полетата „Парола на файла“ и „Потвърждаване на паролата на файла“ не съвпадат."
   },
   "hCaptchaUrl": {
     "message": "Адрес за hCaptcha",
@@ -1389,11 +1739,17 @@
   "invalidPin": {
     "message": "Неправилен ПИН."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Направили сте твърде много опити с неправилен ПИН код. Отписване…"
+  },
   "unlockWithWindowsHello": {
     "message": "Отключване с Windows Hello"
   },
   "additionalWindowsHelloSettings": {
     "message": "Допълнителни настройки на Windows Hello"
+  },
+  "unlockWithPolkit": {
+    "message": "Отключване чрез системно удостоверяване"
   },
   "windowsHelloConsentMessage": {
     "message": "Потвърждаване за Битуорден."
@@ -1410,6 +1766,9 @@
   "autoPromptWindowsHello": {
     "message": "Питане за Windows Hello при пускане"
   },
+  "autoPromptPolkit": {
+    "message": "Питане за системно удостоверяване при стартиране"
+  },
   "autoPromptTouchId": {
     "message": "Питане за Touch ID при пускане"
   },
@@ -1419,7 +1778,7 @@
   "recommendedForSecurity": {
     "message": "Препоръчително от гледна точка на сигурността."
   },
-  "lockWithMasterPassOnRestart": {
+  "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"
   },
   "deleteAccount": {
@@ -1430,6 +1789,12 @@
   },
   "deleteAccountWarning": {
     "message": "Изтриването на регистрацията е окончателно и необратимо."
+  },
+  "cannotDeleteAccount": {
+    "message": "Регистрацията не може да бъде изтрита"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Това действие не може да бъде завършено, тъй като регистрацията Ви се управлява от организация. Свържете се с администратора на организацията си за повече подробности."
   },
   "accountDeleted": {
     "message": "Регистрацията е изтрита"
@@ -1497,7 +1862,7 @@
   },
   "lock": {
     "message": "Заключване",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Кошче",
@@ -1533,8 +1898,26 @@
   "setMasterPassword": {
     "message": "Задаване на главна парола"
   },
-  "ssoCompleteRegistration": {
-    "message": "За да завършите настройките за еднократна идентификация, трябва да зададете главна парола за трезора."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Правата Ви в организацията бяха променени, необходимо е да зададете главна парола.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Организацията Ви изисква да зададете главна парола.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "cardMetrics": {
+    "message": "от $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "verificationRequired": {
+    "message": "Изисква се потвърждение",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Текуща главна парола"
@@ -1587,6 +1970,21 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Паролата ви не отговаря на политиките."
   },
+  "receiveMarketingEmailsV2": {
+    "message": "Получавайте съвети, обявления и предложения за участие в проучвания от Битуорден в пощенската си кутия."
+  },
+  "unsubscribe": {
+    "message": "Отписване"
+  },
+  "atAnyTime": {
+    "message": "по всяко време."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "Ако продължите, Вие се съгласявате с"
+  },
+  "and": {
+    "message": "и"
+  },
   "acceptPolicies": {
     "message": "Чрез тази отметка вие се съгласявате със следното:"
   },
@@ -1596,8 +1994,8 @@
   "enableBrowserIntegration": {
     "message": "Включване на интеграцията с браузър"
   },
-  "enableBrowserIntegrationDesc": {
-    "message": "За потвърждаване с биометрични данни е необходима интеграция с браузъра."
+  "enableBrowserIntegrationDesc1": {
+    "message": "Използва се за разрешаване на отключването чрез биометрични данни в браузъри различни от Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Разрешаване на интеграцията на DuckDuckGo в браузъра"
@@ -1607,6 +2005,12 @@
   },
   "browserIntegrationUnsupportedTitle": {
     "message": "Интеграцията с браузър не се поддържа"
+  },
+  "browserIntegrationErrorTitle": {
+    "message": "Грешка при включването на интеграцията с браузъра"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "Възникна грешка при включването на интеграцията с браузъра."
   },
   "browserIntegrationMasOnlyDesc": {
     "message": "За жалост в момента интеграцията с браузър не се поддържа във версията за магазина на Mac."
@@ -1622,6 +2026,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Допълнително ниво на сигурност, чрез изискване на потвърждаване на биометричните данни при създаване на връзка между самостоятелното приложение и браузъра. При включваното му потребителят трябва да потвърждава всяко установяване на връзка."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Използване на хардуерно ускорение"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Тази настройка по подразбиране е включена. Изключете я, само ако изпитвате графични проблеми. Нужно е рестартиране."
   },
   "approve": {
     "message": "Одобряване"
@@ -1653,6 +2063,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Потвърждаването с биометрични данни в браузъра изисква включването включването им в настройките за самостоятелното приложение."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Автоматичното настройване не е налично"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Поради начина на инсталиране, поддръжката на биометрични данни не може да бъде включена автоматично. Искате ли да отворите документацията, за да видите как да го направите ръчно?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Заради някоя политика за голяма организация не може да запазвате елементи в собствения си трезор. Променете собствеността да е на организация и изберете от наличните колекции."
   },
@@ -1661,6 +2077,9 @@
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Политика от някоя организация влияе на вариантите за собственост."
+  },
+  "personalOwnershipPolicyInEffectImports": {
+    "message": "Политика на организацията забранява да внасяте елементи в личния си трезор."
   },
   "allSends": {
     "message": "Всички изпращания",
@@ -1834,6 +2253,9 @@
   "emailVerificationRequired": {
     "message": "Изисква се потвърждение на е-пощата"
   },
+  "emailVerifiedV2": {
+    "message": "Е-пощата е потвърдена"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Трябва да потвърдите е-пощата си, за да можете да използвате тази функционалност."
   },
@@ -1858,14 +2280,53 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Вашата главна парола не отговаря на една или повече политики на организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Вашата организация е деактивирала шифроването чрез доверени устройства. Задайте главна парола, за да получите достъп до трезора си."
+  },
+  "tryAgain": {
+    "message": "Нов опит"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Това действие изисква потвърждаване. Задайте ПИН, за да продължите."
+  },
+  "setPin": {
+    "message": "Задаване на ПИН"
+  },
+  "verifyWithBiometrics": {
+    "message": "Потвърждаване с биометрични данни"
+  },
+  "awaitingConfirmation": {
+    "message": "Изчаква се потвърждение"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Действието с биометрични данни не може да бъде завършено."
+  },
+  "needADifferentMethod": {
+    "message": "Искате ли да опитате друг метод?"
+  },
+  "useMasterPassword": {
+    "message": "Използване на главната парола"
+  },
+  "usePin": {
+    "message": "Използване на ПИН"
+  },
+  "useBiometrics": {
+    "message": "Използване на биометрични данни"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Въведете кода за потвърждаване, който беше изпратен на Вашата е-поща."
+  },
+  "resendCode": {
+    "message": "Повторно изпращане на кода"
+  },
   "hours": {
     "message": "Часа"
   },
   "minutes": {
     "message": "Минути"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Настройките на организацията Ви влияят върху времето за достъп до трезора Ви. Максималното разрешено време за достъп е $HOURS$ час(а) и $MINUTES$ минути",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "Максимум $HOURS$ час(а) и $MINUTES$ минута/и.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -1905,6 +2366,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
+  },
+  "inviteAccepted": {
+    "message": "Поканата е приета"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматично включване"
@@ -1975,6 +2439,9 @@
   "switchAccount": {
     "message": "Превключване на потребителя"
   },
+  "alreadyHaveAccount": {
+    "message": "Вече имате регистрация?"
+  },
   "options": {
     "message": "Настройки"
   },
@@ -1984,8 +2451,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Изнасяне на личния трезор"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Ще бъдат изнесени само записите от личния трезор свързан с $EMAIL$. Записите в трезора на организацията няма да бъдат включени.",
+  "exportingIndividualVaultDescription": {
+    "message": "Ще бъдат изнесени само отделните записи в трезора, които са свързани с $EMAIL$. Записите от трезора на организацията няма да бъдат включени. Ще бъде изнесена само информацията за записите от трезора, а свързаните прикачени елементи няма да бъдат включени.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1993,14 +2460,30 @@
       }
     }
   },
+  "exportingOrganizationVaultTitle": {
+    "message": "Изнасяне на трезора на организацията"
+  },
+  "exportingOrganizationVaultDesc": {
+    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Записите в отделните лични трезори и тези в други организации няма да бъдат включени.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "ACME Moving Co."
+      }
+    }
+  },
   "locked": {
     "message": "Заключено"
+  },
+  "yourVaultIsLockedV2": {
+    "message": "Трезорът Ви е заключен"
   },
   "unlocked": {
     "message": "Отключено"
   },
   "generator": {
-    "message": "Генератор"
+    "message": "Генератор",
+    "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
     "message": "Какво бихте искали да генерирате?"
@@ -2013,6 +2496,43 @@
   },
   "generateUsername": {
     "message": "Генериране на потр. име"
+  },
+  "generateEmail": {
+    "message": "Генериране на електронна поща"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Стойността трябва да бъде между $MIN$ и $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Използвайте поне $RECOMMENDED$ знака, за да генерирате сложна парола.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Използвайте поне $RECOMMENDED$ думи, за да генерирате сложна парола-фраза.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Тип потребителско име"
@@ -2029,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "Използвайте конфигурираната входяща кутия за събиране на всичко."
+  },
+  "useThisEmail": {
+    "message": "Използване на тази е-поща"
   },
   "random": {
     "message": "Произволно"
@@ -2056,6 +2579,116 @@
   },
   "forwardedEmailDesc": {
     "message": "Създайте псевдоним на е-поща с външна услуга за препращане."
+  },
+  "forwarderDomainName": {
+    "message": "Домейн на електронната поща",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Изберете домейн, който се поддържа от избраната услуга",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
+  },
+  "forwarderError": {
+    "message": "Грешка от $SERVICENAME$: $ERRORMESSAGE$",
+    "description": "Reports an error returned by a forwarding service to the user.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Invalid characters in domain name."
+      }
+    }
+  },
+  "forwarderGeneratedBy": {
+    "message": "Създадено от Битуорден.",
+    "description": "Displayed with the address on the forwarding service's configuration screen."
+  },
+  "forwarderGeneratedByWithWebsite": {
+    "message": "Уебсайт: $WEBSITE$. Създадено от Битуорден.",
+    "description": "Displayed with the address on the forwarding service's configuration screen.",
+    "placeholders": {
+      "WEBSITE": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
+  "forwaderInvalidToken": {
+    "message": "Неправилен идентификатор за ППИ на $SERVICENAME$",
+    "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidTokenWithMessage": {
+    "message": "Неправилен идентификатор за ППИ на $SERVICENAME$: $ERRORMESSAGE$",
+    "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwarderNoAccountId": {
+    "message": "Не може да бъде получен идентификатор на маскиран чрез е-поща акаунт от $SERVICENAME$.",
+    "description": "Displayed when the forwarding service fails to return an account ID.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoDomain": {
+    "message": "Неправилен домейн за $SERVICENAME$.",
+    "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoUrl": {
+    "message": "Неправилен адрес на $SERVICENAME$.",
+    "description": "Displayed when the url of the forwarding service wasn't supplied.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownError": {
+    "message": "Възникна неочаквана грешка свързана с $SERVICENAME$.",
+    "description": "Displayed when the forwarding service failed due to an unknown error.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownForwarder": {
+    "message": "Неизвестна пренасочваща услуга: „$SERVICENAME$“.",
+    "description": "Displayed when the forwarding service is not supported.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "JustTrust.us"
+      }
+    }
   },
   "hostname": {
     "message": "Име на сървъра",
@@ -2112,8 +2745,26 @@
   "loginInitiated": {
     "message": "Вписването е стартирано"
   },
+  "logInRequestSent": {
+    "message": "Заявката е изпратена"
+  },
   "notificationSentDevice": {
     "message": "Към устройството Ви е изпратено известие."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Към устройството Ви е изпратено известие"
+  },
+  "notificationSentDevicePart1": {
+    "message": "Отключете Битоурден на устройството си или в "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "приложението по уеб"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Уверете се, че уникалната фраза съвпада с тази по-долу, преди да одобрите."
+  },
+  "needAnotherOptionV1": {
+    "message": "Предпочитате друг вариант?"
   },
   "fingerprintMatchInfo": {
     "message": "Уверете се, че трезорът Ви е отключен и че Уникалната фраза съвпада с другото устройство."
@@ -2121,8 +2772,14 @@
   "fingerprintPhraseHeader": {
     "message": "Уникална фраза"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Ще получите уведомление когато заявката бъде одобрена"
+  },
   "needAnotherOption": {
     "message": "Вписването с устройство трябва да е включено в настройките на приложението на Битуорден. Друга настройка ли търсите?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Вижте всички възможности за вписване"
   },
   "viewAllLoginOptions": {
     "message": "Вижте всички възможности за вписване"
@@ -2134,11 +2791,11 @@
     "message": "Превключване на броя знаци",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Опитвате се да се впишете ли?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Опитвате ли се да получите достъп до акаунта си?"
   },
-  "logInAttemptBy": {
-    "message": "Опит за вписване от $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Опит за достъп от $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2155,14 +2812,11 @@
   "time": {
     "message": "Време"
   },
-  "confirmLogIn": {
-    "message": "Потвърждаване на вписването"
+  "confirmAccess": {
+    "message": "Разрешаване на достъпа"
   },
-  "denyLogIn": {
-    "message": "Отказване на вписването"
-  },
-  "approveLoginRequests": {
-    "message": "Одобряване на заявки за вписване"
+  "denyAccess": {
+    "message": "Отказване на достъпа"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Вписването за $EMAIL$ на $DEVICE$ е одобрено",
@@ -2198,11 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Тази заявка вече не е активна."
   },
-  "approveLoginRequestDesc": {
-    "message": "Използвайте това устройство за одобряване на заявки за вписване направени от други устройства."
-  },
-  "confirmLoginAtemptForMail": {
-    "message": "Потвърждаване на заявката за вписване за $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Потвърждаване на заявката за достъп за $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2213,23 +2864,65 @@
   "logInRequested": {
     "message": "Направена е заявка за вписване"
   },
+  "accountAccessRequested": {
+    "message": "Има заявка за достъп до акаунта"
+  },
+  "creatingAccountOn": {
+    "message": "Създаване на регистрация в"
+  },
+  "checkYourEmail": {
+    "message": "Проверете е-пощата си"
+  },
+  "followTheLinkInTheEmailSentTo": {
+    "message": "Последвайте връзката в е-писмото изпратено до"
+  },
+  "andContinueCreatingYourAccount": {
+    "message": "и продължете със създаването на регистрацията си."
+  },
+  "noEmail": {
+    "message": "Не сте получили е-писмо?"
+  },
+  "goBack": {
+    "message": "Върнете се назад"
+  },
+  "toEditYourEmailAddress": {
+    "message": ", за да редактирате адреса на е-пощата си."
+  },
   "exposedMasterPassword": {
-    "message": "Exposed Master Password"
+    "message": "Разобличена главна парола"
   },
   "exposedMasterPasswordDesc": {
-    "message": "Password found in a data breach. Use a unique password to protect your account. Are you sure you want to use an exposed password?"
+    "message": "Паролата е намерена в пробив на данни. Използвайте уникална парола, за да защитите вашия акаунт. Наистина ли искате да използвате слаба парола?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Weak and Exposed Master Password"
+    "message": "Слаба и разобличена главна парола"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "Weak password identified and found in a data breach. Use a strong and unique password to protect your account. Are you sure you want to use this password?"
+    "message": "Разпозната е слаба парола. Използвайте силна парола, за да защитете данните си. Наистина ли искате да използвате слаба парола?"
+  },
+  "useThisPassword": {
+    "message": "Използване на тази парола"
+  },
+  "useThisUsername": {
+    "message": "Използване на това потребителско име"
   },
   "checkForBreaches": {
     "message": "Проверяване в известните случаи на изтекли данни за тази парола"
   },
+  "loggedInExclamation": {
+    "message": "Вписахте се!"
+  },
   "important": {
     "message": "Важно:"
+  },
+  "accessing": {
+    "message": "Използване на"
+  },
+  "accessTokenUnableToBeDecrypted": {
+    "message": "Бяхте отписан(а), тъй като идентификаторът Ви за достъп не може да бъде дешифриран. Впишете се отново, за да отстраните проблема."
+  },
+  "refreshTokenSecureStorageRetrievalFailure": {
+    "message": "Бяхте отписан(а), тъй като идентификаторът Ви за опресняване не може да бъде получен. Впишете се отново, за да отстраните проблема."
   },
   "masterPasswordHint": {
     "message": "Главната парола не може да бъде възстановена, ако я забравите!"
@@ -2249,8 +2942,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Препоръчителна промяна на настройките"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Запомняне на това устройство, така че в бъдеще вписването да бъде по-лесно"
+  },
   "deviceApprovalRequired": {
     "message": "Изисква се одобрение на устройството. Изберете начин за одобрение по-долу:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Необходимо е одобрение на устройството"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Изберете начин за одобряване по-долу"
   },
   "rememberThisDevice": {
     "message": "Запомняне на това устройство"
@@ -2277,17 +2979,8 @@
     "message": "ЕС",
     "description": "European Union"
   },
-  "loggingInOn": {
-    "message": "Вписване в"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
-  "selfHosted": {
-    "message": "Собствен хостинг"
+  "selfHostedServer": {
+    "message": "собствен хостинг"
   },
   "accessDenied": {
     "message": "Достъпът е отказан. Нямате право за преглед на тази страница."
@@ -2313,11 +3006,14 @@
   "userEmailMissing": {
     "message": "Липсва е-поща на потребителя"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Не е намерена е-поща на активен потребител. Ще бъдете отписан(а)."
+  },
   "deviceTrusted": {
     "message": "Устройството е доверено"
   },
   "inputRequired": {
-    "message": "Полето е задължтелно да бъде попълнено."
+    "message": "Полето е задължително да бъде попълнено."
   },
   "required": {
     "message": "задължително"
@@ -2415,5 +3111,407 @@
   },
   "submenu": {
     "message": "Подменю"
+  },
+  "toggleSideNavigation": {
+    "message": "Превключване на страничната навигация"
+  },
+  "skipToContent": {
+    "message": "Прескачане към съдържанието"
+  },
+  "typePasskey": {
+    "message": "Секретен ключ"
+  },
+  "passkeyNotCopied": {
+    "message": "Секретният ключ няма да бъде копиран"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "Секретният ключ няма да бъде копиран в клонирания елемент. Искате ли да продължите с клонирането на елемента?"
+  },
+  "aliasDomain": {
+    "message": "Псевдонимен домейн"
+  },
+  "importData": {
+    "message": "Внасяне на данни",
+    "description": "Used for the desktop menu item and the header of the import dialog"
+  },
+  "importError": {
+    "message": "Грешка при внасянето"
+  },
+  "importErrorDesc": {
+    "message": "Има проблем с данните, които внасяте. Поправете грешките посочени по-долу и пробвайте отново."
+  },
+  "resolveTheErrorsBelowAndTryAgain": {
+    "message": "Оправете грешките по-долу и опитайте отново."
+  },
+  "description": {
+    "message": "Описание"
+  },
+  "importSuccess": {
+    "message": "Данните са внесени успешно"
+  },
+  "importSuccessNumberOfItems": {
+    "message": "Общо внесени елементи: $AMOUNT$.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "total": {
+    "message": "Общо"
+  },
+  "importWarning": {
+    "message": "Внасяте данни към организацията „$ORGANIZATION$“. Данните могат да бъдат споделени с членовете ѝ. Сигурни ли сте, че искате да продължите?",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Грешка при свързването с услугата на Duo. Използвайте друг метод за двустепенно удостоверяване или се свържете с Duo за съдействие."
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Стартирайте Duo и следвайте инструкциите, за да завършите вписването."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Вашата регистрация изисква двустепенно удостоверяване чрез Duo."
+  },
+  "launchDuo": {
+    "message": "Стартирайте Duo в браузъра"
+  },
+  "importFormatError": {
+    "message": "Данните са в неправилен формат. Проверете файла за внасяне и пробвайте отново."
+  },
+  "importNothingError": {
+    "message": "Нищо не бе внесено."
+  },
+  "importEncKeyError": {
+    "message": "Грешка при дешифрирането на изнесения файл. Ключът за шифриране не отговаря на този, който е използван за изнасянето на данните."
+  },
+  "invalidFilePassword": {
+    "message": "Неправилна парола за файла. Използвайте паролата, която сте въвели при създаването на изнесения файл."
+  },
+  "destination": {
+    "message": "Дестинация"
+  },
+  "learnAboutImportOptions": {
+    "message": "Научете повече относно възможностите за внасяне"
+  },
+  "selectImportFolder": {
+    "message": "Изберете папка"
+  },
+  "selectImportCollection": {
+    "message": "Изберете колекция"
+  },
+  "importTargetHint": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "Файлът съдържа невъзложени елементи."
+  },
+  "selectFormat": {
+    "message": "Избор на форма̀та на файла за внасяне"
+  },
+  "selectImportFile": {
+    "message": "Изберете файла за внасяне"
+  },
+  "chooseFile": {
+    "message": "Изберете файл"
+  },
+  "noFileChosen": {
+    "message": "Не е избран файл"
+  },
+  "orCopyPasteFileContents": {
+    "message": "или поставете съдържанието му"
+  },
+  "instructionsFor": {
+    "message": "Инструкции за $NAME$",
+    "description": "The title for the import tool instructions.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "LastPass (csv)"
+      }
+    }
+  },
+  "confirmVaultImport": {
+    "message": "Потвърждаване на внасянето на трезора"
+  },
+  "confirmVaultImportDesc": {
+    "message": "Този файл е защитен с парола. Трябва да въведете паролата, за да могат данните да бъдат внесени."
+  },
+  "confirmFilePassword": {
+    "message": "Потвърждаване на паролата на файла"
+  },
+  "exportSuccess": {
+    "message": "Данните от трезора са изнесени"
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "Многостъпковото удостоверяване е отменено"
+  },
+  "noLastPassDataFound": {
+    "message": "Няма намерени данни от LastPass"
+  },
+  "incorrectUsernameOrPassword": {
+    "message": "Неправилно потребителско име или парола"
+  },
+  "incorrectPassword": {
+    "message": "Неправилна парола"
+  },
+  "incorrectCode": {
+    "message": "Неправилен код"
+  },
+  "incorrectPin": {
+    "message": "Неправилен ПИН"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Многостъпковото удостоверяване беше неуспешно"
+  },
+  "includeSharedFolders": {
+    "message": "Да се включат и споделените папки"
+  },
+  "lastPassEmail": {
+    "message": "Е-поща от LastPass"
+  },
+  "importingYourAccount": {
+    "message": "Внасяне на данните Ви…"
+  },
+  "lastPassMFARequired": {
+    "message": "Изисква се многостъпково удостоверяване за LastPass"
+  },
+  "lastPassMFADesc": {
+    "message": "Въведете еднократния код за достъп от приложението си за удостоверяване"
+  },
+  "lastPassOOBDesc": {
+    "message": "Одобрете заявката за вписване в приложението си за удостоверяване, или въведете еднократен код за достъп."
+  },
+  "passcode": {
+    "message": "Код за достъп"
+  },
+  "lastPassMasterPassword": {
+    "message": "Главна парола на LastPass"
+  },
+  "lastPassAuthRequired": {
+    "message": "Изисква се удостоверяване в LastPass"
+  },
+  "awaitingSSO": {
+    "message": "Изчакване на еднократното удостоверяване"
+  },
+  "awaitingSSODesc": {
+    "message": "Моля, продължете вписването с данните за удостоверяване на Вашата компания."
+  },
+  "seeDetailedInstructions": {
+    "message": "Може да намерите подробни инструкции в помощния ни уеб сайт на адрес",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "importDirectlyFromLastPass": {
+    "message": "Внасяне директно от LastPass"
+  },
+  "importFromCSV": {
+    "message": "Внасяне от CSV"
+  },
+  "lastPassTryAgainCheckEmail": {
+    "message": "Опитайте отново или вижте дали имате е-писмо от LastPass за потвърждаване на самоличността си."
+  },
+  "collection": {
+    "message": "Колекция"
+  },
+  "lastPassYubikeyDesc": {
+    "message": "Поставете устройството на YubiKey, което е свързано с регистрацията Ви в LastPass, в USB порт и натиснете бутона на устройството."
+  },
+  "commonImportFormats": {
+    "message": "Често използвани формати",
+    "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Успех"
+  },
+  "troubleshooting": {
+    "message": "Отстраняване на проблеми"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Изключете хардуерното ускорение и рестартирайте"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Включете хардуерното ускорение и рестартирайте"
+  },
+  "removePasskey": {
+    "message": "Премахване на секретния ключ"
+  },
+  "passkeyRemoved": {
+    "message": "Секретният ключ е премахнат"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Грешка при задаването на целева колекция."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Грешка при задаването на целева папка."
+  },
+  "viewItemsIn": {
+    "message": "Преглед на елементите в $NAME$",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "Назад към $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "back": {
+    "message": "Назад",
+    "description": "Button text to navigate back"
+  },
+  "removeItem": {
+    "message": "Премахване на $NAME$",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "data": {
+    "message": "Данни"
+  },
+  "fileSends": {
+    "message": "Файлови изпращания"
+  },
+  "textSends": {
+    "message": "Текстови изпращания"
+  },
+  "ssoError": {
+    "message": "Не могат да бъдат открити свободни портове за еднократната идентификация."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Отключването с биометрични данни не е налично, тъй като първо се изисква отключване чрез ПИН или парола."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Отключването с биометрични данни не е налично в момента."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Отключването с биометрични данни не е налично, тъй като не е включено за $EMAIL$ в приложението на Битуорден за компютър.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Отключването с биометрични данни не е налично по неизвестна причина."
+  },
+  "authorize": {
+    "message": "Упълномощаване"
+  },
+  "deny": {
+    "message": "Отказване"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Потвърждаване на употребата на SSH ключа"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "иска достъп до"
+  },
+  "unknownApplication": {
+    "message": "Приложение"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "Внасянето на SSH ключ, които са защитени с парола, все още не се поддържа"
+  },
+  "invalidSshKey": {
+    "message": "SSH ключът е неправилен"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Типът на SSH ключа не се поддържа"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Внасяне на ключ от буфера за обмен"
+  },
+  "sshKeyPasted": {
+    "message": "SSH ключът е внесен успешно"
+  },
+  "fileSavedToDevice": {
+    "message": "Файлът е запазен на устройството. Можете да го намерите в мястото за сваляния на устройството."
+  },
+  "importantNotice": {
+    "message": "Важно съобщение"
+  },
+  "setupTwoStepLogin": {
+    "message": "Настройте двустепенно удостоверяване"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
+  },
+  "remindMeLater": {
+    "message": "Напомнете ми по-късно"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Не, нямам"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, имам достъп до е-пощата си"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Включване на двустепенното удостоверяване"
+  },
+  "changeAcctEmail": {
+    "message": "Промяна на е-пощата"
+  },
+  "allowScreenshots": {
+    "message": "Позволяване на заснемането на екрана"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Позволява настолното приложение на Битурден да бъде заснемано при правене на екранни снимки и видимо при достъп до компютъра чрез отдалечен работен плот. Изключването на това ще забрани достапа на някои външни екрани."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Потвърждаване, че прозорецът все още е видим"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Моля, потвърдете, че прозорецът все още е видим."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Необходимо е обновяване на добавката"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Добавката за браузъра, която използвате, е остаряла. Моля, обновете я или изключете интеграцията за проверка на пръстов отпечатък в браузъра от настройките на самостоятелното приложение."
   }
 }

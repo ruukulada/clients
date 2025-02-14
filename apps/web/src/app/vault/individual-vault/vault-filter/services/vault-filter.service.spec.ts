@@ -1,74 +1,110 @@
+import {
+  FakeAccountService,
+  mockAccountServiceWith,
+} from "@bitwarden/common/../spec/fake-account-service";
+import { FakeActiveUserState } from "@bitwarden/common/../spec/fake-state";
+import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, ReplaySubject, take } from "rxjs";
+import { firstValueFrom, ReplaySubject } from "rxjs";
 
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { VaultFilterService } from "./vault-filter.service";
 
 describe("vault filter service", () => {
   let vaultFilterService: VaultFilterService;
 
-  let stateService: MockProxy<StateService>;
   let organizationService: MockProxy<OrganizationService>;
   let folderService: MockProxy<FolderService>;
   let cipherService: MockProxy<CipherService>;
   let policyService: MockProxy<PolicyService>;
   let i18nService: MockProxy<I18nService>;
+  let collectionService: MockProxy<CollectionService>;
   let organizations: ReplaySubject<Organization[]>;
   let folderViews: ReplaySubject<FolderView[]>;
+  let collectionViews: ReplaySubject<CollectionView[]>;
+  let cipherViews: ReplaySubject<CipherView[]>;
+  let personalOwnershipPolicy: ReplaySubject<boolean>;
+  let singleOrgPolicy: ReplaySubject<boolean>;
+  let stateProvider: FakeStateProvider;
+
+  const mockUserId = Utils.newGuid() as UserId;
+  let accountService: FakeAccountService;
+  let collapsedGroupingsState: FakeActiveUserState<string[]>;
 
   beforeEach(() => {
-    stateService = mock<StateService>();
     organizationService = mock<OrganizationService>();
     folderService = mock<FolderService>();
     cipherService = mock<CipherService>();
     policyService = mock<PolicyService>();
     i18nService = mock<I18nService>();
+    accountService = mockAccountServiceWith(mockUserId);
+    stateProvider = new FakeStateProvider(accountService);
     i18nService.collator = new Intl.Collator("en-US");
+    collectionService = mock<CollectionService>();
 
     organizations = new ReplaySubject<Organization[]>(1);
     folderViews = new ReplaySubject<FolderView[]>(1);
+    collectionViews = new ReplaySubject<CollectionView[]>(1);
+    cipherViews = new ReplaySubject<CipherView[]>(1);
+    personalOwnershipPolicy = new ReplaySubject<boolean>(1);
+    singleOrgPolicy = new ReplaySubject<boolean>(1);
 
-    organizationService.organizations$ = organizations;
-    folderService.folderViews$ = folderViews;
+    organizationService.memberOrganizations$.mockReturnValue(organizations);
+    folderService.folderViews$.mockReturnValue(folderViews);
+    collectionService.decryptedCollections$ = collectionViews;
+    policyService.policyAppliesToActiveUser$
+      .calledWith(PolicyType.PersonalOwnership)
+      .mockReturnValue(personalOwnershipPolicy);
+    policyService.policyAppliesToActiveUser$
+      .calledWith(PolicyType.SingleOrg)
+      .mockReturnValue(singleOrgPolicy);
+    cipherService.cipherViews$.mockReturnValue(cipherViews);
 
     vaultFilterService = new VaultFilterService(
-      stateService,
       organizationService,
       folderService,
       cipherService,
       policyService,
-      i18nService
+      i18nService,
+      stateProvider,
+      collectionService,
+      accountService,
     );
+    collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
   });
 
   describe("collapsed filter nodes", () => {
     const nodes = new Set(["1", "2"]);
-    it("updates observable when saving", (complete) => {
-      vaultFilterService.collapsedFilterNodes$.pipe(take(1)).subscribe((value) => {
-        if (value === nodes) {
-          complete();
-        }
-      });
 
-      vaultFilterService.setCollapsedFilterNodes(nodes);
+    it("should update the collapsedFilterNodes$", async () => {
+      await vaultFilterService.setCollapsedFilterNodes(nodes);
+
+      const collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
+      expect(await firstValueFrom(collapsedGroupingsState.state$)).toEqual(Array.from(nodes));
+      expect(collapsedGroupingsState.nextMock).toHaveBeenCalledWith([
+        mockUserId,
+        Array.from(nodes),
+      ]);
     });
 
     it("loads from state on initialization", async () => {
-      stateService.getCollapsedGroupings.mockResolvedValue(["1", "2"]);
+      collapsedGroupingsState.nextState(["1", "2"]);
 
       await expect(firstValueFrom(vaultFilterService.collapsedFilterNodes$)).resolves.toEqual(
-        nodes
+        nodes,
       );
     });
   });
@@ -77,6 +113,8 @@ describe("vault filter service", () => {
     beforeEach(() => {
       const storedOrgs = [createOrganization("1", "org1"), createOrganization("2", "org2")];
       organizations.next(storedOrgs);
+      personalOwnershipPolicy.next(false);
+      singleOrgPolicy.next(false);
     });
 
     it("returns a nested tree", async () => {
@@ -88,9 +126,7 @@ describe("vault filter service", () => {
     });
 
     it("hides My Vault if personal ownership policy is enabled", async () => {
-      policyService.policyAppliesToUser
-        .calledWith(PolicyType.PersonalOwnership)
-        .mockResolvedValue(true);
+      personalOwnershipPolicy.next(true);
 
       const tree = await firstValueFrom(vaultFilterService.organizationTree$);
 
@@ -99,7 +135,7 @@ describe("vault filter service", () => {
     });
 
     it("returns 1 organization and My Vault if single organization policy is enabled", async () => {
-      policyService.policyAppliesToUser.calledWith(PolicyType.SingleOrg).mockResolvedValue(true);
+      singleOrgPolicy.next(true);
 
       const tree = await firstValueFrom(vaultFilterService.organizationTree$);
 
@@ -109,10 +145,8 @@ describe("vault filter service", () => {
     });
 
     it("returns 1 organization if both single organization and personal ownership policies are enabled", async () => {
-      policyService.policyAppliesToUser.calledWith(PolicyType.SingleOrg).mockResolvedValue(true);
-      policyService.policyAppliesToUser
-        .calledWith(PolicyType.PersonalOwnership)
-        .mockResolvedValue(true);
+      singleOrgPolicy.next(true);
+      personalOwnershipPolicy.next(true);
 
       const tree = await firstValueFrom(vaultFilterService.organizationTree$);
 
@@ -132,7 +166,7 @@ describe("vault filter service", () => {
           createCipherView("1", "org test id", "folder test id"),
           createCipherView("2", "non matching org id", "non matching folder id"),
         ];
-        cipherService.getAllDecrypted.mockResolvedValue(storedCiphers);
+        cipherViews.next(storedCiphers);
 
         const storedFolders = [
           createFolderView("folder test id", "test"),
@@ -144,6 +178,13 @@ describe("vault filter service", () => {
           createFolderView("folder test id", "test"),
         ]);
       });
+
+      it("returns current organization", () => {
+        vaultFilterService.getOrganizationFilter().subscribe((org) => {
+          expect(org.id).toEqual("org test id");
+          expect(org.identifier).toEqual("Test Org");
+        });
+      });
     });
 
     describe("folder tree", () => {
@@ -154,6 +195,7 @@ describe("vault filter service", () => {
           createFolderView("Folder 3 Id", "Folder 1/Folder 3"),
         ];
         folderViews.next(storedFolders);
+        cipherViews.next([]);
 
         const result = await firstValueFrom(vaultFilterService.folderTree$);
 
@@ -173,7 +215,7 @@ describe("vault filter service", () => {
           createCollectionView("1", "collection 1", "org test id"),
           createCollectionView("2", "collection 2", "non matching org id"),
         ];
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         await expect(firstValueFrom(vaultFilterService.filteredCollections$)).resolves.toEqual([
           createCollectionView("1", "collection 1", "org test id"),
@@ -188,7 +230,7 @@ describe("vault filter service", () => {
           createCollectionView("id-2", "Collection 1/Collection 2", "org test id"),
           createCollectionView("id-3", "Collection 1/Collection 3", "org test id"),
         ];
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -201,7 +243,7 @@ describe("vault filter service", () => {
           createCollectionView("id-1", "Collection 1", "org test id"),
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -217,7 +259,7 @@ describe("vault filter service", () => {
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
           createCollectionView("id-4", "Collection 1/Collection 4", "org test id"),
         ];
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 
@@ -235,7 +277,7 @@ describe("vault filter service", () => {
           createCollectionView("id-1", "Collection 1", "org test id"),
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
-        vaultFilterService.reloadCollections(storedCollections);
+        collectionViews.next(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
 

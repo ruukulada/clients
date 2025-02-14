@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ImportResult } from "../models/import-result";
 
 import { BaseImporter } from "./base-importer";
@@ -16,7 +18,7 @@ export class AviraCsvImporter extends BaseImporter implements Importer {
       const cipher = this.initLoginCipher();
       cipher.name = this.getValueOrDefault(
         value.name,
-        this.getValueOrDefault(this.nameFromUrl(value.website), "--")
+        this.getValueOrDefault(this.nameFromUrl(value.website), "--"),
       );
       cipher.login.uris = this.makeUriArray(value.website);
       cipher.login.password = this.getValueOrDefault(value.password);

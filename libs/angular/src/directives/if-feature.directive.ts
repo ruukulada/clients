@@ -1,11 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, Input, OnInit, TemplateRef, ViewContainerRef } from "@angular/core";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { AllowedFeatureFlagTypes, FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-
-// Replace this with a type safe lookup of the feature flag values in PM-2282
-type FlagValue = boolean | number | string;
 
 /**
  * Directive that conditionally renders the element when the feature flag is enabled and/or
@@ -26,28 +25,20 @@ export class IfFeatureDirective implements OnInit {
    * Optional value to compare against the value of the feature flag in the config service.
    * @default true
    */
-  @Input() appIfFeatureValue: FlagValue = true;
+  @Input() appIfFeatureValue: AllowedFeatureFlagTypes = true;
 
   private hasView = false;
 
   constructor(
     private templateRef: TemplateRef<any>,
     private viewContainer: ViewContainerRef,
-    private configService: ConfigServiceAbstraction,
-    private logService: LogService
+    private configService: ConfigService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
     try {
-      let flagValue: FlagValue;
-
-      if (typeof this.appIfFeatureValue === "boolean") {
-        flagValue = await this.configService.getFeatureFlagBool(this.appIfFeature);
-      } else if (typeof this.appIfFeatureValue === "number") {
-        flagValue = await this.configService.getFeatureFlagNumber(this.appIfFeature);
-      } else if (typeof this.appIfFeatureValue === "string") {
-        flagValue = await this.configService.getFeatureFlagString(this.appIfFeature);
-      }
+      const flagValue = await this.configService.getFeatureFlag(this.appIfFeature);
 
       if (this.appIfFeatureValue === flagValue) {
         if (!this.hasView) {

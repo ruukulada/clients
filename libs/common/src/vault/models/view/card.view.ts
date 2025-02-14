@@ -1,18 +1,21 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { CardLinkedId as LinkedId } from "../../../enums";
-import { linkedFieldOption } from "../../../misc/linkedFieldOption.decorator";
+import { normalizeExpiryYearFormat } from "../../../autofill/utils";
+import { CardLinkedId as LinkedId } from "../../enums";
+import { linkedFieldOption } from "../../linked-field-option.decorator";
 
 import { ItemView } from "./item.view";
 
 export class CardView extends ItemView {
-  @linkedFieldOption(LinkedId.CardholderName)
+  @linkedFieldOption(LinkedId.CardholderName, { sortPosition: 0 })
   cardholderName: string = null;
-  @linkedFieldOption(LinkedId.ExpMonth, "expirationMonth")
+  @linkedFieldOption(LinkedId.ExpMonth, { sortPosition: 3, i18nKey: "expirationMonth" })
   expMonth: string = null;
-  @linkedFieldOption(LinkedId.ExpYear, "expirationYear")
+  @linkedFieldOption(LinkedId.ExpYear, { sortPosition: 4, i18nKey: "expirationYear" })
   expYear: string = null;
-  @linkedFieldOption(LinkedId.Code, "securityCode")
+  @linkedFieldOption(LinkedId.Code, { sortPosition: 5, i18nKey: "securityCode" })
   code: string = null;
 
   private _brand: string = null;
@@ -27,7 +30,7 @@ export class CardView extends ItemView {
     return this.number != null ? "•".repeat(this.number.length) : null;
   }
 
-  @linkedFieldOption(LinkedId.Brand)
+  @linkedFieldOption(LinkedId.Brand, { sortPosition: 2 })
   get brand(): string {
     return this._brand;
   }
@@ -36,7 +39,7 @@ export class CardView extends ItemView {
     this._subTitle = null;
   }
 
-  @linkedFieldOption(LinkedId.Number)
+  @linkedFieldOption(LinkedId.Number, { sortPosition: 1 })
   get number(): string {
     return this._number;
   }
@@ -65,17 +68,16 @@ export class CardView extends ItemView {
   }
 
   get expiration(): string {
-    if (!this.expMonth && !this.expYear) {
+    const normalizedYear = normalizeExpiryYearFormat(this.expYear);
+
+    if (!this.expMonth && !normalizedYear) {
       return null;
     }
 
     let exp = this.expMonth != null ? ("0" + this.expMonth).slice(-2) : "__";
-    exp += " / " + (this.expYear != null ? this.formatYear(this.expYear) : "____");
-    return exp;
-  }
+    exp += " / " + (normalizedYear || "____");
 
-  private formatYear(year: string): string {
-    return year.length === 2 ? "20" + year : year;
+    return exp;
   }
 
   static fromJSON(obj: Partial<Jsonify<CardView>>): CardView {
@@ -98,7 +100,7 @@ export class CardView extends ItemView {
     // Updated for Mastercard 2017 BINs expansion
     if (
       /^(5[1-5][0-9]{14}|2(22[1-9][0-9]{12}|2[3-9][0-9]{13}|[3-6][0-9]{14}|7[0-1][0-9]{13}|720[0-9]{12}))$/.test(
-        cardNum
+        cardNum,
       )
     ) {
       return "Mastercard";
@@ -112,7 +114,7 @@ export class CardView extends ItemView {
 
     // Discover
     re = new RegExp(
-      "^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)"
+      "^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)",
     );
     if (cardNum.match(re) != null) {
       return "Discover";

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -8,7 +10,7 @@ export class LogoutCommand {
   constructor(
     private authService: AuthService,
     private i18nService: I18nService,
-    private logoutCallback: () => Promise<void>
+    private logoutCallback: () => Promise<void>,
   ) {}
 
   async run() {

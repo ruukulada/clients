@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { EncString } from "../../platform/models/domain/enc-string";
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
@@ -10,6 +12,8 @@ import { IdentityExport } from "./identity.export";
 import { LoginExport } from "./login.export";
 import { PasswordHistoryExport } from "./password-history.export";
 import { SecureNoteExport } from "./secure-note.export";
+import { SshKeyExport } from "./ssh-key.export";
+import { safeGetString } from "./utils";
 
 export class CipherExport {
   static template(): CipherExport {
@@ -26,6 +30,7 @@ export class CipherExport {
     req.secureNote = null;
     req.card = null;
     req.identity = null;
+    req.sshKey = null;
     req.reprompt = CipherRepromptType.None;
     req.passwordHistory = [];
     req.creationDate = null;
@@ -66,6 +71,8 @@ export class CipherExport {
       case CipherType.Identity:
         view.identity = IdentityExport.toView(req.identity);
         break;
+      case CipherType.SshKey:
+        view.sshKey = SshKeyExport.toView(req.sshKey);
     }
 
     if (req.passwordHistory != null) {
@@ -88,6 +95,7 @@ export class CipherExport {
     domain.notes = req.notes != null ? new EncString(req.notes) : null;
     domain.favorite = req.favorite;
     domain.reprompt = req.reprompt ?? CipherRepromptType.None;
+    domain.key = req.key != null ? new EncString(req.key) : null;
 
     if (req.fields != null) {
       domain.fields = req.fields.map((f) => FieldExport.toDomain(f));
@@ -105,6 +113,9 @@ export class CipherExport {
         break;
       case CipherType.Identity:
         domain.identity = IdentityExport.toDomain(req.identity);
+        break;
+      case CipherType.SshKey:
+        domain.sshKey = SshKeyExport.toDomain(req.sshKey);
         break;
     }
 
@@ -130,11 +141,13 @@ export class CipherExport {
   secureNote: SecureNoteExport;
   card: CardExport;
   identity: IdentityExport;
+  sshKey: SshKeyExport;
   reprompt: CipherRepromptType;
   passwordHistory: PasswordHistoryExport[] = null;
   revisionDate: Date = null;
   creationDate: Date = null;
   deletedDate: Date = null;
+  key: string;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CipherView | CipherDomain) {
@@ -143,22 +156,16 @@ export class CipherExport {
     this.type = o.type;
     this.reprompt = o.reprompt;
 
-    if (o instanceof CipherView) {
-      this.name = o.name;
-      this.notes = o.notes;
-    } else {
-      this.name = o.name?.encryptedString;
-      this.notes = o.notes?.encryptedString;
+    this.name = safeGetString(o.name);
+    this.notes = safeGetString(o.notes);
+    if ("key" in o) {
+      this.key = o.key?.encryptedString;
     }
 
     this.favorite = o.favorite;
 
     if (o.fields != null) {
-      if (o instanceof CipherView) {
-        this.fields = o.fields.map((f) => new FieldExport(f));
-      } else {
-        this.fields = o.fields.map((f) => new FieldExport(f));
-      }
+      this.fields = o.fields.map((f) => new FieldExport(f));
     }
 
     switch (o.type) {
@@ -174,14 +181,13 @@ export class CipherExport {
       case CipherType.Identity:
         this.identity = new IdentityExport(o.identity);
         break;
+      case CipherType.SshKey:
+        this.sshKey = new SshKeyExport(o.sshKey);
+        break;
     }
 
     if (o.passwordHistory != null) {
-      if (o instanceof CipherView) {
-        this.passwordHistory = o.passwordHistory.map((ph) => new PasswordHistoryExport(ph));
-      } else {
-        this.passwordHistory = o.passwordHistory.map((ph) => new PasswordHistoryExport(ph));
-      }
+      this.passwordHistory = o.passwordHistory.map((ph) => new PasswordHistoryExport(ph));
     }
 
     this.creationDate = o.creationDate;

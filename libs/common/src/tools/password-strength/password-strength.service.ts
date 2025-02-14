@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as zxcvbn from "zxcvbn";
 
 import { PasswordStrengthServiceAbstraction } from "./password-strength.service.abstraction";
@@ -12,7 +14,7 @@ export class PasswordStrengthService implements PasswordStrengthServiceAbstracti
   getPasswordStrength(
     password: string,
     emailInput: string = null,
-    userInputs: string[] = null
+    userInputs: string[] = null,
   ): zxcvbn.ZXCVBNResult {
     if (password == null || password.length === 0) {
       return null;

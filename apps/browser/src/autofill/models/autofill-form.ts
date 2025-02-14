@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 /**
  * Represents an HTML form whose elements can be autofilled
  */
 export default class AutofillForm {
+  [key: string]: any;
   /**
    * The unique identifier assigned to this field during collection of the page details
    */

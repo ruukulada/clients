@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import AutofillField from "./autofill-field";
 import AutofillForm from "./autofill-form";
 
@@ -5,10 +7,6 @@ import AutofillForm from "./autofill-form";
  * The details of a page that have been collected and can be used for autofill
  */
 export default class AutofillPageDetails {
-  /**
-   * A unique identifier for the page
-   */
-  documentUUID: string;
   title: string;
   url: string;
   documentUrl: string;

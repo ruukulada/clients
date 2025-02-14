@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import Domain from "../../../../platform/models/domain/domain-base";
@@ -27,7 +29,7 @@ export class SendFile extends Domain {
         sizeName: null,
         fileName: null,
       },
-      ["id", "sizeName"]
+      ["id", "sizeName"],
     );
   }
 
@@ -38,7 +40,7 @@ export class SendFile extends Domain {
         fileName: null,
       },
       null,
-      key
+      key,
     );
     return view;
   }

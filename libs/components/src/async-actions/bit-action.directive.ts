@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, HostListener, Input, OnDestroy, Optional } from "@angular/core";
 import { BehaviorSubject, finalize, Subject, takeUntil, tap } from "rxjs";
 
@@ -13,6 +15,7 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
  */
 @Directive({
   selector: "[bitAction]",
+  standalone: true,
 })
 export class BitActionDirective implements OnDestroy {
   private destroy$ = new Subject<void>();
@@ -27,7 +30,7 @@ export class BitActionDirective implements OnDestroy {
   constructor(
     private buttonComponent: ButtonLikeAbstraction,
     @Optional() private validationService?: ValidationService,
-    @Optional() private logService?: LogService
+    @Optional() private logService?: LogService,
   ) {}
 
   get loading() {
@@ -55,7 +58,7 @@ export class BitActionDirective implements OnDestroy {
           },
         }),
         finalize(() => (this.loading = false)),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
   }

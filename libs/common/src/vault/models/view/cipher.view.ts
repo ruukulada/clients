@@ -1,11 +1,11 @@
-import { Jsonify } from "type-fest";
-
-import { LinkedIdType } from "../../../enums";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { View } from "../../../models/view/view";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
+import { DeepJsonify } from "../../../types/deep-jsonify";
+import { CipherType, LinkedIdType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
-import { CipherType } from "../../enums/cipher-type";
 import { LocalData } from "../data/local.data";
 import { Cipher } from "../domain/cipher";
 
@@ -16,6 +16,7 @@ import { IdentityView } from "./identity.view";
 import { LoginView } from "./login.view";
 import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
+import { SshKeyView } from "./ssh-key.view";
 
 export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
@@ -35,6 +36,7 @@ export class CipherView implements View, InitializerMetadata {
   identity = new IdentityView();
   card = new CardView();
   secureNote = new SecureNoteView();
+  sshKey = new SshKeyView();
   attachments: AttachmentView[] = null;
   fields: FieldView[] = null;
   passwordHistory: PasswordHistoryView[] = null;
@@ -43,6 +45,11 @@ export class CipherView implements View, InitializerMetadata {
   creationDate: Date = null;
   deletedDate: Date = null;
   reprompt: CipherRepromptType = CipherRepromptType.None;
+
+  /**
+   * Flag to indicate if the cipher decryption failed.
+   */
+  decryptionFailure = false;
 
   constructor(c?: Cipher) {
     if (!c) {
@@ -76,6 +83,8 @@ export class CipherView implements View, InitializerMetadata {
         return this.card;
       case CipherType.Identity:
         return this.identity;
+      case CipherType.SshKey:
+        return this.sshKey;
       default:
         break;
     }
@@ -84,7 +93,7 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   get subTitle(): string {
-    return this.item.subTitle;
+    return this.item?.subTitle;
   }
 
   get hasPasswordHistory(): boolean {
@@ -124,7 +133,27 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   get linkedFieldOptions() {
-    return this.item.linkedFieldOptions;
+    return this.item?.linkedFieldOptions;
+  }
+
+  get isUnassigned(): boolean {
+    return (
+      this.organizationId != null && (this.collectionIds == null || this.collectionIds.length === 0)
+    );
+  }
+
+  get canAssignToCollections(): boolean {
+    if (this.organizationId == null) {
+      return true;
+    }
+
+    return this.edit && this.viewPassword;
+  }
+  /**
+   * Determines if the cipher can be launched in a new browser tab.
+   */
+  get canLaunch(): boolean {
+    return this.type === CipherType.Login && this.login.canLaunch;
   }
 
   linkedFieldValue(id: LinkedIdType) {
@@ -133,6 +162,8 @@ export class CipherView implements View, InitializerMetadata {
       return null;
     }
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const item = this.item;
     return this.item[linkedFieldOption.propertyKey as keyof typeof item];
   }
@@ -141,7 +172,16 @@ export class CipherView implements View, InitializerMetadata {
     return this.linkedFieldOptions.get(id)?.i18nKey;
   }
 
-  static fromJSON(obj: Partial<Jsonify<CipherView>>): CipherView {
+  // This is used as a marker to indicate that the cipher view object still has its prototype
+  toJSON() {
+    return this;
+  }
+
+  static fromJSON(obj: Partial<DeepJsonify<CipherView>>): CipherView {
+    if (obj == null) {
+      return null;
+    }
+
     const view = new CipherView();
     const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     const deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
@@ -169,6 +209,9 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.SecureNote:
         view.secureNote = SecureNoteView.fromJSON(obj.secureNote);
+        break;
+      case CipherType.SshKey:
+        view.sshKey = SshKeyView.fromJSON(obj.sshKey);
         break;
       default:
         break;

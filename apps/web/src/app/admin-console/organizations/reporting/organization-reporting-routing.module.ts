@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
@@ -9,34 +11,28 @@ import { InactiveTwoFactorReportComponent } from "../../../admin-console/organiz
 import { ReusedPasswordsReportComponent } from "../../../admin-console/organizations/tools/reused-passwords-report.component";
 import { UnsecuredWebsitesReportComponent } from "../../../admin-console/organizations/tools/unsecured-websites-report.component";
 import { WeakPasswordsReportComponent } from "../../../admin-console/organizations/tools/weak-passwords-report.component";
-import { IsPaidOrgGuard } from "../guards/is-paid-org.guard";
-import { OrganizationPermissionsGuard } from "../guards/org-permissions.guard";
-import { OrganizationRedirectGuard } from "../guards/org-redirect.guard";
+import { isPaidOrgGuard } from "../guards/is-paid-org.guard";
+import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
+import { organizationRedirectGuard } from "../guards/org-redirect.guard";
 import { EventsComponent } from "../manage/events.component";
 
-import { ReportingComponent } from "./reporting.component";
 import { ReportsHomeComponent } from "./reports-home.component";
 
 const routes: Routes = [
   {
     path: "",
-    component: ReportingComponent,
-    canActivate: [OrganizationPermissionsGuard],
-    data: { organizationPermissions: canAccessReportingTab },
+    canActivate: [organizationPermissionsGuard(canAccessReportingTab)],
     children: [
       {
         path: "",
         pathMatch: "full",
-        canActivate: [OrganizationRedirectGuard],
-        data: {
-          autoRedirectCallback: getReportRoute,
-        },
+        canActivate: [organizationRedirectGuard(getReportRoute)],
         children: [], // This is required to make the auto redirect work,
       },
       {
         path: "reports",
         component: ReportsHomeComponent,
-        canActivate: [OrganizationPermissionsGuard],
+        canActivate: [organizationPermissionsGuard()],
         data: {
           titleId: "reports",
         },
@@ -47,7 +43,7 @@ const routes: Routes = [
             data: {
               titleId: "exposedPasswordsReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
           {
             path: "inactive-two-factor-report",
@@ -55,7 +51,7 @@ const routes: Routes = [
             data: {
               titleId: "inactive2faReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
           {
             path: "reused-passwords-report",
@@ -63,7 +59,7 @@ const routes: Routes = [
             data: {
               titleId: "reusedPasswordsReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
           {
             path: "unsecured-websites-report",
@@ -71,7 +67,7 @@ const routes: Routes = [
             data: {
               titleId: "unsecuredWebsitesReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
           {
             path: "weak-passwords-report",
@@ -79,17 +75,16 @@ const routes: Routes = [
             data: {
               titleId: "weakPasswordsReport",
             },
-            canActivate: [IsPaidOrgGuard],
+            canActivate: [isPaidOrgGuard()],
           },
         ],
       },
       {
         path: "events",
         component: EventsComponent,
-        canActivate: [OrganizationPermissionsGuard],
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessEventLogs)],
         data: {
           titleId: "eventLogs",
-          organizationPermissions: (org: Organization) => org.canAccessEventLogs,
         },
       },
     ],

@@ -4,12 +4,13 @@ import { SafariApp } from "../../browser/safariApp";
 
 export default class VaultTimeoutService extends BaseVaultTimeoutService {
   startCheck() {
-    this.checkVaultTimeout();
     if (this.platformUtilsService.isSafari()) {
-      this.checkSafari();
-    } else {
-      setInterval(() => this.checkVaultTimeout(), 10 * 1000); // check every 10 seconds
+      this.checkVaultTimeout().catch((error) => this.logService.error(error));
+      this.checkSafari().catch((error) => this.logService.error(error));
+      return;
     }
+
+    super.startCheck();
   }
 
   // This is a work-around to safari adding an arbitrary delay to setTimeout and
@@ -20,6 +21,8 @@ export default class VaultTimeoutService extends BaseVaultTimeoutService {
     while (true) {
       try {
         await SafariApp.sendMessageToApp("sleep");
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.checkVaultTimeout();
       } catch (e) {
         // eslint-disable-next-line

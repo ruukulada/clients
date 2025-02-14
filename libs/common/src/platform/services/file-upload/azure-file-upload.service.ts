@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ApiService } from "../../../abstractions/api.service";
 import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
 import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
@@ -6,7 +9,10 @@ const MAX_SINGLE_BLOB_UPLOAD_SIZE = 256 * 1024 * 1024; // 256 MiB
 const MAX_BLOCKS_PER_BLOB = 50000;
 
 export class AzureFileUploadService {
-  constructor(private logService: LogService) {}
+  constructor(
+    private logService: LogService,
+    private apiService: ApiService,
+  ) {}
 
   async upload(url: string, data: EncArrayBuffer, renewalCallback: () => Promise<string>) {
     if (data.buffer.byteLength <= MAX_SINGLE_BLOB_UPLOAD_SIZE) {
@@ -31,7 +37,7 @@ export class AzureFileUploadService {
       headers: headers,
     });
 
-    const blobResponse = await fetch(request);
+    const blobResponse = await this.apiService.nativeFetch(request);
 
     if (blobResponse.status !== 201) {
       throw new Error(`Failed to create Azure blob: ${blobResponse.status}`);
@@ -40,7 +46,7 @@ export class AzureFileUploadService {
   private async azureUploadBlocks(
     url: string,
     data: EncArrayBuffer,
-    renewalCallback: () => Promise<string>
+    renewalCallback: () => Promise<string>,
   ) {
     const baseUrl = Utils.getUrl(url);
     const blockSize = this.getMaxBlockSize(baseUrl.searchParams.get("sv"));
@@ -50,7 +56,7 @@ export class AzureFileUploadService {
 
     if (numBlocks > MAX_BLOCKS_PER_BLOB) {
       throw new Error(
-        `Cannot upload file, exceeds maximum size of ${blockSize * MAX_BLOCKS_PER_BLOB}`
+        `Cannot upload file, exceeds maximum size of ${blockSize * MAX_BLOCKS_PER_BLOB}`,
       );
     }
 
@@ -77,7 +83,7 @@ export class AzureFileUploadService {
           headers: blockHeaders,
         });
 
-        const blockResponse = await fetch(blockRequest);
+        const blockResponse = await this.apiService.nativeFetch(blockRequest);
 
         if (blockResponse.status !== 201) {
           const message = `Unsuccessful block PUT. Received status ${blockResponse.status}`;
@@ -106,7 +112,7 @@ export class AzureFileUploadService {
         headers: headers,
       });
 
-      const response = await fetch(request);
+      const response = await this.apiService.nativeFetch(request);
 
       if (response.status !== 201) {
         const message = `Unsuccessful block list PUT. Received status ${response.status}`;
@@ -120,7 +126,7 @@ export class AzureFileUploadService {
 
   private async renewUrlIfNecessary(
     url: string,
-    renewalCallback: () => Promise<string>
+    renewalCallback: () => Promise<string>,
   ): Promise<string> {
     const urlObject = Utils.getUrl(url);
     const expiry = new Date(urlObject.searchParams.get("se") ?? "");
@@ -183,10 +189,10 @@ class Version {
     return a.year !== b.year
       ? a.year - b.year
       : a.month !== b.month
-      ? a.month - b.month
-      : a.day !== b.day
-      ? a.day - b.day
-      : 0;
+        ? a.month - b.month
+        : a.day !== b.day
+          ? a.day - b.day
+          : 0;
   }
   year = 0;
   month = 0;

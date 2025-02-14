@@ -1,5 +1,7 @@
-import { SecureNoteType } from "../../../enums";
-import { SecureNoteApi } from "../../../models/api/secure-note.api";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { SecureNoteType } from "../../enums";
+import { SecureNoteApi } from "../api/secure-note.api";
 
 export class SecureNoteData {
   type: SecureNoteType;

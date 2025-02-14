@@ -1,15 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 import * as path from "path";
 
 import * as inquirer from "inquirer";
 import * as JSZip from "jszip";
 
+import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { NodeUtils } from "@bitwarden/common/misc/nodeUtils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { Response } from "./models/response";
 import { MessageResponse } from "./models/response/message.response";
@@ -69,7 +71,7 @@ export class CliUtils {
           },
           (reason) => {
             reject(reason);
-          }
+          },
         );
       });
     });
@@ -216,7 +218,7 @@ export class CliUtils {
   static async getPassword(
     password: string,
     options: { passwordFile?: string; passwordEnv?: string },
-    logService?: LogService
+    logService?: LogService,
   ): Promise<string | Response> {
     if (Utils.isNullOrEmpty(password)) {
       if (options?.passwordFile) {
@@ -243,7 +245,7 @@ export class CliUtils {
         password = answer.password;
       } else {
         return Response.badRequest(
-          "Master password is required. Try again in interactive mode or provide a password file or environment variable."
+          "Master password is required. Try again in interactive mode or provide a password file or environment variable.",
         );
       }
     }
@@ -252,5 +254,21 @@ export class CliUtils {
 
   static convertBooleanOption(optionValue: any) {
     return optionValue || optionValue === "" ? true : false;
+  }
+
+  static convertNumberOption(optionValue: any, defaultValue: number) {
+    try {
+      if (optionValue != null) {
+        const numVal = parseInt(optionValue);
+        return !Number.isNaN(numVal) ? numVal : defaultValue;
+      }
+      return defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  }
+
+  static convertStringOption(optionValue: any, defaultValue: string) {
+    return optionValue != null ? String(optionValue) : defaultValue;
   }
 }

@@ -5,13 +5,12 @@ import "bootstrap";
 import "jquery";
 import "popper.js";
 
-require("./scss/styles.scss");
-require("./scss/tailwind.css");
-
 import { AppModule } from "./app/app.module";
 
 if (process.env.NODE_ENV === "production") {
   enableProdMode();
 }
 
+// FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 platformBrowserDynamic().bootstrapModule(AppModule, { preserveWhitespaces: true });

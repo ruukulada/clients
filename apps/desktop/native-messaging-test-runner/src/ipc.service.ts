@@ -1,8 +1,13 @@
+/* eslint-disable no-console */
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { homedir } from "os";
 
 import * as NodeIPC from "node-ipc";
 
+// eslint-disable-next-line no-restricted-imports
 import { MessageCommon } from "../../src/models/native-messaging/message-common";
+// eslint-disable-next-line no-restricted-imports
 import { UnencryptedMessageResponse } from "../../src/models/native-messaging/unencrypted-message-response";
 
 import Deferred from "./deferred";
@@ -37,7 +42,10 @@ export default class IPCService {
   // A set of deferred promises that are awaiting socket connection
   private awaitingConnection = new Set<Deferred<void>>();
 
-  constructor(private socketName: string, private messageHandler: MessageHandler) {}
+  constructor(
+    private socketName: string,
+    private messageHandler: MessageHandler,
+  ) {}
 
   async connect(): Promise<void> {
     console.log("[IPCService] connecting...");
@@ -75,7 +83,7 @@ export default class IPCService {
         // invoked multiple times each time a connection error happens
         console.log("[IPCService] errored");
         console.log(
-          "\x1b[33m Please make sure the desktop app is running locally and 'Allow DuckDuckGo browser integration' setting is enabled \x1b[0m"
+          "\x1b[33m Please make sure the desktop app is running locally and 'Allow DuckDuckGo browser integration' setting is enabled \x1b[0m",
         );
         this.awaitingConnection.forEach((deferred) => {
           console.log(`rejecting: ${deferred}`);
@@ -110,7 +118,7 @@ export default class IPCService {
 
   async sendMessage(
     message: MessageCommon,
-    options: IPCOptions = {}
+    options: IPCOptions = {},
   ): Promise<UnencryptedMessageResponse> {
     console.log("[IPCService] sendMessage");
     if (this.pendingMessages.has(message.messageId)) {

@@ -1,14 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { b64Decode, getQsParam } from "./common";
 
 declare let hcaptcha: any;
 
 if (window.location.pathname.includes("mobile")) {
+  // FIXME: Remove when updating file. Eslint update
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require("./captcha-mobile.scss");
 } else {
+  // FIXME: Remove when updating file. Eslint update
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require("./captcha.scss");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   init();
 });
 
@@ -46,6 +54,8 @@ async function start() {
   let decodedData: any;
   try {
     decodedData = JSON.parse(b64Decode(data, true));
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     error("Cannot parse data.");
     return;
@@ -75,6 +85,8 @@ async function start() {
       callback: "captchaSuccess",
       "error-callback": "captchaError",
     });
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     watchHeight();
   });
   document.head.appendChild(script);
@@ -101,10 +113,12 @@ function onMessage() {
       }
 
       if (event.data === "start") {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         start();
       }
     },
-    false
+    false,
   );
 }
 

@@ -8,8 +8,8 @@ export class AuthRequestResponse extends BaseResponse {
   publicKey: string;
   requestDeviceType: DeviceType;
   requestIpAddress: string;
-  key: string;
-  masterPasswordHash: string;
+  key: string; // could be either an encrypted MasterKey or an encrypted UserKey
+  masterPasswordHash: string; // if hash is present, the `key` above is an encrypted MasterKey (else `key` is an encrypted UserKey)
   creationDate: string;
   requestApproved?: boolean;
   responseDate?: string;
@@ -36,7 +36,7 @@ export class AuthRequestResponse extends BaseResponse {
       requestDate.getUTCHours(),
       requestDate.getUTCMinutes(),
       requestDate.getUTCSeconds(),
-      requestDate.getUTCMilliseconds()
+      requestDate.getUTCMilliseconds(),
     );
 
     const dateNow = new Date(Date.now());
@@ -47,7 +47,7 @@ export class AuthRequestResponse extends BaseResponse {
       dateNow.getUTCHours(),
       dateNow.getUTCMinutes(),
       dateNow.getUTCSeconds(),
-      dateNow.getUTCMilliseconds()
+      dateNow.getUTCMilliseconds(),
     );
 
     this.isExpired = dateNowUTC - requestDateUTC >= RequestTimeOut;

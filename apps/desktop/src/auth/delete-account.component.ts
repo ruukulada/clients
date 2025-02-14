@@ -1,21 +1,42 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { Verification } from "@bitwarden/common/types/verification";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  CalloutModule,
+  DialogModule,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
+
+import { UserVerificationComponent } from "../app/components/user-verification.component";
 
 @Component({
   selector: "app-delete-account",
+  standalone: true,
   templateUrl: "delete-account.component.html",
+  imports: [
+    JslibModule,
+    UserVerificationComponent,
+    ButtonModule,
+    CalloutModule,
+    AsyncActionsModule,
+    DialogModule,
+    ReactiveFormsModule,
+  ],
 })
 export class DeleteAccountComponent {
-  formPromise: Promise<void>;
-
   deleteForm = this.formBuilder.group({
-    verification: undefined as Verification | undefined,
+    verification: undefined as VerificationWithSecret | undefined,
   });
 
   constructor(
@@ -23,25 +44,24 @@ export class DeleteAccountComponent {
     private platformUtilsService: PlatformUtilsService,
     private formBuilder: FormBuilder,
     private accountApiService: AccountApiService,
-    private logService: LogService
+    private toastService: ToastService,
   ) {}
+
+  static open(dialogService: DialogService): DialogRef<DeleteAccountComponent> {
+    return dialogService.open(DeleteAccountComponent);
+  }
 
   get secret() {
     return this.deleteForm.get("verification")?.value?.secret;
   }
 
-  async submit() {
-    try {
-      const verification = this.deleteForm.get("verification").value;
-      this.formPromise = this.accountApiService.deleteAccount(verification);
-      await this.formPromise;
-      this.platformUtilsService.showToast(
-        "success",
-        this.i18nService.t("accountDeleted"),
-        this.i18nService.t("accountDeletedDesc")
-      );
-    } catch (e) {
-      this.logService.error(e);
-    }
-  }
+  submit = async () => {
+    const verification = this.deleteForm.get("verification").value;
+    await this.accountApiService.deleteAccount(verification);
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("accountDeleted"),
+      message: this.i18nService.t("accountDeletedDesc"),
+    });
+  };
 }

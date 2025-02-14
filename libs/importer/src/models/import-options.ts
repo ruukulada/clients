@@ -10,9 +10,9 @@ export const featuredImportOptions = [
   { id: "dashlanecsv", name: "Dashlane (csv)" },
   { id: "firefoxcsv", name: "Firefox (csv)" },
   { id: "keepass2xml", name: "KeePass 2 (xml)" },
-  { id: "lastpasscsv", name: "LastPass (csv)" },
+  { id: "lastpasscsv", name: "LastPass" },
   { id: "safaricsv", name: "Safari and macOS (csv)" },
-  { id: "1password1pux", name: "1Password (1pux)" },
+  { id: "1password1pux", name: "1Password (1pux/json)" },
 ] as const;
 
 export const regularImportOptions = [
@@ -29,7 +29,7 @@ export const regularImportOptions = [
   { id: "enpassjson", name: "Enpass (json)" },
   { id: "protonpass", name: "ProtonPass (zip/json)" },
   { id: "safeincloudxml", name: "SafeInCloud (xml)" },
-  { id: "pwsafexml", name: "Password Safe (xml)" },
+  { id: "pwsafexml", name: "Password Safe - pwsafe.org (xml)" },
   { id: "stickypasswordxml", name: "Sticky Password (xml)" },
   { id: "msecurecsv", name: "mSecure (csv)" },
   { id: "truekeycsv", name: "True Key (csv)" },
@@ -70,6 +70,8 @@ export const regularImportOptions = [
   { id: "nordpasscsv", name: "Nordpass (csv)" },
   { id: "psonojson", name: "Psono (json)" },
   { id: "passkyjson", name: "Passky (json)" },
+  { id: "passwordxpcsv", name: "Password XP (csv)" },
+  { id: "netwrixpasswordsecure", name: "Netwrix Password Secure (csv)" },
 ] as const;
 
 export type ImportType =

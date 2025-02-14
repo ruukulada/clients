@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { FieldType, LinkedIdType } from "../../../enums";
 import { View } from "../../../models/view/view";
+import { FieldType, LinkedIdType } from "../../enums";
 import { Field } from "../domain/field";
 
 export class FieldView implements View {

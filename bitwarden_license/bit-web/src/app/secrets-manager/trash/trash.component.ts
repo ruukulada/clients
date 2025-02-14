@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatestWith, Observable, startWith, switchMap } from "rxjs";
@@ -33,7 +35,7 @@ export class TrashComponent implements OnInit {
     private secretService: SecretService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit() {
@@ -43,7 +45,7 @@ export class TrashComponent implements OnInit {
       switchMap(async ([_, params]) => {
         this.organizationId = params.organizationId;
         return await this.getSecrets();
-      })
+      }),
     );
   }
 

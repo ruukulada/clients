@@ -1,8 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Menu, MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
+import { VersionMain } from "../../platform/main/version.main";
+import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { isMac } from "../../utils";
 import { UpdaterMain } from "../updater.main";
 import { WindowMain } from "../window.main";
@@ -47,11 +51,14 @@ export class Menubar {
   constructor(
     i18nService: I18nService,
     messagingService: MessagingService,
+    desktopSettingsService: DesktopSettingsService,
     updaterMain: UpdaterMain,
     windowMain: WindowMain,
     webVaultUrl: string,
     appVersion: string,
-    updateRequest?: MenuUpdateRequest
+    hardwareAccelerationEnabled: boolean,
+    versionMain: VersionMain,
+    updateRequest?: MenuUpdateRequest,
   ) {
     let isLocked = true;
     if (
@@ -62,9 +69,10 @@ export class Menubar {
       isLocked = updateRequest.accounts[updateRequest.activeUserId]?.isLocked ?? true;
     }
 
-    const isLockable = !isLocked && updateRequest?.accounts[updateRequest.activeUserId]?.isLockable;
+    const isLockable =
+      !isLocked && updateRequest?.accounts?.[updateRequest.activeUserId]?.isLockable;
     const hasMasterPassword =
-      updateRequest?.accounts[updateRequest.activeUserId]?.hasMasterPassword ?? false;
+      updateRequest?.accounts?.[updateRequest.activeUserId]?.hasMasterPassword ?? false;
 
     this.items = [
       new FileMenu(
@@ -74,7 +82,7 @@ export class Menubar {
         windowMain.win,
         updateRequest?.accounts,
         isLocked,
-        isLockable
+        isLockable,
       ),
       new EditMenu(i18nService, messagingService, isLocked),
       new ViewMenu(i18nService, messagingService, isLocked),
@@ -84,13 +92,15 @@ export class Menubar {
         webVaultUrl,
         windowMain.win,
         isLocked,
-        hasMasterPassword
+        hasMasterPassword,
       ),
       new WindowMenu(i18nService, messagingService, windowMain),
       new HelpMenu(
         i18nService,
+        desktopSettingsService,
         webVaultUrl,
-        new AboutMenu(i18nService, appVersion, windowMain.win, updaterMain)
+        hardwareAccelerationEnabled,
+        new AboutMenu(i18nService, appVersion, windowMain.win, updaterMain, versionMain),
       ),
     ];
 
@@ -104,7 +114,7 @@ export class Menubar {
             windowMain.win,
             updateRequest?.accounts,
             isLocked,
-            isLockable
+            isLockable,
           ),
         ],
         ...this.items,

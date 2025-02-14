@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MigrationHelper } from "../migration-helper";
 import { Direction, Migrator } from "../migrator";
 
@@ -31,6 +33,8 @@ export class AddKeyTypeToOrgKeysMigrator extends Migrator<4, 5> {
       await helper.set(userId, account);
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Promise.all(accounts.map(({ userId, account }) => updateOrgKey(userId, account)));
   }
 
@@ -53,6 +57,8 @@ export class AddKeyTypeToOrgKeysMigrator extends Migrator<4, 5> {
       await helper.set(userId, account);
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Promise.all(accounts.map(async ({ userId, account }) => updateOrgKey(userId, account)));
   }
 

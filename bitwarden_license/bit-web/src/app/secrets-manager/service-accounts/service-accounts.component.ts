@@ -1,14 +1,21 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, startWith, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
 
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import {
   ServiceAccountSecretsDetailsView,
   ServiceAccountView,
 } from "../models/view/service-account.view";
-import { AccessPolicyService } from "../shared/access-policies/access-policy.service";
 
 import {
   ServiceAccountDeleteDialogComponent,
@@ -30,24 +37,34 @@ export class ServiceAccountsComponent implements OnInit {
   protected search: string;
 
   private organizationId: string;
+  private organizationEnabled: boolean;
 
   constructor(
     private route: ActivatedRoute,
     private dialogService: DialogService,
-    private accessPolicyService: AccessPolicyService,
-    private serviceAccountService: ServiceAccountService
+    private serviceAccountService: ServiceAccountService,
+    private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
     this.serviceAccounts$ = combineLatest([
       this.route.params,
       this.serviceAccountService.serviceAccount$.pipe(startWith(null)),
-      this.accessPolicyService.serviceAccountAccessPolicyChanges$.pipe(startWith(null)),
     ]).pipe(
       switchMap(async ([params]) => {
         this.organizationId = params.organizationId;
+        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+        this.organizationEnabled = (
+          await firstValueFrom(
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          )
+        )?.enabled;
+
         return await this.getServiceAccounts();
-      })
+      }),
     );
   }
 
@@ -56,6 +73,7 @@ export class ServiceAccountsComponent implements OnInit {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Add,
+        organizationEnabled: this.organizationEnabled,
       },
     });
   }
@@ -66,6 +84,7 @@ export class ServiceAccountsComponent implements OnInit {
         organizationId: this.organizationId,
         serviceAccountId: serviceAccountId,
         operation: OperationType.Edit,
+        organizationEnabled: this.organizationEnabled,
       },
     });
   }
@@ -77,7 +96,7 @@ export class ServiceAccountsComponent implements OnInit {
         data: {
           serviceAccounts: event,
         },
-      }
+      },
     );
   }
 

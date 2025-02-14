@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as child_process from "child_process";
 
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
@@ -11,7 +13,10 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
 
   private deviceCache: DeviceType = null;
 
-  constructor(clientType: ClientType, private packageJson: any) {
+  constructor(
+    clientType: ClientType,
+    private packageJson: any,
+  ) {
     this.clientType = clientType;
   }
 
@@ -19,14 +24,14 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     if (!this.deviceCache) {
       switch (process.platform) {
         case "win32":
-          this.deviceCache = DeviceType.WindowsDesktop;
+          this.deviceCache = DeviceType.WindowsCLI;
           break;
         case "darwin":
-          this.deviceCache = DeviceType.MacOsDesktop;
+          this.deviceCache = DeviceType.MacOsCLI;
           break;
         case "linux":
         default:
-          this.deviceCache = DeviceType.LinuxDesktop;
+          this.deviceCache = DeviceType.LinuxCLI;
           break;
       }
     }
@@ -36,7 +41,7 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
 
   getDeviceString(): string {
     const device = DeviceType[this.getDevice()].toLowerCase();
-    return device.replace("desktop", "");
+    return device.replace("cli", "");
   }
 
   getClientType() {
@@ -107,7 +112,7 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     type: "error" | "success" | "warning" | "info",
     title: string,
     text: string | string[],
-    options?: any
+    options?: any,
   ): void {
     throw new Error("Not implemented.");
   }
@@ -126,14 +131,6 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
 
   readFromClipboard(options?: any): Promise<string> {
     throw new Error("Not implemented.");
-  }
-
-  supportsBiometric(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  authenticateBiometric(): Promise<boolean> {
-    return Promise.resolve(false);
   }
 
   supportsSecureStorage(): boolean {

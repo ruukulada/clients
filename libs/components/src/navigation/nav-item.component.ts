@@ -1,36 +1,41 @@
-import { Component, HostListener, Input } from "@angular/core";
-import { IsActiveMatchOptions } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { Component, HostListener, Input, Optional } from "@angular/core";
+import { RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
+import { IconButtonModule } from "../icon-button";
+
 import { NavBaseComponent } from "./nav-base.component";
+import { SideNavService } from "./side-nav.service";
+
+// Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
+export abstract class NavGroupAbstraction {
+  abstract setOpen(open: boolean): void;
+}
 
 @Component({
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
+  providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
+  standalone: true,
+  imports: [CommonModule, IconButtonModule, RouterModule],
 })
 export class NavItemComponent extends NavBaseComponent {
+  /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
+  @Input() forceActiveStyles? = false;
+
   /**
    * Is `true` if `to` matches the current route
    */
-  private _active = false;
-  protected setActive(isActive: boolean) {
-    this._active = isActive;
+  private _isActive = false;
+  protected setIsActive(isActive: boolean) {
+    this._isActive = isActive;
+    if (this._isActive && this.parentNavGroup) {
+      this.parentNavGroup.setOpen(true);
+    }
   }
   protected get showActiveStyles() {
-    return this._active && !this.hideActiveStyles;
-  }
-  protected rlaOptions: IsActiveMatchOptions = {
-    paths: "subset",
-    queryParams: "exact",
-    fragment: "ignored",
-    matrixParams: "ignored",
-  };
-
-  /**
-   * if `true`, use `exact` match for path instead of `subset`.
-   */
-  @Input() set exactMatch(val: boolean) {
-    this.rlaOptions.paths = val ? "exact" : "subset";
+    return this.forceActiveStyles || (this._isActive && !this.hideActiveStyles);
   }
 
   /**
@@ -42,7 +47,9 @@ export class NavItemComponent extends NavBaseComponent {
    */
   protected focusVisibleWithin$ = new BehaviorSubject(false);
   protected fvwStyles$ = this.focusVisibleWithin$.pipe(
-    map((value) => (value ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-text-alt2" : ""))
+    map((value) =>
+      value ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-text-alt2" : "",
+    ),
   );
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
@@ -51,5 +58,12 @@ export class NavItemComponent extends NavBaseComponent {
   @HostListener("focusout")
   onFocusOut() {
     this.focusVisibleWithin$.next(false);
+  }
+
+  constructor(
+    protected sideNavService: SideNavService,
+    @Optional() private parentNavGroup: NavGroupAbstraction,
+  ) {
+    super();
   }
 }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   AbstractControl,
@@ -7,13 +9,17 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   MemberDecryptionType,
   OpenIdConnectRedirectBehavior,
@@ -26,11 +32,13 @@ import { SsoConfigApi } from "@bitwarden/common/auth/models/api/sso-config.api";
 import { OrganizationSsoRequest } from "@bitwarden/common/auth/models/request/organization-sso.request";
 import { OrganizationSsoResponse } from "@bitwarden/common/auth/models/response/organization-sso.response";
 import { SsoConfigView } from "@bitwarden/common/auth/models/view/sso-config.view";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ToastService } from "@bitwarden/components";
 
 import { ssoTypeValidator } from "./sso-type.validator";
 
@@ -61,6 +69,10 @@ export class SsoComponent implements OnInit, OnDestroy {
     "http://www.w3.org/2000/09/xmldsig#rsa-sha384",
     "http://www.w3.org/2000/09/xmldsig#rsa-sha512",
   ];
+
+  readonly samlSigningAlgorithmOptions: SelectOptions[] = this.samlSigningAlgorithms.map(
+    (algorithm) => ({ name: algorithm, value: algorithm }),
+  );
 
   readonly saml2SigningBehaviourOptions: SelectOptions[] = [
     {
@@ -105,6 +117,7 @@ export class SsoComponent implements OnInit, OnDestroy {
   callbackPath: string;
   signedOutCallbackPath: string;
   spEntityId: string;
+  spEntityIdStatic: string;
   spMetadataUrl: string;
   spAcsUrl: string;
 
@@ -116,7 +129,7 @@ export class SsoComponent implements OnInit, OnDestroy {
       metadataAddress: new FormControl(),
       redirectBehavior: new FormControl(
         OpenIdConnectRedirectBehavior.RedirectGet,
-        Validators.required
+        Validators.required,
       ),
       getClaimsFromUserInfoEndpoint: new FormControl(),
       additionalScopes: new FormControl(),
@@ -128,11 +141,12 @@ export class SsoComponent implements OnInit, OnDestroy {
     },
     {
       updateOn: "blur",
-    }
+    },
   );
 
   protected samlForm = this.formBuilder.group<ControlsOf<SsoConfigView["saml"]>>(
     {
+      spUniqueEntityId: new FormControl(true, { updateOn: "change" }),
       spNameIdFormat: new FormControl(Saml2NameIdFormat.NotConfigured),
       spOutboundSigningAlgorithm: new FormControl(defaultSigningAlgorithm),
       spSigningBehavior: new FormControl(Saml2SigningBehavior.IfIdpWantAuthnRequestsSigned),
@@ -152,7 +166,7 @@ export class SsoComponent implements OnInit, OnDestroy {
     },
     {
       updateOn: "blur",
-    }
+    },
   );
 
   protected ssoConfigForm = this.formBuilder.group<ControlsOf<SsoConfigView>>({
@@ -177,6 +191,8 @@ export class SsoComponent implements OnInit, OnDestroy {
     return this.ssoConfigForm?.controls?.configType as FormControl;
   }
 
+  accountDeprovisioningEnabled$: Observable<boolean>;
+
   constructor(
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
@@ -184,9 +200,15 @@ export class SsoComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private configService: ConfigServiceAbstraction
-  ) {}
+    private configService: ConfigService,
+    private toastService: ToastService,
+  ) {
+    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AccountDeprovisioning,
+    );
+  }
 
   async ngOnInit() {
     this.enabledCtrl.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((enabled) => {
@@ -231,18 +253,11 @@ export class SsoComponent implements OnInit, OnDestroy {
           this.organizationId = params.organizationId;
           await this.load();
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
-    const tdeFeatureFlag = await this.configService.getFeatureFlagBool(
-      FeatureFlag.TrustedDeviceEncryption
-    );
-
-    this.showTdeOptions = tdeFeatureFlag;
-    // If the tde flag is not enabled, continue showing the key connector options to keep the UI the same
-    // Once the flag is removed, we can rely on the platformUtilsService.isSelfHost() check alone
-    this.showKeyConnectorOptions = !tdeFeatureFlag || this.platformUtilsService.isSelfHost();
+    this.showKeyConnectorOptions = this.platformUtilsService.isSelfHost();
   }
 
   ngOnDestroy(): void {
@@ -251,13 +266,19 @@ export class SsoComponent implements OnInit, OnDestroy {
   }
 
   async load() {
-    this.organization = await this.organizationService.get(this.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
     const ssoSettings = await this.organizationApiService.getSso(this.organizationId);
     this.populateForm(ssoSettings);
 
     this.callbackPath = ssoSettings.urls.callbackPath;
     this.signedOutCallbackPath = ssoSettings.urls.signedOutCallbackPath;
     this.spEntityId = ssoSettings.urls.spEntityId;
+    this.spEntityIdStatic = ssoSettings.urls.spEntityIdStatic;
     this.spMetadataUrl = ssoSettings.urls.spMetadataUrl;
     this.spAcsUrl = ssoSettings.urls.spAcsUrl;
 
@@ -285,7 +306,11 @@ export class SsoComponent implements OnInit, OnDestroy {
     const response = await this.organizationApiService.updateSso(this.organizationId, request);
     this.populateForm(response);
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("ssoSettingsSaved"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("ssoSettingsSaved"),
+    });
   };
 
   async validateKeyConnectorUrl() {
@@ -335,10 +360,6 @@ export class SsoComponent implements OnInit, OnDestroy {
     return this.ssoConfigForm.get("keyConnectorUrl");
   }
 
-  get samlSigningAlgorithmOptions(): SelectOptions[] {
-    return this.samlSigningAlgorithms.map((algorithm) => ({ name: algorithm, value: algorithm }));
-  }
-
   /**
    * Shows any validation errors for the form by marking all controls as dirty and touched.
    * If nested form groups are found, they are also updated.
@@ -370,11 +391,11 @@ export class SsoComponent implements OnInit, OnDestroy {
     const errorCount = this.getErrorCount(this.ssoConfigForm);
     const errorCountText = this.i18nService.t(
       errorCount === 1 ? "formErrorSummarySingle" : "formErrorSummaryPlural",
-      errorCount.toString()
+      errorCount.toString(),
     );
 
     const div = document.createElement("div");
-    div.className = "sr-only";
+    div.className = "tw-sr-only";
     div.id = "srErrorCount";
     div.setAttribute("aria-live", "polite");
     div.innerText = errorText + ": " + errorCountText;

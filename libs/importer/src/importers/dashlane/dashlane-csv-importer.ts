@@ -1,5 +1,6 @@
-import { SecureNoteType } from "@bitwarden/common/enums";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -120,7 +121,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
     cipher.notes = row.note;
     cipher.login.username = row.username;
     cipher.login.password = row.password;
-    cipher.login.totp = row.otpSecret;
+    cipher.login.totp = Object.keys(row).includes("otpUrl") ? row.otpUrl : row.otpSecret;
     cipher.login.uris = this.makeUriArray(row.url);
 
     this.importUnmappedFields(cipher, row, _mappedCredentialsColumns);

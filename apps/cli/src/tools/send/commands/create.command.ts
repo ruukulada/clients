@@ -1,12 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 import * as path from "path";
 
-import { NodeUtils } from "@bitwarden/common/misc/nodeUtils";
+import { firstValueFrom, switchMap } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
@@ -16,9 +21,10 @@ import { SendResponse } from "../models/send.response";
 export class SendCreateCommand {
   constructor(
     private sendService: SendService,
-    private stateService: StateService,
     private environmentService: EnvironmentService,
-    private sendApiService: SendApiService
+    private sendApiService: SendApiService,
+    private accountProfileService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   async run(requestJson: any, cmdOptions: Record<string, any>) {
@@ -43,6 +49,8 @@ export class SendCreateCommand {
         if (req == null) {
           throw new Error("Null request");
         }
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return Response.badRequest("Error parsing the encoded request data.");
       }
@@ -74,21 +82,25 @@ export class SendCreateCommand {
     req.key = null;
     req.maxAccessCount = maxAccessCount;
 
+    const hasPremium$ = this.accountService.activeAccount$.pipe(
+      switchMap(({ id }) => this.accountProfileService.hasPremiumFromAnySource$(id)),
+    );
+
     switch (req.type) {
       case SendType.File:
         if (process.env.BW_SERVE === "true") {
           return Response.error(
-            "Creating a file-based Send is unsupported through the `serve` command at this time."
+            "Creating a file-based Send is unsupported through the `serve` command at this time.",
           );
         }
 
-        if (!(await this.stateService.getCanAccessPremium())) {
+        if (!(await firstValueFrom(hasPremium$))) {
           return Response.error("Premium status is required to use this feature.");
         }
 
         if (filePath == null) {
           return Response.badRequest(
-            "Must specify a file to Send either with the --file option or in the request JSON."
+            "Must specify a file to Send either with the --file option or in the request JSON.",
           );
         }
 
@@ -97,7 +109,7 @@ export class SendCreateCommand {
       case SendType.Text:
         if (text == null) {
           return Response.badRequest(
-            "Must specify text content to Send either with the --text option or in the request JSON."
+            "Must specify text content to Send either with the --text option or in the request JSON.",
           );
         }
         req.text = new SendTextResponse();
@@ -106,7 +118,7 @@ export class SendCreateCommand {
         break;
       default:
         return Response.badRequest(
-          "Unknown Send type " + SendType[req.type] + ". Valid types are: file, text"
+          "Unknown Send type " + SendType[req.type] + ". Valid types are: file, text",
         );
     }
 
@@ -125,7 +137,8 @@ export class SendCreateCommand {
       await this.sendApiService.save([encSend, fileData]);
       const newSend = await this.sendService.getFromState(encSend.id);
       const decSend = await newSend.decrypt();
-      const res = new SendResponse(decSend, this.environmentService.getWebVaultUrl());
+      const env = await firstValueFrom(this.environmentService.environment$);
+      const res = new SendResponse(decSend, env.getWebVaultUrl());
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

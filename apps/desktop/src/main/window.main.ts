@@ -1,15 +1,20 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
 
 import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { firstValueFrom } from "rxjs";
 
-import { WindowState } from "@bitwarden/common/models/domain/window-state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { processisolations } from "@bitwarden/desktop-napi";
+import { BiometricStateService } from "@bitwarden/key-management";
 
-import { cleanUserAgent, isDev, isMacAppStore, isSnapStore } from "../utils";
+import { WindowState } from "../platform/models/domain/window-state";
+import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { cleanUserAgent, isDev, isLinux, isMac, isMacAppStore, isWindows } from "../utils";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
@@ -18,40 +23,69 @@ export class WindowMain {
   isQuitting = false;
   isClosing = false;
 
-  private windowStateChangeTimer: NodeJS.Timer;
+  private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
   private enableAlwaysOnTop = false;
-  private session: Electron.Session;
+  private enableRendererProcessForceCrashReload = false;
+  session: Electron.Session;
 
   readonly defaultWidth = 950;
   readonly defaultHeight = 600;
 
   constructor(
-    private stateService: StateService,
+    private biometricStateService: BiometricStateService,
     private logService: LogService,
     private storageService: AbstractStorageService,
+    private desktopSettingsService: DesktopSettingsService,
     private argvCallback: (argv: string[]) => void = null,
-    private createWindowCallback: (win: BrowserWindow) => void
+    private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
 
   init(): Promise<any> {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
     // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
+      this.logService.info("Reloading render process");
       // User might have changed theme, ensure the window is updated.
       this.win.setBackgroundColor(await this.getBackgroundColor());
 
-      const crashEvent = once(this.win.webContents, "render-process-gone");
-      this.win.webContents.forcefullyCrashRenderer();
-      await crashEvent;
+      // By default some linux distro collect core dumps on crashes which gets written to disk.
+      if (this.enableRendererProcessForceCrashReload) {
+        const crashEvent = once(this.win.webContents, "render-process-gone");
+        this.win.webContents.forcefullyCrashRenderer();
+        await crashEvent;
+      }
 
       this.win.webContents.reloadIgnoringCache();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.session.clearCache();
+      this.logService.info("Render process reloaded");
+    });
+
+    ipcMain.on("window-focus", () => {
+      if (this.win != null) {
+        this.win.show();
+        this.win.focus();
+      }
+    });
+
+    ipcMain.on("window-hide", () => {
+      if (this.win != null) {
+        this.win.hide();
+      }
+    });
+
+    this.desktopSettingsService.preventScreenshots$.subscribe((prevent) => {
+      if (this.win == null) {
+        return;
+      }
+      this.win.setContentProtection(prevent);
     });
 
     return new Promise<void>((resolve, reject) => {
       try {
-        if (!isMacAppStore() && !isSnapStore()) {
+        if (!isMacAppStore()) {
           const gotTheLock = app.requestSingleInstanceLock();
           if (!gotTheLock) {
             app.quit();
@@ -66,7 +100,7 @@ export class WindowMain {
                 }
                 this.win.focus();
               }
-              if (process.platform === "win32" || process.platform === "linux") {
+              if (isWindows() || isLinux()) {
                 if (this.argvCallback != null) {
                   this.argvCallback(argv);
                 }
@@ -77,7 +111,9 @@ export class WindowMain {
 
         // This method will be called when Electron is shutting
         // down the application.
-        app.on("before-quit", () => {
+        app.on("before-quit", async () => {
+          // Allow biometric to auto-prompt on reload
+          await this.biometricStateService.resetAllPromptCancelled();
           this.isQuitting = true;
         });
 
@@ -85,6 +121,33 @@ export class WindowMain {
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
         app.on("ready", async () => {
+          if (isMac() || isWindows()) {
+            this.enableRendererProcessForceCrashReload = true;
+          } else if (isLinux() && !isDev()) {
+            if (await processisolations.isCoreDumpingDisabled()) {
+              this.logService.info("Coredumps are disabled in renderer process");
+              this.enableRendererProcessForceCrashReload = true;
+            } else {
+              this.logService.info("Disabling coredumps in main process");
+              try {
+                await processisolations.disableCoredumps();
+              } catch (e) {
+                this.logService.error("Failed to disable coredumps", e);
+              }
+            }
+
+            // this currently breaks the file portal, so should only be used when
+            // no files are needed but security requirements are super high https://github.com/flatpak/xdg-desktop-portal/issues/785
+            if (process.env.EXPERIMENTAL_PREVENT_DEBUGGER_MEMORY_ACCESS === "true") {
+              this.logService.info("Disabling memory dumps in main process");
+              try {
+                await processisolations.disableMemoryAccess();
+              } catch (e) {
+                this.logService.error("Failed to disable memory dumps", e);
+              }
+            }
+          }
+
           await this.createWindow();
           resolve();
           if (this.argvCallback != null) {
@@ -96,7 +159,7 @@ export class WindowMain {
         app.on("window-all-closed", () => {
           // On OS X it is common for applications and their menu bar
           // to stay active until the user quits explicitly with Cmd + Q
-          if (process.platform !== "darwin" || this.isQuitting || isMacAppStore()) {
+          if (!isMac() || this.isQuitting || isMacAppStore()) {
             app.quit();
           }
         });
@@ -104,7 +167,7 @@ export class WindowMain {
         app.on("activate", async () => {
           // On OS X it's common to re-create a window in the app when the
           // dock icon is clicked and there are no other windows open.
-          if (this.win === null) {
+          if (this.win == null) {
             await this.createWindow();
           } else {
             // Show the window when clicking on Dock icon
@@ -122,9 +185,9 @@ export class WindowMain {
   async createWindow(): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
-      this.defaultHeight
+      this.defaultHeight,
     );
-    this.enableAlwaysOnTop = await this.stateService.getEnableAlwaysOnTop();
+    this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
 
     this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
@@ -137,17 +200,19 @@ export class WindowMain {
       x: this.windowStates[mainWindowSizeKey].x,
       y: this.windowStates[mainWindowSizeKey].y,
       title: app.name,
-      icon: process.platform === "linux" ? path.join(__dirname, "/images/icon.png") : undefined,
-      titleBarStyle: process.platform === "darwin" ? "hiddenInset" : undefined,
+      icon: isLinux() ? path.join(__dirname, "/images/icon.png") : undefined,
+      titleBarStyle: isMac() ? "hiddenInset" : undefined,
       show: false,
       backgroundColor: await this.getBackgroundColor(),
       alwaysOnTop: this.enableAlwaysOnTop,
       webPreferences: {
+        preload: path.join(__dirname, "preload.js"),
         spellcheck: false,
-        nodeIntegration: true,
+        nodeIntegration: false,
         backgroundThrottling: false,
-        contextIsolation: false,
+        contextIsolation: true,
         session: this.session,
+        devTools: isDev(),
       },
     });
 
@@ -163,6 +228,8 @@ export class WindowMain {
     this.win.show();
 
     // and load the index.html of the app.
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.win.loadURL(
       url.format({
         protocol: "file:",
@@ -171,7 +238,7 @@ export class WindowMain {
       }),
       {
         userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      }
+      },
     );
 
     // Open the DevTools.
@@ -217,6 +284,14 @@ export class WindowMain {
       });
     });
 
+    firstValueFrom(this.desktopSettingsService.preventScreenshots$)
+      .then((preventScreenshots) => {
+        this.win.setContentProtection(preventScreenshots);
+      })
+      .catch((e) => {
+        this.logService.error(e);
+      });
+
     if (this.createWindowCallback) {
       this.createWindowCallback(this.win);
     }
@@ -225,8 +300,7 @@ export class WindowMain {
   // Retrieve the background color
   // Resolves background color missmatch when starting the application.
   async getBackgroundColor(): Promise<string> {
-    const data: { theme?: string } = await this.storageService.get("global");
-    let theme = data?.theme;
+    let theme = await this.storageService.get("global_theming_selection");
 
     if (theme == null || theme === "system") {
       theme = nativeTheme.shouldUseDarkColors ? "dark" : "light";
@@ -245,7 +319,7 @@ export class WindowMain {
   async toggleAlwaysOnTop() {
     this.enableAlwaysOnTop = !this.win.isAlwaysOnTop();
     this.win.setAlwaysOnTop(this.enableAlwaysOnTop);
-    await this.stateService.setEnableAlwaysOnTop(this.enableAlwaysOnTop);
+    await this.desktopSettingsService.setAlwaysOnTop(this.enableAlwaysOnTop);
   }
 
   private windowStateChangeHandler(configKey: string, win: BrowserWindow) {
@@ -256,7 +330,7 @@ export class WindowMain {
   }
 
   private async updateWindowState(configKey: string, win: BrowserWindow) {
-    if (win == null) {
+    if (win == null || win.isDestroyed()) {
       return;
     }
 
@@ -264,7 +338,7 @@ export class WindowMain {
       const bounds = win.getBounds();
 
       if (this.windowStates[configKey] == null) {
-        this.windowStates[configKey] = await this.stateService.getWindow();
+        this.windowStates[configKey] = await firstValueFrom(this.desktopSettingsService.window$);
         if (this.windowStates[configKey] == null) {
           this.windowStates[configKey] = <WindowState>{};
         }
@@ -284,14 +358,14 @@ export class WindowMain {
         this.windowStates[configKey].zoomFactor = win.webContents.zoomFactor;
       }
 
-      await this.stateService.setWindow(this.windowStates[configKey]);
+      await this.desktopSettingsService.setWindow(this.windowStates[configKey]);
     } catch (e) {
       this.logService.error(e);
     }
   }
 
   private async getWindowState(defaultWidth: number, defaultHeight: number) {
-    const state = await this.stateService.getWindow();
+    const state = await firstValueFrom(this.desktopSettingsService.window$);
 
     const isValid = state != null && (this.stateHasBounds(state) || state.isMaximized);
     let displayBounds: Electron.Rectangle = null;

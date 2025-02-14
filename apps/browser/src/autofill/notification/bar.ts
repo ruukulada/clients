@@ -1,22 +1,57 @@
-import type { Jsonify } from "type-fest";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { render } from "lit";
 
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-require("./bar.scss");
+import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
+import { NotificationContainer } from "../content/components/notification/container";
+import { buildSvgDomElement } from "../utils";
+import { circleCheckIcon } from "../utils/svg-icons";
 
-document.addEventListener("DOMContentLoaded", () => {
-  // delay 50ms so that we get proper body dimensions
-  setTimeout(load, 50);
-});
+import {
+  NotificationBarWindowMessageHandlers,
+  NotificationBarWindowMessage,
+  NotificationBarIframeInitData,
+  NotificationType,
+} from "./abstractions/notification-bar";
 
+const logService = new ConsoleLogService(false);
+let notificationBarIframeInitData: NotificationBarIframeInitData = {};
+let windowMessageOrigin: string;
+let useComponentBar = false;
+const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers = {
+  initNotificationBar: ({ message }) => initNotificationBar(message),
+  saveCipherAttemptCompleted: ({ message }) => handleSaveCipherAttemptCompletedMessage(message),
+};
+
+globalThis.addEventListener("load", load);
 function load() {
-  const theme = getQueryVariable("theme");
-  document.documentElement.classList.add("theme_" + theme);
+  setupWindowMessageListener();
+  sendPlatformMessage({ command: "notificationRefreshFlagValue" }, (flagValue) => {
+    useComponentBar = flagValue;
+    applyNotificationBarStyle();
+  });
+}
 
-  const isVaultLocked = getQueryVariable("isVaultLocked") == "true";
-  (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
-    ? chrome.runtime.getURL("images/icon38_locked.png")
-    : chrome.runtime.getURL("images/icon38.png");
+function applyNotificationBarStyle() {
+  if (!useComponentBar) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("./bar.scss");
+  }
+  postMessageToParent({ command: "initNotificationBar" });
+}
+
+function initNotificationBar(message: NotificationBarWindowMessage) {
+  const { initData } = message;
+  if (!initData) {
+    return;
+  }
+
+  notificationBarIframeInitData = initData;
+  const { isVaultLocked, theme } = notificationBarIframeInitData;
 
   const i18n = {
     appName: chrome.i18n.getMessage("appName"),
@@ -30,18 +65,53 @@ function load() {
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+
+    // @TODO move values to message catalog
+    saveAction: "Save",
+    saveAsNewLoginAction: "Save as new login",
+    updateLoginAction: "Update login",
+    saveLoginPrompt: "Save login?",
+    updateLoginPrompt: "Update existing login?",
+    loginSaveSuccess: "Login saved",
+    loginSaveSuccessDetails: "Login saved to Bitwarden.",
+    loginUpdateSuccess: "Login saved",
+    loginUpdateSuccessDetails: "Login updated in Bitwarden.",
+    saveFailure: "Error saving",
+    saveFailureDetails: "Oh no! We couldn't save this. Try entering the details as a New item",
   };
 
-  const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
-  logoLink.title = i18n.appName;
+  if (useComponentBar) {
+    document.body.innerHTML = "";
+    // Current implementations utilize a require for scss files which creates the need to remove the node.
+    document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
+    const themeType = getTheme(globalThis, theme);
 
-  // Update logo link to user's regional domain
-  const webVaultURL = getQueryVariable("webVaultURL");
-  const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
+    // There are other possible passed theme values, but for now, resolve to dark or light
+    const resolvedTheme: Theme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
 
-  if (newVaultURL && newVaultURL !== logoLink.href) {
-    logoLink.href = newVaultURL;
+    sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, (cipherData) => {
+      // @TODO use context to avoid prop drilling
+      return render(
+        NotificationContainer({
+          ...notificationBarIframeInitData,
+          type: notificationBarIframeInitData.type as NotificationType,
+          theme: resolvedTheme,
+          handleCloseNotification,
+          i18n,
+          ciphers: cipherData,
+        }),
+        document.body,
+      );
+    });
   }
+
+  setNotificationBarTheme();
+
+  (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
+    ? chrome.runtime.getURL("images/icon38_locked.png")
+    : chrome.runtime.getURL("images/icon38.png");
+
+  setupLogoLink(i18n);
 
   // i18n for "Add" template
   const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
@@ -74,6 +144,7 @@ function load() {
 
   changeTemplate.content.getElementById("change-text").textContent = i18n.notificationChangeDesc;
 
+  // i18n for "Unlock" (unlock extension) template
   const unlockTemplate = document.getElementById("template-unlock") as HTMLTemplateElement;
 
   const unlockButton = unlockTemplate.content.getElementById("unlock-vault");
@@ -85,37 +156,26 @@ function load() {
   const closeButton = document.getElementById("close-button");
   closeButton.title = i18n.close;
 
-  if (getQueryVariable("type") === "add") {
+  const notificationType = initData.type;
+  if (notificationType === "add") {
     handleTypeAdd();
-  } else if (getQueryVariable("type") === "change") {
+  } else if (notificationType === "change") {
     handleTypeChange();
-  } else if (getQueryVariable("type") === "unlock") {
+  } else if (notificationType === "unlock") {
     handleTypeUnlock();
   }
 
-  closeButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    sendPlatformMessage({
-      command: "bgCloseNotificationBar",
-    });
-  });
+  closeButton.addEventListener("click", handleCloseNotification);
 
-  window.addEventListener("resize", adjustHeight);
+  globalThis.addEventListener("resize", adjustHeight);
   adjustHeight();
 }
 
-function getQueryVariable(variable: string) {
-  const query = window.location.search.substring(1);
-  const vars = query.split("&");
-
-  for (let i = 0; i < vars.length; i++) {
-    const pair = vars[i].split("=");
-    if (pair[0] === variable) {
-      return pair[1];
-    }
-  }
-
-  return null;
+function handleCloseNotification(e: Event) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgCloseNotificationBar",
+  });
 }
 
 function handleTypeAdd() {
@@ -126,11 +186,7 @@ function handleTypeAdd() {
     e.preventDefault();
 
     // If Remove Individual Vault policy applies, "Add" opens the edit tab
-    sendPlatformMessage({
-      command: "bgAddSave",
-      folder: getSelectedFolder(),
-      edit: removeIndividualVault(),
-    });
+    sendSaveCipherMessage(removeIndividualVault(), getSelectedFolder());
   });
 
   if (removeIndividualVault()) {
@@ -142,11 +198,7 @@ function handleTypeAdd() {
   editButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    sendPlatformMessage({
-      command: "bgAddSave",
-      folder: getSelectedFolder(),
-      edit: true,
-    });
+    sendSaveCipherMessage(true, getSelectedFolder());
   });
 
   const neverButton = document.getElementById("never-save");
@@ -166,21 +218,53 @@ function handleTypeChange() {
   changeButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    sendPlatformMessage({
-      command: "bgChangeSave",
-      edit: false,
-    });
+    sendSaveCipherMessage(false);
   });
 
   const editButton = document.getElementById("change-edit");
   editButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    sendPlatformMessage({
-      command: "bgChangeSave",
-      edit: true,
-    });
+    sendSaveCipherMessage(true);
   });
+}
+
+function sendSaveCipherMessage(edit: boolean, folder?: string) {
+  sendPlatformMessage({
+    command: "bgSaveCipher",
+    folder,
+    edit,
+  });
+}
+
+function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowMessage) {
+  const addSaveButtonContainers = document.querySelectorAll(".add-change-cipher-buttons");
+  const notificationBarOuterWrapper = document.getElementById("notification-bar-outer-wrapper");
+  if (message?.error) {
+    addSaveButtonContainers.forEach((element) => {
+      element.textContent = chrome.i18n.getMessage("saveCipherAttemptFailed");
+      element.classList.add("error-message");
+      notificationBarOuterWrapper.classList.add("error-event");
+    });
+
+    adjustHeight();
+    logService.error(`Error encountered when saving credentials: ${message.error}`);
+    return;
+  }
+  const messageName =
+    notificationBarIframeInitData.type === "add" ? "passwordSaved" : "passwordUpdated";
+
+  addSaveButtonContainers.forEach((element) => {
+    element.textContent = chrome.i18n.getMessage(messageName);
+    element.prepend(buildSvgDomElement(circleCheckIcon));
+    element.classList.add("success-message");
+    notificationBarOuterWrapper.classList.add("success-event");
+  });
+  adjustHeight();
+  globalThis.setTimeout(
+    () => sendPlatformMessage({ command: "bgCloseNotificationBar", fadeOutNotification: true }),
+    3000,
+  );
 }
 
 function handleTypeUnlock() {
@@ -189,7 +273,7 @@ function handleTypeUnlock() {
   const unlockButton = document.getElementById("unlock-vault");
   unlockButton.addEventListener("click", (e) => {
     sendPlatformMessage({
-      command: "bgReopenPromptForLogin",
+      command: "bgReopenUnlockPopout",
     });
   });
 }
@@ -204,31 +288,34 @@ function setContent(template: HTMLTemplateElement) {
   content.appendChild(newElement);
 }
 
-function sendPlatformMessage(msg: Record<string, unknown>) {
-  chrome.runtime.sendMessage(msg);
+function sendPlatformMessage(
+  msg: Record<string, unknown>,
+  responseCallback?: (response: any) => void,
+) {
+  chrome.runtime.sendMessage(msg, (response) => {
+    if (responseCallback) {
+      responseCallback(response);
+    }
+  });
 }
 
 function loadFolderSelector() {
-  const responseFoldersCommand = "notificationBarGetFoldersList";
-
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.command !== responseFoldersCommand || msg.data == null) {
+  const populateFolderData = (folderData: FolderView[]) => {
+    const select = document.getElementById("select-folder");
+    if (!folderData?.length) {
+      select.appendChild(new Option(chrome.i18n.getMessage("noFoldersFound"), null, true));
+      select.setAttribute("disabled", "true");
       return;
     }
 
-    const folders = msg.data.folders as Jsonify<FolderView[]>;
-    const select = document.getElementById("select-folder");
     select.appendChild(new Option(chrome.i18n.getMessage("selectFolder"), null, true));
-    folders.forEach((folder) => {
+    folderData.forEach((folder: FolderView) => {
       // Select "No Folder" (id=null) folder by default
       select.appendChild(new Option(folder.name, folder.id || "", false));
     });
-  });
+  };
 
-  sendPlatformMessage({
-    command: "bgGetDataForTab",
-    responseCommand: responseFoldersCommand,
-  });
+  sendPlatformMessage({ command: "bgGetFolderData" }, populateFolderData);
 }
 
 function getSelectedFolder(): string {
@@ -236,14 +323,73 @@ function getSelectedFolder(): string {
 }
 
 function removeIndividualVault(): boolean {
-  return getQueryVariable("removeIndividualVault") == "true";
+  return notificationBarIframeInitData.removeIndividualVault;
 }
 
 function adjustHeight() {
+  const data: AdjustNotificationBarMessageData = {
+    height: document.querySelector("body").scrollHeight,
+  };
   sendPlatformMessage({
     command: "bgAdjustNotificationBar",
-    data: {
-      height: document.querySelector("body").scrollHeight,
-    },
+    data,
   });
+}
+
+function setupWindowMessageListener() {
+  globalThis.addEventListener("message", handleWindowMessage);
+}
+
+function handleWindowMessage(event: MessageEvent) {
+  if (!windowMessageOrigin) {
+    windowMessageOrigin = event.origin;
+  }
+
+  if (event.origin !== windowMessageOrigin) {
+    return;
+  }
+
+  const message = event.data as NotificationBarWindowMessage;
+  const handler = notificationBarWindowMessageHandlers[message.command];
+  if (!handler) {
+    return;
+  }
+
+  handler({ message });
+}
+
+function setupLogoLink(i18n: Record<string, string>) {
+  const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
+  logoLink.title = i18n.appName;
+  const setWebVaultUrlLink = (webVaultURL: string) => {
+    const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
+    if (newVaultURL && newVaultURL !== logoLink.href) {
+      logoLink.href = newVaultURL;
+    }
+  };
+  sendPlatformMessage({ command: "getWebVaultUrlForNotification" }, setWebVaultUrlLink);
+}
+
+function getTheme(globalThis: any, theme: NotificationBarIframeInitData["theme"]) {
+  if (theme === ThemeTypes.System) {
+    return globalThis.matchMedia("(prefers-color-scheme: dark)").matches
+      ? ThemeTypes.Dark
+      : ThemeTypes.Light;
+  }
+
+  return theme;
+}
+
+function setNotificationBarTheme() {
+  const theme = getTheme(globalThis, notificationBarIframeInitData.theme);
+
+  document.documentElement.classList.add(`theme_${theme}`);
+
+  if (notificationBarIframeInitData.applyRedesign) {
+    document.body.classList.add("notification-bar-redesign");
+  }
+}
+
+function postMessageToParent(message: NotificationBarWindowMessage) {
+  globalThis.parent.postMessage(message, windowMessageOrigin || "*");
 }

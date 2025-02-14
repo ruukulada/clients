@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 /**
  * Use as a Decorator on async functions, it will limit how many times the function can be
  * in-flight at a time.
@@ -8,7 +10,7 @@ export function throttle(limit: number, throttleKey: (args: any[]) => string) {
   return <T>(
     target: any,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<(...args: any[]) => Promise<T>>
+    descriptor: TypedPropertyDescriptor<(...args: any[]) => Promise<T>>,
   ) => {
     const originalMethod: () => Promise<T> = descriptor.value;
     const allThrottles = new Map<any, Map<string, (() => void)[]>>();

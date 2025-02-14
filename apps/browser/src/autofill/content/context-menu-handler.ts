@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 const inputTags = ["input", "textarea", "select"];
 const labelTags = ["label", "span"];
 const attributes = ["id", "name", "label-aria", "placeholder"];
@@ -60,6 +62,8 @@ chrome.runtime.onMessage.addListener((event, _sender, sendResponse) => {
     if (sendResponse) {
       sendResponse(identifier);
     }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     chrome.runtime.sendMessage({
       command: "getClickedElementResponse",
       sender: "contextMenuHandler",

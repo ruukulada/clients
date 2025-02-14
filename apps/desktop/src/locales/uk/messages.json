@@ -21,10 +21,13 @@
     "message": "Картка"
   },
   "typeIdentity": {
-    "message": "Особисті дані"
+    "message": "Посвідчення"
   },
   "typeSecureNote": {
     "message": "Захищена нотатка"
+  },
+  "typeSshKey": {
+    "message": "Ключ SSH"
   },
   "folders": {
     "message": "Теки"
@@ -60,6 +63,9 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "З поверненням"
+  },
   "moveToOrgDesc": {
     "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення."
   },
@@ -67,7 +73,7 @@
     "message": "Вкладення"
   },
   "viewItem": {
-    "message": "Перегляд запису"
+    "message": "Переглянути запис"
   },
   "name": {
     "message": "Назва"
@@ -151,7 +157,7 @@
     "message": "Код безпеки"
   },
   "identityName": {
-    "message": "Назва"
+    "message": "Назва посвідчення"
   },
   "company": {
     "message": "Компанія"
@@ -174,6 +180,63 @@
   "address": {
     "message": "Адреса"
   },
+  "sshPrivateKey": {
+    "message": "Закритий ключ"
+  },
+  "sshPublicKey": {
+    "message": "Відкритий ключ"
+  },
+  "sshFingerprint": {
+    "message": "Цифровий відбиток"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Тип ключа"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "Згенеровано новий ключ SSH"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Ви ввели неправильний пароль."
+  },
+  "importSshKey": {
+    "message": "Імпорт"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Підтвердити пароль"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Введіть пароль для ключа SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Введіть пароль"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Розблокуйте своє сховище, щоб затвердити запит ключа SSH."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "Вичерпано час очікування запиту ключа SSH."
+  },
+  "enableSshAgent": {
+    "message": "Увімкнути агента SSH"
+  },
+  "enableSshAgentDesc": {
+    "message": "Увімкніть агента SSH, щоб підписувати запити SSH безпосередньо зі сховища Bitwarden."
+  },
+  "enableSshAgentHelp": {
+    "message": "Агент SSH – це служба, призначена для розробників, яка дає можливість підписувати запити SSH безпосередньо зі сховища Bitwarden."
+  },
   "premiumRequired": {
     "message": "Необхідна передплата преміум"
   },
@@ -185,6 +248,20 @@
   },
   "error": {
     "message": "Помилка"
+  },
+  "decryptionError": {
+    "message": "Помилка розшифрування"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Зверніться до служби підтримки клієнтів,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "щоб уникнути втрати даних.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "Січень"
@@ -259,6 +336,9 @@
   "generatePassword": {
     "message": "Генерувати пароль"
   },
+  "generatePassphrase": {
+    "message": "Генерувати парольну фразу"
+  },
   "type": {
     "message": "Тип"
   },
@@ -311,7 +391,7 @@
     "message": "Змінити"
   },
   "authenticatorKeyTotp": {
-    "message": "Ключ авторизації (TOTP)"
+    "message": "Ключ автентифікації (TOTP)"
   },
   "folder": {
     "message": "Тека"
@@ -346,7 +426,7 @@
     "message": "Видалити"
   },
   "nameRequired": {
-    "message": "Потрібна назва."
+    "message": "Необхідно ввести назву."
   },
   "addedItem": {
     "message": "Запис додано"
@@ -394,6 +474,16 @@
   "copyPassword": {
     "message": "Копіювати пароль"
   },
+  "regenerateSshKey": {
+    "message": "Повторно згенерувати ключ SSH"
+  },
+  "copySshPrivateKey": {
+    "message": "Копіювати закритий ключ SSH"
+  },
+  "copyPassphrase": {
+    "message": "Копіювати парольну фразу",
+    "description": "Copy passphrase to clipboard"
+  },
   "copyUri": {
     "message": "Копіювати URI"
   },
@@ -403,17 +493,59 @@
   "length": {
     "message": "Довжина"
   },
+  "passwordMinLength": {
+    "message": "Мінімальна довжина пароля"
+  },
   "uppercase": {
-    "message": "Верхній регістр (A-Z)"
+    "message": "Верхній регістр (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Нижній регістр (a-z)"
+    "message": "Нижній регістр (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Числа (0-9)"
+    "message": "Числа (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
     "message": "Спеціальні символи (!@#$%^&*)"
+  },
+  "include": {
+    "message": "Включити",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Символи верхнього регістру",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Символи нижнього регістру",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Цифри",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Спеціальні символи",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Кількість слів"
@@ -439,7 +571,16 @@
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "Уникати неоднозначних символів"
+    "message": "Уникати неоднозначних символів",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Уникати неоднозначних символів",
+    "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "До налаштувань генератора застосовано вимоги політики компанії.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
     "message": "Шукати в збірці"
@@ -475,8 +616,8 @@
   "maxFileSize": {
     "message": "Максимальний розмір файлу 500 Мб."
   },
-  "updateKey": {
-    "message": "Ви не можете використовувати цю функцію доки не оновите свій ключ шифрування."
+  "encryptionKeyMigrationRequired": {
+    "message": "Потрібно перенести ключ шифрування. Увійдіть у вебсховище та оновіть свій ключ шифрування."
   },
   "editedFolder": {
     "message": "Теку збережено"
@@ -496,8 +637,29 @@
   "createAccount": {
     "message": "Створити обліковий запис"
   },
+  "newToBitwarden": {
+    "message": "Вперше у Bitwarden?"
+  },
+  "setAStrongPassword": {
+    "message": "Встановіть надійний пароль"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "Завершіть створення облікового запису, встановивши пароль"
+  },
   "logIn": {
     "message": "Увійти"
+  },
+  "logInToBitwarden": {
+    "message": "Увійти в Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Увійти з ключем доступу"
+  },
+  "loginWithDevice": {
+    "message": "Увійти з пристроєм"
+  },
+  "useSingleSignOn": {
+    "message": "Використати єдиний вхід"
   },
   "submit": {
     "message": "Відправити"
@@ -517,8 +679,60 @@
   "masterPassHint": {
     "message": "Підказка для головного пароля (необов'язково)"
   },
+  "masterPassHintText": {
+    "message": "У разі втрати пароля, можна отримати підказку на вашу електронну пошту. Максимум $CURRENT$/$MAXIMUM$ символів.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "masterPassword": {
+    "message": "Головний пароль"
+  },
+  "masterPassImportant": {
+    "message": "Головний пароль неможливо відновити, якщо ви його втратите!"
+  },
+  "confirmMasterPassword": {
+    "message": "Підтвердьте головний пароль"
+  },
+  "masterPassHintLabel": {
+    "message": "Підказка для головного пароля"
+  },
+  "joinOrganization": {
+    "message": "Приєднатися до організації"
+  },
+  "joinOrganizationName": {
+    "message": "Приєднатися до $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Завершіть приєднання до цієї організації, встановивши головний пароль."
+  },
   "settings": {
     "message": "Налаштування"
+  },
+  "accountEmail": {
+    "message": "Е-пошта облікового запису"
+  },
+  "requestHint": {
+    "message": "Підказка для запиту"
+  },
+  "requestPasswordHint": {
+    "message": "Підказка для запиту пароля"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Введіть адресу е-пошти свого облікового запису і вам буде надіслано підказку для пароля"
   },
   "passwordHint": {
     "message": "Підказка для пароля"
@@ -551,11 +765,23 @@
       }
     }
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Ви успішно увійшли в систему"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Можете закрити це вікно"
+  },
   "masterPassDoesntMatch": {
     "message": "Підтвердження головного пароля не збігається."
   },
   "newAccountCreated": {
     "message": "Ваш обліковий запис створений! Тепер ви можете увійти."
+  },
+  "newAccountCreated2": {
+    "message": "Ваш обліковий запис створено!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Ви увійшли!"
   },
   "masterPassSent": {
     "message": "Ми надіслали вам лист з підказкою для головного пароля."
@@ -587,6 +813,9 @@
   "verificationCodeRequired": {
     "message": "Потрібний код підтвердження."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "Автентифікацію було скасовано або вона тривала надто довго. Повторіть спробу."
+  },
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
   },
@@ -594,7 +823,7 @@
     "message": "Продовжити"
   },
   "enterVerificationCodeApp": {
-    "message": "Введіть 6-значний код підтвердження з програми авторизації."
+    "message": "Введіть 6-значний код підтвердження з програми автентифікації."
   },
   "enterVerificationCodeEmail": {
     "message": "Введіть 6-значний код підтвердження, надісланий на $EMAIL$.",
@@ -636,25 +865,34 @@
     "message": "Код відновлення"
   },
   "authenticatorAppTitle": {
-    "message": "Програма авторизації"
+    "message": "Програма автентифікації"
   },
-  "authenticatorAppDesc": {
-    "message": "Використовуйте програму авторизації (наприклад, Authy або Google Authenticator), щоб генерувати тимчасові коди підтвердження.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Введіть код, згенерований програмою для автентифікації, як-от Bitwarden Authenticator.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "Ключ безпеки YubiKey OTP"
+  "yubiKeyTitleV2": {
+    "message": "Ключ безпеки Yubico OTP"
   },
   "yubiKeyDesc": {
     "message": "Використовуйте YubiKey для доступу до сховища. Працює з YubiKey 4, 4 Nano, 4C та пристроями NEO."
   },
-  "duoDesc": {
-    "message": "Авторизуйтесь за допомогою Duo Security з використанням мобільного додатку Duo Mobile, SMS, телефонного виклику, або ключа безпеки U2F.",
+  "duoDescV2": {
+    "message": "Введіть код, згенерований Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "Авторизуйтесь за допомогою Duo Security для вашої організації з використанням мобільного додатку Duo Mobile, SMS, телефонного виклику, або ключа безпеки U2F.",
+    "message": "Авторизуйтесь за допомогою Duo Security для вашої організації з використанням програми Duo Mobile, SMS, телефонного виклику, або ключа безпеки U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+  },
+  "verifyIdentity": {
+    "message": "Підтвердьте свою особу"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
+  },
+  "continueLoggingIn": {
+    "message": "Продовжити вхід"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -665,8 +903,8 @@
   "emailTitle": {
     "message": "Е-пошта"
   },
-  "emailDesc": {
-    "message": "Коди підтвердження будуть надсилатися на вашу пошту."
+  "emailDescV2": {
+    "message": "Введіть код, надісланий вам електронною поштою."
   },
   "loginUnavailable": {
     "message": "Вхід недоступний"
@@ -675,7 +913,7 @@
     "message": "Для цього облікового запису налаштовано двоетапну перевірку. Однак, жоден із налаштованих провайдерів двоетапної перевірки не підтримується цим пристроєм."
   },
   "noTwoStepProviders2": {
-    "message": "Додайте інших провайдерів, які краще підтримуються різними пристроями, наприклад програма авторизації."
+    "message": "Додайте інших провайдерів, які краще підтримуються різними пристроями, як-от програма автентифікації."
   },
   "twoStepOptions": {
     "message": "Налаштування двоетапної перевірки"
@@ -684,7 +922,16 @@
     "message": "Середовище власного хостингу"
   },
   "selfHostedEnvironmentFooter": {
-    "message": "Вкажіть основну URL-адресу вашого локально розміщеного встановлення Bitwarden."
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу."
+  },
+  "selfHostedBaseUrlHint": {
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу. Зразок: https://bitwarden.company.com"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "Для розширеної конфігурації ви можете вказати основну URL-адресу окремо для кожної служби."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "Необхідно додати URL-адресу основного сервера, або принаймні одне користувацьке середовище."
   },
   "customEnvironment": {
     "message": "Власне середовище"
@@ -695,11 +942,21 @@
   "baseUrl": {
     "message": "URL-адреса сервера"
   },
+  "authenticationTimeout": {
+    "message": "Час очікування автентифікації"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Час очікування сеансу автентифікації завершився. Перезапустіть процес входу в систему."
+  },
+  "selfHostBaseUrl": {
+    "message": "URL-адреса власного сервера",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "apiUrl": {
     "message": "URL-адреса сервера API"
   },
   "webVaultUrl": {
-    "message": "URL-адреса сервера веб сховища"
+    "message": "URL-адреса сервера вебсховища"
   },
   "identityUrl": {
     "message": "URL-адреса сервера ідентифікації"
@@ -734,8 +991,23 @@
   "loggedOut": {
     "message": "Ви вийшли"
   },
+  "loggedOutDesc": {
+    "message": "Ви вийшли з облікового запису."
+  },
   "loginExpired": {
     "message": "Тривалість вашого сеансу завершилась."
+  },
+  "restartRegistration": {
+    "message": "Перезапустити реєстрацію"
+  },
+  "expiredLink": {
+    "message": "Протерміноване посилання"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Перезапустіть реєстрацію або спробуйте ввійти."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Можливо, ви вже зареєстровані"
   },
   "logOutConfirmation": {
     "message": "Ви дійсно хочете вийти?"
@@ -753,7 +1025,7 @@
     "message": "Нова тека"
   },
   "view": {
-    "message": "Перегляд"
+    "message": "Переглянути"
   },
   "account": {
     "message": "Обліковий запис"
@@ -791,8 +1063,11 @@
   "changeMasterPass": {
     "message": "Змінити головний пароль"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Ви можете змінити головний пароль в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
+  "continueToWebApp": {
+    "message": "Продовжити у вебпрограмі?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Ви можете змінити головний пароль у вебпрограмі Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Фраза відбитка",
@@ -803,10 +1078,10 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
-    "message": "Перейти у веб сховище"
+    "message": "Перейти у вебсховище"
   },
   "getMobileApp": {
-    "message": "Отримати мобільний додаток"
+    "message": "Отримати програму для мобільних пристроїв"
   },
   "getBrowserExtension": {
     "message": "Отримати розширення браузера"
@@ -819,6 +1094,18 @@
   },
   "yourVaultIsLocked": {
     "message": "Сховище заблоковано. Пройдіть ідентифікацію для продовження."
+  },
+  "yourAccountIsLocked": {
+    "message": "Ваш обліковий запис заблоковано"
+  },
+  "or": {
+    "message": "або"
+  },
+  "unlockWithBiometrics": {
+    "message": "Розблокувати з біометрією"
+  },
+  "unlockWithMasterPassword": {
+    "message": "Розблокувати з головним паролем"
   },
   "unlock": {
     "message": "Розблокувати"
@@ -840,13 +1127,16 @@
     "message": "Неправильний головний пароль"
   },
   "twoStepLoginConfirmation": {
-    "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою коду безпеки, програми авторизації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
+    "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою ключа безпеки, програми автентифікації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
   "twoStepLogin": {
     "message": "Двоетапна перевірка"
   },
   "vaultTimeout": {
     "message": "Час очікування сховища"
+  },
+  "vaultTimeout1": {
+    "message": "Час очікування"
   },
   "vaultTimeoutDesc": {
     "message": "Оберіть дію, яка виконається після завершення часу очікування сховища."
@@ -1052,6 +1342,9 @@
     "message": "Копіювати номер",
     "description": "Copy credit card number"
   },
+  "copyEmail": {
+    "message": "Копіювати е-пошту"
+  },
   "copySecurityCode": {
     "message": "Копіювати код безпеки",
     "description": "Copy credit card security code (CVV)"
@@ -1078,7 +1371,7 @@
     "message": "1 ГБ зашифрованого сховища для файлів."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Додаткові можливості двоетапної авторизації, як-от YubiKey та Duo."
   },
   "premiumSignUpReports": {
     "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про вразливості даних, щоб зберігати ваше сховище в безпеці."
@@ -1095,8 +1388,8 @@
   "premiumPurchase": {
     "message": "Придбати преміум"
   },
-  "premiumPurchaseAlert": {
-    "message": "Ви можете передплатити преміум у сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
+  "premiumPurchaseAlertV2": {
+    "message": "Ви можете придбати Преміум у налаштуваннях облікового запису вебпрограмі Bitwarden."
   },
   "premiumCurrentMember": {
     "message": "Ви користуєтеся передплатою преміум!"
@@ -1119,12 +1412,30 @@
   "passwordHistory": {
     "message": "Історія паролів"
   },
+  "generatorHistory": {
+    "message": "Історія генератора"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Очистити історію генератора"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Якщо ви продовжите, усі записи будуть остаточно видалені з історії генератора. Справді продовжити?"
+  },
   "clear": {
     "message": "Стерти",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Немає паролів."
+  },
+  "clearHistory": {
+    "message": "Очистити історію"
+  },
+  "nothingToShow": {
+    "message": "Немає даних для показу"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Ви нічого не генерували останнім часом"
   },
   "undo": {
     "message": "Повернути"
@@ -1199,6 +1510,15 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Успішно скопійовано"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "Помилка оновлення токена доступу"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "Не знайдено токен оновлення або ключі API. Спробуйте вийти, а потім увійти знову."
   },
   "help": {
     "message": "Допомога"
@@ -1287,11 +1607,41 @@
     "message": "Пароль оновлено",
     "description": "ex. Date this password was updated"
   },
+  "exportFrom": {
+    "message": "Експортувати з"
+  },
   "exportVault": {
     "message": "Експортувати сховище"
   },
   "fileFormat": {
     "message": "Формат файлу"
+  },
+  "fileEncryptedExportWarningDesc": {
+    "message": "Цей експортований файл буде захищений паролем, який необхідно ввести для його розшифрування."
+  },
+  "filePassword": {
+    "message": "Пароль файлу"
+  },
+  "exportPasswordDescription": {
+    "message": "Цей пароль буде використано для експортування та імпортування цього файлу"
+  },
+  "accountRestrictedOptionDescription": {
+    "message": "Використовуйте ключ шифрування свого облікового запису, створений на основі імені користувача й головного пароля, щоб зашифрувати експортовані дані та обмежити можливість імпортування лише до поточного облікового запису Bitwarden."
+  },
+  "passwordProtected": {
+    "message": "Захищено паролем"
+  },
+  "passwordProtectedOptionDescription": {
+    "message": "Встановіть пароль файлу, щоб зашифрувати експортовані дані та імпортувати до будь-якого облікового запису Bitwarden за допомогою цього пароля."
+  },
+  "exportTypeHeading": {
+    "message": "Тип експорту"
+  },
+  "accountRestricted": {
+    "message": "Обмежено обліковим записом"
+  },
+  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+    "message": "Пароль файлу та підтвердження пароля відрізняються."
   },
   "hCaptchaUrl": {
     "message": "URL-адреса hCaptcha",
@@ -1389,11 +1739,17 @@
   "invalidPin": {
     "message": "Неправильний PIN-код."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Забагато невдалих спроб введення PIN-коду. Вихід з системи."
+  },
   "unlockWithWindowsHello": {
     "message": "Розблокувати з Windows Hello"
   },
   "additionalWindowsHelloSettings": {
     "message": "Додаткові налаштування Windows Hello"
+  },
+  "unlockWithPolkit": {
+    "message": "Розблокувати за допомогою системної автентифікації"
   },
   "windowsHelloConsentMessage": {
     "message": "Перевірити на Bitwarden."
@@ -1410,6 +1766,9 @@
   "autoPromptWindowsHello": {
     "message": "Запитувати Windows Hello під час запуску"
   },
+  "autoPromptPolkit": {
+    "message": "Запитувати системну автентифікацію під час запуску"
+  },
   "autoPromptTouchId": {
     "message": "Запитувати Touch ID під час запуску"
   },
@@ -1419,7 +1778,7 @@
   "recommendedForSecurity": {
     "message": "Рекомендовано для безпеки."
   },
-  "lockWithMasterPassOnRestart": {
+  "lockWithMasterPassOnRestart1": {
     "message": "Блокувати головним паролем при перезапуску"
   },
   "deleteAccount": {
@@ -1430,6 +1789,12 @@
   },
   "deleteAccountWarning": {
     "message": "Видалення облікового запису є незворотною дією. Це не можна буде скасувати."
+  },
+  "cannotDeleteAccount": {
+    "message": "Не вдається видалити обліковий запис"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Цю дію не можна виконати, тому що ваш обліковий запис належить організації. Зверніться до адміністратора організації для отримання додаткової інформації."
   },
   "accountDeleted": {
     "message": "Обліковий запис видалено"
@@ -1490,14 +1855,14 @@
     "message": "Щоб відновити доступ до сховища, необхідно ввести головний пароль або скористатись іншим способом розблокування."
   },
   "vaultTimeoutActionLogOutDesc": {
-    "message": "Щоб відновити доступ до сховища, необхідно повторно авторизуватись."
+    "message": "Щоб відновити доступ до сховища, необхідно пройти повторну автентифікацію."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Налаштуйте спосіб розблокування, щоб змінити час очікування сховища."
   },
   "lock": {
     "message": "Блокувати",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Смітник",
@@ -1522,7 +1887,7 @@
     "message": "Остаточно видалити"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Вихід скасує всі права доступу до вашого сховища і вимагатиме авторизації після завершення часу очікування. Ви дійсно хочете використати цей параметр?"
+    "message": "Вихід скасує всі права доступу до вашого сховища і вимагатиме автентифікацію після завершення часу очікування. Ви дійсно хочете використати цей параметр?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "Підтвердження дії часу очікування"
@@ -1533,8 +1898,26 @@
   "setMasterPassword": {
     "message": "Встановити головний пароль"
   },
-  "ssoCompleteRegistration": {
-    "message": "Щоб завершити налаштування входу з SSO, встановіть головний пароль для доступу і захисту сховища."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Оновлено дозволи вашої організації – вимагається встановлення головного пароля.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Ваша організація вимагає, щоб ви встановили головний пароль.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "cardMetrics": {
+    "message": "з $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "verificationRequired": {
+    "message": "Потрібне підтвердження",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Поточний головний пароль"
@@ -1587,6 +1970,21 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новий головний пароль не задовольняє вимоги політики."
   },
+  "receiveMarketingEmailsV2": {
+    "message": "Отримуйте поради, оголошення та можливості дослідження від Bitwarden у своїй поштовій скриньці."
+  },
+  "unsubscribe": {
+    "message": "Відписатися"
+  },
+  "atAnyTime": {
+    "message": "можна будь-коли."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "Продовжуючи, ви погоджуєтеся з"
+  },
+  "and": {
+    "message": "і"
+  },
   "acceptPolicies": {
     "message": "Позначивши цей прапорець, ви погоджуєтеся з:"
   },
@@ -1596,8 +1994,8 @@
   "enableBrowserIntegration": {
     "message": "Дозволити інтеграцію з браузером"
   },
-  "enableBrowserIntegrationDesc": {
-    "message": "Використовується для біометрії в браузері."
+  "enableBrowserIntegrationDesc1": {
+    "message": "Використовується для біометричного розблокування у браузерах, крім Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Дозволити інтеграцію з браузером DuckDuckGo"
@@ -1607,6 +2005,12 @@
   },
   "browserIntegrationUnsupportedTitle": {
     "message": "Інтеграція з браузером не підтримується"
+  },
+  "browserIntegrationErrorTitle": {
+    "message": "Помилка увімкнення інтеграції з браузером"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "Під час увімкнення інтеграції з браузером сталася помилка."
   },
   "browserIntegrationMasOnlyDesc": {
     "message": "На жаль, зараз інтеграція з браузером підтримується лише у версії для Mac з App Store."
@@ -1622,6 +2026,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Додайте ще один рівень безпеки, вимагаючи підтвердження фрази відбитка під час встановлення зв'язку між програмою на комп'ютері та браузером. Вимагатиметься дія користувача і перевірка щоразу під час встановлення зв'язку."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Використовувати апаратне прискорення"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Типово, цей параметр увімкнено. Вимкніть його лише за виникнення проблем із графікою. Потрібен перезапуск."
   },
   "approve": {
     "message": "Схвалити"
@@ -1653,6 +2063,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Для використання біометрії в браузері необхідно спершу налаштувати її в програмі на комп'ютері."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Автоналаштування недоступне"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "У зв'язку з методом встановлення, не можна автоматично ввімкнути підтримку біометрії. Бажаєте переглянути документацію про те, як зробити це вручну?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Згідно з політикою компанії, вам заборонено зберігати записи в особистому сховищі. Змініть опцію власника на організацію та виберіть серед доступних збірок."
   },
@@ -1661,6 +2077,9 @@
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Політика організації впливає на ваші параметри власності."
+  },
+  "personalOwnershipPolicyInEffectImports": {
+    "message": "Політика організації заблокувала імпортування записів до вашого особистого сховища."
   },
   "allSends": {
     "message": "Усі відправлення",
@@ -1716,7 +2135,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDesc": {
-    "message": "За бажанням вимагати пароль в користувачів для доступу до цього відправлення.",
+    "message": "Ви можете встановити пароль для доступу до цього відправлення.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -1823,7 +2242,7 @@
     "message": "Очікується видалення"
   },
   "webAuthnAuthenticate": {
-    "message": "Авторизація WebAuthn"
+    "message": "Автентифікація WebAuthn"
   },
   "hideEmail": {
     "message": "Приховувати мою адресу електронної пошти від отримувачів."
@@ -1833,6 +2252,9 @@
   },
   "emailVerificationRequired": {
     "message": "Необхідно підтвердити е-пошту"
+  },
+  "emailVerifiedV2": {
+    "message": "Електронну пошту підтверджено"
   },
   "emailVerificationRequiredDesc": {
     "message": "Для використання цієї функції необхідно підтвердити електронну пошту."
@@ -1858,14 +2280,53 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Ваша організація вимкнула шифрування довірених пристроїв. Встановіть головний пароль для доступу до сховища."
+  },
+  "tryAgain": {
+    "message": "Спробуйте знову"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Ця дія потребує підтвердження. Встановіть PIN-код, щоб продовжити."
+  },
+  "setPin": {
+    "message": "Встановити PIN-код"
+  },
+  "verifyWithBiometrics": {
+    "message": "Підтвердити з біометрією"
+  },
+  "awaitingConfirmation": {
+    "message": "Очікується підтвердження"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Не вдалося виконати біометричну перевірку."
+  },
+  "needADifferentMethod": {
+    "message": "Потрібен інший спосіб?"
+  },
+  "useMasterPassword": {
+    "message": "Використати головний пароль"
+  },
+  "usePin": {
+    "message": "Використати PIN-код"
+  },
+  "useBiometrics": {
+    "message": "Використати біометрію"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Введіть код підтвердження, надісланий на вашу електронну пошту."
+  },
+  "resendCode": {
+    "message": "Надіслати новий код"
+  },
   "hours": {
     "message": "Годин"
   },
   "minutes": {
     "message": "Хвилин"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Політикою вашої організації встановлено максимальний дозволений час очікування сховища $HOURS$ годин, $MINUTES$ хвилин.",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ год і $MINUTES$ хв максимум.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -1905,6 +2366,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Час очікування сховища перевищує обмеження, встановлені вашою організацією."
+  },
+  "inviteAccepted": {
+    "message": "Запрошення прийнято"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматичне подання запиту"
@@ -1975,6 +2439,9 @@
   "switchAccount": {
     "message": "Перемкнути обліковий запис"
   },
+  "alreadyHaveAccount": {
+    "message": "Вже маєте обліковий запис?"
+  },
   "options": {
     "message": "Налаштування"
   },
@@ -1984,8 +2451,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Експортування особистого сховища"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Будуть експортовані лише записи особистого сховища, пов'язані з $EMAIL$. Записи сховища організації не буде включено.",
+  "exportingIndividualVaultDescription": {
+    "message": "Будуть експортовані лише записи особистого сховища, пов'язані з $EMAIL$. Записи сховища організації не буде включено. Експортуються лише дані записів сховища без пов'язаних вкладень.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1993,14 +2460,30 @@
       }
     }
   },
+  "exportingOrganizationVaultTitle": {
+    "message": "Експортування сховища організації"
+  },
+  "exportingOrganizationVaultDesc": {
+    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Записи особистих сховищ або інших організацій не будуть включені.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "ACME Moving Co."
+      }
+    }
+  },
   "locked": {
     "message": "Заблоковано"
+  },
+  "yourVaultIsLockedV2": {
+    "message": "Ваше сховище заблоковано"
   },
   "unlocked": {
     "message": "Розблоковано"
   },
   "generator": {
-    "message": "Генератор"
+    "message": "Генератор",
+    "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
     "message": "Що ви бажаєте згенерувати?"
@@ -2014,6 +2497,43 @@
   "generateUsername": {
     "message": "Генерувати ім'я користувача"
   },
+  "generateEmail": {
+    "message": "Генерувати е-пошту"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Значення має бути між $MIN$ та $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Використовуйте $RECOMMENDED$ або більше символів, щоб згенерувати надійний пароль.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Використовуйте $RECOMMENDED$ або більше слів, щоб згенерувати надійну парольну фразу.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "usernameType": {
     "message": "Тип імені користувача"
   },
@@ -2022,13 +2542,16 @@
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "Використовуйте розширені можливості адрес вашого постачальника електронної пошти."
+    "message": "Використовуйте розширені можливості адрес вашого провайдера електронної пошти."
   },
   "catchallEmail": {
     "message": "Адреса е-пошти Catch-all"
   },
   "catchallEmailDesc": {
     "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Випадково"
@@ -2056,6 +2579,116 @@
   },
   "forwardedEmailDesc": {
     "message": "Згенеруйте псевдонім е-пошти зі стороннім сервісом пересилання."
+  },
+  "forwarderDomainName": {
+    "message": "Домен електронної пошти",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Виберіть домен, який підтримується вибраною службою",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
+  },
+  "forwarderError": {
+    "message": "Помилка $SERVICENAME$: $ERRORMESSAGE$",
+    "description": "Reports an error returned by a forwarding service to the user.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Invalid characters in domain name."
+      }
+    }
+  },
+  "forwarderGeneratedBy": {
+    "message": "Згенеровано Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen."
+  },
+  "forwarderGeneratedByWithWebsite": {
+    "message": "Вебсайт: $WEBSITE$. Згенеровано Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen.",
+    "placeholders": {
+      "WEBSITE": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
+  "forwaderInvalidToken": {
+    "message": "Недійсний токен API для $SERVICENAME$",
+    "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidTokenWithMessage": {
+    "message": "Недійсний токен API для $SERVICENAME$: $ERRORMESSAGE$",
+    "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwarderNoAccountId": {
+    "message": "Не вдалося отримати ідентифікатор замаскованої е-пошти облікового запису для $SERVICENAME$.",
+    "description": "Displayed when the forwarding service fails to return an account ID.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoDomain": {
+    "message": "Недійсний домен для $SERVICENAME$.",
+    "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoUrl": {
+    "message": "Недійсна URL-адреса для $SERVICENAME$.",
+    "description": "Displayed when the url of the forwarding service wasn't supplied.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownError": {
+    "message": "Сталася невідома помилка $SERVICENAME$.",
+    "description": "Displayed when the forwarding service failed due to an unknown error.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownForwarder": {
+    "message": "Невідомий засіб переспрямування: '$SERVICENAME$'.",
+    "description": "Displayed when the forwarding service is not supported.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "JustTrust.us"
+      }
+    }
   },
   "hostname": {
     "message": "Ім'я вузла",
@@ -2112,8 +2745,26 @@
   "loginInitiated": {
     "message": "Ініційовано вхід"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "Сповіщення було надіслано на ваш пристрій."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Сповіщення надіслано на ваш пристрій"
+  },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "needAnotherOptionV1": {
+    "message": "Потрібен інший варіант?"
   },
   "fingerprintMatchInfo": {
     "message": "Переконайтеся, що ваше сховище розблоковане, а фраза відбитка збігається з іншим пристроєм."
@@ -2121,8 +2772,14 @@
   "fingerprintPhraseHeader": {
     "message": "Фраза відбитка"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Після схвалення запиту ви отримаєте сповіщення"
+  },
   "needAnotherOption": {
     "message": "Потрібно увімкнути схвалення запитів на вхід у налаштуваннях програми Bitwarden. Потрібен інший варіант?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Переглянути всі варіанти входу"
   },
   "viewAllLoginOptions": {
     "message": "Переглянути всі варіанти входу"
@@ -2134,11 +2791,11 @@
     "message": "Перемкнути лічильник символів",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Ви намагаєтесь увійти?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Спроба входу з $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2155,14 +2812,11 @@
   "time": {
     "message": "Час"
   },
-  "confirmLogIn": {
-    "message": "Підтвердити вхід"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "Заборонити вхід"
-  },
-  "approveLoginRequests": {
-    "message": "Схвалювати запити на вхід"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
@@ -2198,11 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Цей запит більше недійсний."
   },
-  "approveLoginRequestDesc": {
-    "message": "Використовувати цей пристрій для схвалення запитів на вхід, виконаних з інших пристроїв."
-  },
-  "confirmLoginAtemptForMail": {
-    "message": "Підтвердити спробу входу для $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2212,6 +2863,30 @@
   },
   "logInRequested": {
     "message": "Виконано запит входу"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "creatingAccountOn": {
+    "message": "Створення облікового запису"
+  },
+  "checkYourEmail": {
+    "message": "Перевірте свою електронну пошту"
+  },
+  "followTheLinkInTheEmailSentTo": {
+    "message": "Перейдіть за посиланням у листі, надісланому на"
+  },
+  "andContinueCreatingYourAccount": {
+    "message": "і завершіть створення облікового запису."
+  },
+  "noEmail": {
+    "message": "Не отримали електронного листа?"
+  },
+  "goBack": {
+    "message": "Поверніться назад"
+  },
+  "toEditYourEmailAddress": {
+    "message": "і виправте адресу електронної пошти."
   },
   "exposedMasterPassword": {
     "message": "Головний пароль викрито"
@@ -2225,11 +2900,29 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Виявлено слабкий пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
   },
+  "useThisPassword": {
+    "message": "Використати цей пароль"
+  },
+  "useThisUsername": {
+    "message": "Використати це ім'я користувача"
+  },
   "checkForBreaches": {
     "message": "Перевірити відомі витоки даних для цього пароля"
   },
+  "loggedInExclamation": {
+    "message": "Ви увійшли!"
+  },
   "important": {
     "message": "Важливо:"
+  },
+  "accessing": {
+    "message": "Доступ"
+  },
+  "accessTokenUnableToBeDecrypted": {
+    "message": "Ви вийшли з системи, оскільки неможливо розшифрувати ваш токен доступу. Увійдіть знову, щоб виправити цю проблему."
+  },
+  "refreshTokenSecureStorageRetrievalFailure": {
+    "message": "Ви вийшли з системи, оскільки неможливо отримати ваш токен оновлення. Увійдіть знову, щоб виправити цю проблему."
   },
   "masterPasswordHint": {
     "message": "Головний пароль неможливо відновити, якщо ви його втратите!"
@@ -2249,8 +2942,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Оновлення рекомендованих налаштувань"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Запам'ятайте цей пристрій, щоб спростити майбутні входи в систему"
+  },
   "deviceApprovalRequired": {
     "message": "Необхідне підтвердження пристрою. Виберіть варіант підтвердження нижче:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Потрібне підтвердження пристрою"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Виберіть варіант підтвердження нижче"
   },
   "rememberThisDevice": {
     "message": "Запам'ятати цей пристрій"
@@ -2277,17 +2979,8 @@
     "message": "ЄС",
     "description": "European Union"
   },
-  "loggingInOn": {
-    "message": "Увійти на"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
-  "selfHosted": {
-    "message": "Власне розміщення"
+  "selfHostedServer": {
+    "message": "власне розміщення"
   },
   "accessDenied": {
     "message": "Доступ заборонено. У вас немає дозволу на перегляд цієї сторінки."
@@ -2312,6 +3005,9 @@
   },
   "userEmailMissing": {
     "message": "Немає адреси електронної пошти"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Адресу е-пошти активного користувача не знайдено. Виконується вихід із системи."
   },
   "deviceTrusted": {
     "message": "Довірений пристрій"
@@ -2415,5 +3111,407 @@
   },
   "submenu": {
     "message": "Підменю"
+  },
+  "toggleSideNavigation": {
+    "message": "Перемкнути бічну навігацію"
+  },
+  "skipToContent": {
+    "message": "Перейти до вмісту"
+  },
+  "typePasskey": {
+    "message": "Ключ доступу"
+  },
+  "passkeyNotCopied": {
+    "message": "Ключ доступу не буде скопійовано"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "Ключ доступу не буде скопійовано до клонованого запису. Хочете продовжити клонування цього запису?"
+  },
+  "aliasDomain": {
+    "message": "Псевдонім домену"
+  },
+  "importData": {
+    "message": "Імпортувати дані",
+    "description": "Used for the desktop menu item and the header of the import dialog"
+  },
+  "importError": {
+    "message": "Помилка імпорту"
+  },
+  "importErrorDesc": {
+    "message": "Під час спроби імпортування ваших даних виникла проблема. Будь ласка, виправте вказані нижче помилки у вихідному файлі та спробуйте знову."
+  },
+  "resolveTheErrorsBelowAndTryAgain": {
+    "message": "Розв'яжіть зазначені помилки та повторіть спробу."
+  },
+  "description": {
+    "message": "Опис"
+  },
+  "importSuccess": {
+    "message": "Дані успішно імпортовано"
+  },
+  "importSuccessNumberOfItems": {
+    "message": "Всього імпортовано $AMOUNT$ записів.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "total": {
+    "message": "Всього"
+  },
+  "importWarning": {
+    "message": "Ви імпортуєте дані до $ORGANIZATION$. Ваші дані можуть бути доступні учасникам цієї організації. Хочете продовжити?",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Помилка під'єднання до служби Duo. Скористайтеся іншим способом двоетапної перевірки або зверніться до служби підтримки Duo по допомогу."
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Запустіть Duo і виконайте дії для завершення входу."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Для вашого облікового запису необхідна двоетапна перевірка з Duo."
+  },
+  "launchDuo": {
+    "message": "Запустити Duo в браузері"
+  },
+  "importFormatError": {
+    "message": "Дані мають некоректне форматування. Перевірте файл імпорту і спробуйте знову."
+  },
+  "importNothingError": {
+    "message": "Нічого не імпортовано."
+  },
+  "importEncKeyError": {
+    "message": "Помилка розшифрування експортованого файлу. Ваш ключ шифрування відрізняється від ключа, використаного для експортування даних."
+  },
+  "invalidFilePassword": {
+    "message": "Неправильний пароль файлу. Використайте пароль, який ви вводили під час створення експортованого файлу."
+  },
+  "destination": {
+    "message": "Призначення"
+  },
+  "learnAboutImportOptions": {
+    "message": "Дізнайтеся про параметри імпорту"
+  },
+  "selectImportFolder": {
+    "message": "Вибрати теку"
+  },
+  "selectImportCollection": {
+    "message": "Вибрати збірку"
+  },
+  "importTargetHint": {
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено в $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "Файл містить непризначені записи."
+  },
+  "selectFormat": {
+    "message": "Оберіть формат імпортованого файлу"
+  },
+  "selectImportFile": {
+    "message": "Оберіть файл для імпорту"
+  },
+  "chooseFile": {
+    "message": "Вибрати файл"
+  },
+  "noFileChosen": {
+    "message": "Файл не вибрано"
+  },
+  "orCopyPasteFileContents": {
+    "message": "або скопіюйте і вставте вміст файлу для імпорту"
+  },
+  "instructionsFor": {
+    "message": "Інструкції для $NAME$",
+    "description": "The title for the import tool instructions.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "LastPass (csv)"
+      }
+    }
+  },
+  "confirmVaultImport": {
+    "message": "Підтвердити імпорт сховища"
+  },
+  "confirmVaultImportDesc": {
+    "message": "Цей файл захищений паролем. Будь ласка, введіть пароль для імпортування даних."
+  },
+  "confirmFilePassword": {
+    "message": "Підтвердьте пароль файлу"
+  },
+  "exportSuccess": {
+    "message": "Дані сховища експортовано"
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "Багатофакторну автентифікацію скасовано"
+  },
+  "noLastPassDataFound": {
+    "message": "Дані LastPass не знайдено"
+  },
+  "incorrectUsernameOrPassword": {
+    "message": "Неправильне ім'я користувача або пароль"
+  },
+  "incorrectPassword": {
+    "message": "Неправильний пароль"
+  },
+  "incorrectCode": {
+    "message": "Неправильний код"
+  },
+  "incorrectPin": {
+    "message": "Неправильний PIN-код"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Збій багатофакторної автентифікації"
+  },
+  "includeSharedFolders": {
+    "message": "Включити спільні теки"
+  },
+  "lastPassEmail": {
+    "message": "Електронна пошта LastPass"
+  },
+  "importingYourAccount": {
+    "message": "Ваш обліковий запис імпортується..."
+  },
+  "lastPassMFARequired": {
+    "message": "Необхідно пройти багатофакторну автентифікацію LastPass"
+  },
+  "lastPassMFADesc": {
+    "message": "Введіть одноразовий код з програми автентифікації"
+  },
+  "lastPassOOBDesc": {
+    "message": "Схваліть запит входу в програмі автентифікації або введіть одноразовий код."
+  },
+  "passcode": {
+    "message": "Код"
+  },
+  "lastPassMasterPassword": {
+    "message": "Головний пароль LastPass"
+  },
+  "lastPassAuthRequired": {
+    "message": "Необхідно пройти автентифікацію LastPass"
+  },
+  "awaitingSSO": {
+    "message": "Очікується автентифікація SSO"
+  },
+  "awaitingSSODesc": {
+    "message": "Увійдіть з використанням облікових даних вашої компанії."
+  },
+  "seeDetailedInstructions": {
+    "message": "Перегляньте докладні інструкції на нашому довідковому сайті",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "importDirectlyFromLastPass": {
+    "message": "Імпортувати безпосередньо з LastPass"
+  },
+  "importFromCSV": {
+    "message": "Імпортувати з файлу CSV"
+  },
+  "lastPassTryAgainCheckEmail": {
+    "message": "Спробуйте ще раз або перевірте електронну пошту від LastPass для підтвердження дії."
+  },
+  "collection": {
+    "message": "Збірка"
+  },
+  "lastPassYubikeyDesc": {
+    "message": "Вставте YubiKey пов'язаний з обліковим записом LastPass в USB порт вашого комп'ютера, потім торкніться його кнопки."
+  },
+  "commonImportFormats": {
+    "message": "Поширені формати",
+    "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Успішно"
+  },
+  "troubleshooting": {
+    "message": "Усунення проблем"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Вимкнути апаратне прискорення і перезапустити"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Увімкнути апаратне прискорення і перезапустити"
+  },
+  "removePasskey": {
+    "message": "Вилучити ключ доступу"
+  },
+  "passkeyRemoved": {
+    "message": "Ключ доступу вилучено"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Помилка призначення цільової збірки."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Помилка призначення цільової теки."
+  },
+  "viewItemsIn": {
+    "message": "Переглянути записи в $NAME$",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "Назад до $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "back": {
+    "message": "Назад",
+    "description": "Button text to navigate back"
+  },
+  "removeItem": {
+    "message": "Вилучити $NAME$",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "data": {
+    "message": "Дані"
+  },
+  "fileSends": {
+    "message": "Відправлення файлів"
+  },
+  "textSends": {
+    "message": "Відправлення тексту"
+  },
+  "ssoError": {
+    "message": "Не знайдено вільних портів для цього входу SSO."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Біометричне розблокування недоступне, оскільки спочатку потрібно ввести PIN-код або пароль."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Біометричне розблокування наразі недоступне."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Біометричне розблокування недоступне через неправильно налаштовані системні файли."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Біометричне розблокування недоступне через неправильно налаштовані системні файли."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Біометричне розблокування недоступне, оскільки воно не увімкнене для $EMAIL$ у програмі Bitwarden для комп'ютера.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Біометричне розблокування зараз недоступне з невідомої причини."
+  },
+  "authorize": {
+    "message": "Авторизувати"
+  },
+  "deny": {
+    "message": "Відмовити"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Підтвердження використання ключа SSH"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "запитує доступ до"
+  },
+  "unknownApplication": {
+    "message": "Програма"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "Імпортування захищених паролем ключів SSH ще не підтримується"
+  },
+  "invalidSshKey": {
+    "message": "Ключ SSH недійсний"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Тип ключа SSH не підтримується"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Імпортувати ключ із буфера обміну"
+  },
+  "sshKeyPasted": {
+    "message": "Ключ SSH успішно імпортовано"
+  },
+  "fileSavedToDevice": {
+    "message": "Файл збережено на пристрої. Ви можете його знайти у теці завантажень."
+  },
+  "importantNotice": {
+    "message": "Важлива інформація"
+  },
+  "setupTwoStepLogin": {
+    "message": "Налаштувати двоетапну перевірку"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
+  },
+  "remindMeLater": {
+    "message": "Нагадати пізніше"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ні, не маю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Так, я маю постійний доступ до своєї електронної пошти"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Увімкнути двоетапну перевірку"
+  },
+  "changeAcctEmail": {
+    "message": "Змінити адресу е-пошти"
+  },
+  "allowScreenshots": {
+    "message": "Allow screen capture"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Необхідно оновити розширення"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Ви використовуєте застарілу версію розширення браузера. Оновіть його або вимкніть перевірку цифрового відбитка інтеграції з браузером у налаштуваннях комп'ютерної програми."
   }
 }

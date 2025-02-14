@@ -1,19 +1,27 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { NOOP_COMMAND_SUFFIX } from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
-import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
 
 import { MainContextMenuHandler } from "./main-context-menu-handler";
 
 describe("context-menu", () => {
-  let stateService: MockProxy<BrowserStateService>;
+  let stateService: MockProxy<StateService>;
+  let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let accountService: MockProxy<AccountService>;
 
   let removeAllSpy: jest.SpyInstance<void, [callback?: () => void]>;
   let createSpy: jest.SpyInstance<
@@ -25,8 +33,11 @@ describe("context-menu", () => {
 
   beforeEach(() => {
     stateService = mock();
+    autofillSettingsService = mock();
     i18nService = mock();
     logService = mock();
+    billingAccountProfileStateService = mock();
+    accountService = mock();
 
     removeAllSpy = jest
       .spyOn(chrome.contextMenus, "removeAll")
@@ -39,14 +50,29 @@ describe("context-menu", () => {
       return props.id;
     });
 
-    sut = new MainContextMenuHandler(stateService, i18nService, logService);
+    i18nService.t.mockImplementation((key) => key);
+    sut = new MainContextMenuHandler(
+      stateService,
+      autofillSettingsService,
+      i18nService,
+      logService,
+      billingAccountProfileStateService,
+      accountService,
+    );
+    autofillSettingsService.enableContextMenu$ = of(true);
+    accountService.activeAccount$ = of({
+      id: "userId" as UserId,
+      email: "",
+      emailVerified: false,
+      name: undefined,
+    });
   });
 
   afterEach(() => jest.resetAllMocks());
 
   describe("init", () => {
     it("has menu disabled", async () => {
-      stateService.getDisableContextMenuItem.mockResolvedValue(true);
+      autofillSettingsService.enableContextMenu$ = of(false);
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeFalsy();
@@ -54,23 +80,19 @@ describe("context-menu", () => {
     });
 
     it("has menu enabled, but does not have premium", async () => {
-      stateService.getDisableContextMenuItem.mockResolvedValue(false);
-
-      stateService.getCanAccessPremium.mockResolvedValue(false);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
-      expect(createSpy).toHaveBeenCalledTimes(7);
+      expect(createSpy).toHaveBeenCalledTimes(10);
     });
 
     it("has menu enabled and has premium", async () => {
-      stateService.getDisableContextMenuItem.mockResolvedValue(false);
-
-      stateService.getCanAccessPremium.mockResolvedValue(true);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
-      expect(createSpy).toHaveBeenCalledTimes(8);
+      expect(createSpy).toHaveBeenCalledTimes(11);
     });
   });
 
@@ -88,7 +110,7 @@ describe("context-menu", () => {
           id: id ?? "1",
           type: CipherType.Login,
           viewPassword: viewPassword ?? true,
-        } as any)
+        } as any),
       );
       cipherView.login.username = username ?? "USERNAME";
       cipherView.login.password = password ?? "PASSWORD";
@@ -97,7 +119,7 @@ describe("context-menu", () => {
     };
 
     it("is not a login cipher", async () => {
-      await sut.loadOptions("TEST_TITLE", "1", "", {
+      await sut.loadOptions("TEST_TITLE", "1", {
         ...createCipher(),
         type: CipherType.SecureNote,
       } as any);
@@ -109,32 +131,101 @@ describe("context-menu", () => {
       await sut.loadOptions(
         "TEST_TITLE",
         "1",
-        "",
         createCipher({
           username: "",
           totp: "",
           viewPassword: false,
-        })
+        }),
       );
 
       expect(createSpy).toHaveBeenCalledTimes(1);
     });
 
     it("create entry for each cipher piece", async () => {
-      stateService.getCanAccessPremium.mockResolvedValue(true);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
-      await sut.loadOptions("TEST_TITLE", "1", "", createCipher());
+      await sut.loadOptions("TEST_TITLE", "1", createCipher());
 
-      // One for autofill, copy username, copy password, and copy totp code
       expect(createSpy).toHaveBeenCalledTimes(4);
     });
 
-    it("creates noop item for no cipher", async () => {
-      stateService.getCanAccessPremium.mockResolvedValue(true);
+    it("creates a login/unlock item for each context menu action option when user is not authenticated", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
-      await sut.loadOptions("TEST_TITLE", "NOOP", "");
+      await sut.loadOptions("TEST_TITLE", "NOOP");
 
-      expect(createSpy).toHaveBeenCalledTimes(4);
+      expect(createSpy).toHaveBeenCalledTimes(6);
+    });
+  });
+
+  describe("creating noAccess context menu items", () => {
+    let loadOptionsSpy: jest.SpyInstance;
+    beforeEach(() => {
+      loadOptionsSpy = jest.spyOn(sut, "loadOptions").mockResolvedValue();
+    });
+
+    it("Loads context menu items that ask the user to unlock their vault if they are authed", async () => {
+      stateService.getIsAuthenticated.mockResolvedValue(true);
+
+      await sut.noAccess();
+
+      expect(loadOptionsSpy).toHaveBeenCalledWith("unlockVaultMenu", NOOP_COMMAND_SUFFIX);
+    });
+
+    it("Loads context menu items that ask the user to login to their vault if they are not authed", async () => {
+      stateService.getIsAuthenticated.mockResolvedValue(false);
+
+      await sut.noAccess();
+
+      expect(loadOptionsSpy).toHaveBeenCalledWith("loginToVaultMenu", NOOP_COMMAND_SUFFIX);
+    });
+  });
+
+  describe("creating noCards context menu items", () => {
+    it("Loads a noCards context menu item and an addCardMenu context item", async () => {
+      const noCardsContextMenuItems = sut["noCardsContextMenuItems"];
+
+      await sut.noCards();
+
+      expect(createSpy).toHaveBeenCalledTimes(3);
+      expect(createSpy).toHaveBeenCalledWith(noCardsContextMenuItems[0], expect.any(Function));
+      expect(createSpy).toHaveBeenCalledWith(noCardsContextMenuItems[1], expect.any(Function));
+      expect(createSpy).toHaveBeenCalledWith(noCardsContextMenuItems[2], expect.any(Function));
+    });
+  });
+
+  describe("creating noIdentities context menu items", () => {
+    it("Loads a noIdentities context menu item and an addIdentityMenu context item", async () => {
+      const noIdentitiesContextMenuItems = sut["noIdentitiesContextMenuItems"];
+
+      await sut.noIdentities();
+
+      expect(createSpy).toHaveBeenCalledTimes(3);
+      expect(createSpy).toHaveBeenCalledWith(noIdentitiesContextMenuItems[0], expect.any(Function));
+      expect(createSpy).toHaveBeenCalledWith(noIdentitiesContextMenuItems[1], expect.any(Function));
+      expect(createSpy).toHaveBeenCalledWith(noIdentitiesContextMenuItems[2], expect.any(Function));
+    });
+  });
+
+  describe("creating noLogins context menu items", () => {
+    it("Loads a noLogins context menu item and an addLoginMenu context item", async () => {
+      const noLoginsContextMenuItems = sut["noLoginsContextMenuItems"];
+
+      await sut.noLogins();
+
+      expect(createSpy).toHaveBeenCalledTimes(5);
+      expect(createSpy).toHaveBeenCalledWith(noLoginsContextMenuItems[0], expect.any(Function));
+      expect(createSpy).toHaveBeenCalledWith(noLoginsContextMenuItems[1], expect.any(Function));
+      expect(createSpy).toHaveBeenCalledWith(
+        {
+          enabled: false,
+          id: "autofill_NOTICE",
+          parentId: "autofill",
+          title: "noMatchingLogins",
+          type: "normal",
+        },
+        expect.any(Function),
+      );
     });
   });
 });

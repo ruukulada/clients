@@ -1,15 +1,18 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { ITreeNodeObject } from "../../../models/domain/tree-node";
 import { View } from "../../../models/view/view";
+import { DecryptedObject } from "../../../platform/models/domain/domain-base";
 import { Folder } from "../domain/folder";
+import { ITreeNodeObject } from "../domain/tree-node";
 
 export class FolderView implements View, ITreeNodeObject {
   id: string = null;
   name: string = null;
   revisionDate: Date = null;
 
-  constructor(f?: Folder) {
+  constructor(f?: Folder | DecryptedObject<Folder, "name">) {
     if (!f) {
       return;
     }

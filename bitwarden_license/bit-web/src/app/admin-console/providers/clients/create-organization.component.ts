@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
-import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing/settings/organization-plans.component";
+import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 
 @Component({
   selector: "app-create-organization",

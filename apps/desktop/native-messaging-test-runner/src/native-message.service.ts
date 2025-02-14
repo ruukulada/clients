@@ -1,21 +1,30 @@
+/* eslint-disable no-console */
 import "module-alias/register";
 
 import { v4 as uuidv4 } from "uuid";
 
+import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 
+// eslint-disable-next-line no-restricted-imports
 import { DecryptedCommandData } from "../../src/models/native-messaging/decrypted-command-data";
+// eslint-disable-next-line no-restricted-imports
 import { EncryptedMessage } from "../../src/models/native-messaging/encrypted-message";
+// eslint-disable-next-line no-restricted-imports
 import { CredentialCreatePayload } from "../../src/models/native-messaging/encrypted-message-payloads/credential-create-payload";
+// eslint-disable-next-line no-restricted-imports
 import { CredentialUpdatePayload } from "../../src/models/native-messaging/encrypted-message-payloads/credential-update-payload";
+// eslint-disable-next-line no-restricted-imports
 import { EncryptedMessageResponse } from "../../src/models/native-messaging/encrypted-message-response";
+// eslint-disable-next-line no-restricted-imports
 import { MessageCommon } from "../../src/models/native-messaging/message-common";
+// eslint-disable-next-line no-restricted-imports
 import { UnencryptedMessage } from "../../src/models/native-messaging/unencrypted-message";
+// eslint-disable-next-line no-restricted-imports
 import { UnencryptedMessageResponse } from "../../src/models/native-messaging/unencrypted-message-response";
 
 import IPCService, { IPCOptions } from "./ipc.service";
@@ -44,7 +53,7 @@ export default class NativeMessageService {
     this.encryptService = new EncryptServiceImplementation(
       this.nodeCryptoFunctionService,
       new ConsoleLogService(false),
-      false
+      false,
     );
   }
 
@@ -61,7 +70,7 @@ export default class NativeMessageService {
       },
       {
         overrideTimeout: CONFIRMATION_MESSAGE_TIMEOUT,
-      }
+      },
     );
     return rawResponse.payload as HandshakeResponse;
   }
@@ -71,7 +80,7 @@ export default class NativeMessageService {
       {
         command: "bw-status",
       },
-      key
+      key,
     );
 
     const response = await this.sendEncryptedMessage({
@@ -89,7 +98,7 @@ export default class NativeMessageService {
           uri: uri,
         },
       },
-      key
+      key,
     );
     const response = await this.sendEncryptedMessage({
       encryptedCommand,
@@ -100,14 +109,14 @@ export default class NativeMessageService {
 
   async credentialCreation(
     key: string,
-    credentialData: CredentialCreatePayload
+    credentialData: CredentialCreatePayload,
   ): Promise<DecryptedCommandData> {
     const encryptedCommand = await this.encryptCommandData(
       {
         command: "bw-credential-create",
         payload: credentialData,
       },
-      key
+      key,
     );
     const response = await this.sendEncryptedMessage({
       encryptedCommand,
@@ -118,14 +127,14 @@ export default class NativeMessageService {
 
   async credentialUpdate(
     key: string,
-    credentialData: CredentialUpdatePayload
+    credentialData: CredentialUpdatePayload,
   ): Promise<DecryptedCommandData> {
     const encryptedCommand = await this.encryptCommandData(
       {
         command: "bw-credential-update",
         payload: credentialData,
       },
-      key
+      key,
     );
     const response = await this.sendEncryptedMessage({
       encryptedCommand,
@@ -142,7 +151,7 @@ export default class NativeMessageService {
           userId: userId,
         },
       },
-      key
+      key,
     );
     const response = await this.sendEncryptedMessage({
       encryptedCommand,
@@ -155,7 +164,7 @@ export default class NativeMessageService {
 
   private async sendEncryptedMessage(
     message: Omit<EncryptedMessage, keyof MessageCommon>,
-    options: IPCOptions = {}
+    options: IPCOptions = {},
   ): Promise<EncryptedMessageResponse> {
     const result = await this.sendMessage(message, options);
     return result as EncryptedMessageResponse;
@@ -163,7 +172,7 @@ export default class NativeMessageService {
 
   private async sendUnencryptedMessage(
     message: Omit<UnencryptedMessage, keyof MessageCommon>,
-    options: IPCOptions = {}
+    options: IPCOptions = {},
   ): Promise<UnencryptedMessageResponse> {
     const result = await this.sendMessage(message, options);
     return result as UnencryptedMessageResponse;
@@ -173,7 +182,7 @@ export default class NativeMessageService {
     message:
       | Omit<UnencryptedMessage, keyof MessageCommon>
       | Omit<EncryptedMessage, keyof MessageCommon>,
-    options: IPCOptions
+    options: IPCOptions,
   ): Promise<EncryptedMessageResponse | UnencryptedMessageResponse> {
     // Attempt to connect before sending any messages. If the connection has already
     // been made, this is a NOOP within the IPCService.
@@ -205,7 +214,7 @@ export default class NativeMessageService {
   // Data Encryption
   private async encryptCommandData(
     commandData: DecryptedCommandData,
-    key: string
+    key: string,
   ): Promise<EncString> {
     const commandDataString = JSON.stringify(commandData);
 
@@ -216,10 +225,14 @@ export default class NativeMessageService {
 
   private async decryptResponsePayload(
     payload: EncString,
-    key: string
+    key: string,
   ): Promise<DecryptedCommandData> {
     const sharedKey = await this.getSharedKeyForKey(key);
-    const decrypted = await this.encryptService.decryptToUtf8(payload, sharedKey);
+    const decrypted = await this.encryptService.decryptToUtf8(
+      payload,
+      sharedKey,
+      "native-messaging-session",
+    );
 
     return JSON.parse(decrypted);
   }
@@ -229,7 +242,7 @@ export default class NativeMessageService {
     const privKey = Utils.fromB64ToArray(config.testRsaPrivateKey);
 
     return new SymmetricCryptoKey(
-      await this.nodeCryptoFunctionService.rsaDecrypt(dataBuffer, privKey, "sha1")
+      await this.nodeCryptoFunctionService.rsaDecrypt(dataBuffer, privKey, "sha1"),
     );
   }
 }

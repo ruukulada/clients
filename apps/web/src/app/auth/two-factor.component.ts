@@ -1,55 +1,82 @@
-import { Component, Inject, ViewChild, ViewContainerRef } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, Inject, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { Subject, takeUntil, lastValueFrom } from "rxjs";
 
 import { TwoFactorComponent as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor.component";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
+import {
+  LoginStrategyServiceAbstraction,
+  LoginEmailServiceAbstraction,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 
-import { RouterService } from "../core";
-
-import { TwoFactorOptionsComponent } from "./two-factor-options.component";
+import {
+  TwoFactorOptionsDialogResult,
+  TwoFactorOptionsComponent,
+  TwoFactorOptionsDialogResultType,
+} from "./two-factor-options.component";
 
 @Component({
   selector: "app-two-factor",
   templateUrl: "two-factor.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class TwoFactorComponent extends BaseTwoFactorComponent {
+export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit, OnDestroy {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;
-
+  formGroup = this.formBuilder.group({
+    token: [
+      "",
+      {
+        validators: [Validators.required],
+        updateOn: "submit",
+      },
+    ],
+    remember: [false],
+  });
+  private destroy$ = new Subject<void>();
   constructor(
-    authService: AuthService,
+    loginStrategyService: LoginStrategyServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     apiService: ApiService,
     platformUtilsService: PlatformUtilsService,
     stateService: StateService,
     environmentService: EnvironmentService,
-    private modalService: ModalService,
+    private dialogService: DialogService,
     route: ActivatedRoute,
     logService: LogService,
     twoFactorService: TwoFactorService,
     appIdService: AppIdService,
-    private routerService: RouterService,
-    loginService: LoginService,
-    configService: ConfigServiceAbstraction,
-    @Inject(WINDOW) protected win: Window
+    loginEmailService: LoginEmailServiceAbstraction,
+    userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    ssoLoginService: SsoLoginServiceAbstraction,
+    configService: ConfigService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    accountService: AccountService,
+    toastService: ToastService,
+    private formBuilder: FormBuilder,
+    @Inject(WINDOW) protected win: Window,
   ) {
     super(
-      authService,
+      loginStrategyService,
       router,
       i18nService,
       apiService,
@@ -61,56 +88,78 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       logService,
       twoFactorService,
       appIdService,
-      loginService,
-      configService
+      loginEmailService,
+      userDecryptionOptionsService,
+      ssoLoginService,
+      configService,
+      masterPasswordService,
+      accountService,
+      toastService,
     );
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
   }
+  async ngOnInit() {
+    await super.ngOnInit();
+    this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      this.token = value.token;
+      this.remember = value.remember;
+    });
+  }
+  submitForm = async () => {
+    await this.submit();
+  };
 
   async anotherMethod() {
-    const [modal] = await this.modalService.openViewRef(
-      TwoFactorOptionsComponent,
-      this.twoFactorOptionsModal,
-      (comp) => {
-        // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-        comp.onProviderSelected.subscribe(async (provider: TwoFactorProviderType) => {
-          modal.close();
-          this.selectedProviderType = provider;
-          await this.init();
-        });
-        // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-        comp.onRecoverSelected.subscribe(() => {
-          modal.close();
-        });
-      }
-    );
+    const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
+    const response: TwoFactorOptionsDialogResultType = await lastValueFrom(dialogRef.closed);
+    if (response.result === TwoFactorOptionsDialogResult.Provider) {
+      this.selectedProviderType = response.type;
+      await this.init();
+    }
+  }
+
+  protected override handleMigrateEncryptionKey(result: AuthResult): boolean {
+    if (!result.requiresEncryptionKeyMigration) {
+      return false;
+    }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.router.navigate(["migrate-legacy-encryption"]);
+    return true;
   }
 
   goAfterLogIn = async () => {
-    this.loginService.clearValues();
-    const previousUrl = this.routerService.getPreviousUrl();
-    if (previousUrl) {
-      this.router.navigateByUrl(previousUrl);
-    } else {
-      // if we have an emergency access invite, redirect to emergency access
-      const emergencyAccessInvite = await this.stateService.getEmergencyAccessInvitation();
-      if (emergencyAccessInvite != null) {
-        this.router.navigate(["/accept-emergency"], {
-          queryParams: {
-            id: emergencyAccessInvite.id,
-            name: emergencyAccessInvite.name,
-            email: emergencyAccessInvite.email,
-            token: emergencyAccessInvite.token,
-          },
-        });
-        return;
-      }
-
-      this.router.navigate([this.successRoute], {
-        queryParams: {
-          identifier: this.orgIdentifier,
-        },
-      });
-    }
+    this.loginEmailService.clearValues();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.router.navigate([this.successRoute], {
+      queryParams: {
+        identifier: this.orgIdentifier,
+      },
+    });
   };
+
+  private duoResultChannel: BroadcastChannel;
+
+  protected override setupDuoResultListener() {
+    if (!this.duoResultChannel) {
+      this.duoResultChannel = new BroadcastChannel("duoResult");
+      this.duoResultChannel.addEventListener("message", this.handleDuoResultMessage);
+    }
+  }
+
+  private handleDuoResultMessage = async (msg: { data: { code: string; state: string } }) => {
+    this.token = msg.data.code + "|" + msg.data.state;
+    await this.submit();
+  };
+
+  async ngOnDestroy() {
+    super.ngOnDestroy();
+
+    if (this.duoResultChannel) {
+      // clean up duo listener if it was initialized.
+      this.duoResultChannel.removeEventListener("message", this.handleDuoResultMessage);
+      this.duoResultChannel.close();
+    }
+  }
 }

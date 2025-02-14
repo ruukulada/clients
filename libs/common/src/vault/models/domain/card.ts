@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import Domain from "../../../platform/models/domain/domain-base";
@@ -31,11 +33,15 @@ export class Card extends Domain {
         expYear: null,
         code: null,
       },
-      []
+      [],
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<CardView> {
+  async decrypt(
+    orgId: string,
+    context = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<CardView> {
     return this.decryptObj(
       new CardView(),
       {
@@ -47,7 +53,8 @@ export class Card extends Domain {
         code: null,
       },
       orgId,
-      encKey
+      encKey,
+      "DomainType: Card; " + context,
     );
   }
 

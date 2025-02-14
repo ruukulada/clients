@@ -1,15 +1,42 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { ConnectedPosition } from "@angular/cdk/overlay";
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
-import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Component, EventEmitter, Output, Input, OnInit, OnDestroy } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Observable, map, Subject, takeUntil } from "rxjs";
 
+import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
-  EnvironmentService as EnvironmentServiceAbstraction,
+  EnvironmentService,
   Region,
+  RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DialogService, ToastService } from "@bitwarden/components";
+
+export const ExtensionDefaultOverlayPosition: ConnectedPosition[] = [
+  {
+    originX: "start",
+    originY: "top",
+    overlayX: "start",
+    overlayY: "bottom",
+  },
+];
+export const DesktopDefaultOverlayPosition: ConnectedPosition[] = [
+  {
+    originX: "start",
+    originY: "top",
+    overlayX: "start",
+    overlayY: "bottom",
+  },
+];
+
+export interface EnvironmentSelectorRouteData {
+  overlayPosition?: ConnectedPosition[];
+}
 
 @Component({
   selector: "environment-selector",
@@ -20,7 +47,7 @@ import {
         "void",
         style({
           opacity: 0,
-        })
+        }),
       ),
       transition(
         "void => open",
@@ -28,21 +55,16 @@ import {
           "100ms linear",
           style({
             opacity: 1,
-          })
-        )
+          }),
+        ),
       ),
       transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
     ]),
   ],
 })
 export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
-  @Output() onOpenSelfHostedSettings = new EventEmitter();
-  euServerFlagEnabled: boolean;
-  isOpen = false;
-  showingModal = false;
-  selectedEnvironment: Region;
-  ServerEnvironmentType = Region;
-  overlayPosition: ConnectedPosition[] = [
+  @Output() onOpenSelfHostedSettings = new EventEmitter<void>();
+  @Input() overlayPosition: ConnectedPosition[] = [
     {
       originX: "start",
       originY: "bottom",
@@ -50,24 +72,38 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
       overlayY: "top",
     },
   ];
-  protected componentDestroyed$: Subject<void> = new Subject();
+
+  protected isOpen = false;
+  protected ServerEnvironmentType = Region;
+  protected availableRegions = this.environmentService.availableRegions();
+  protected selectedRegion$: Observable<RegionConfig | undefined> =
+    this.environmentService.environment$.pipe(
+      map((e) => e.getRegion()),
+      map((r) => this.availableRegions.find((ar) => ar.key === r)),
+    );
+
+  private destroy$ = new Subject<void>();
 
   constructor(
-    protected environmentService: EnvironmentServiceAbstraction,
-    protected configService: ConfigServiceAbstraction,
-    protected router: Router
+    protected environmentService: EnvironmentService,
+    private route: ActivatedRoute,
+    private dialogService: DialogService,
+    private configService: ConfigService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {}
 
-  async ngOnInit() {
-    this.configService.serverConfig$.pipe(takeUntil(this.componentDestroyed$)).subscribe(() => {
-      this.updateEnvironmentInfo();
+  ngOnInit() {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      if (data && data["overlayPosition"]) {
+        this.overlayPosition = data["overlayPosition"];
+      }
     });
-    this.updateEnvironmentInfo();
   }
 
-  ngOnDestroy(): void {
-    this.componentDestroyed$.next();
-    this.componentDestroyed$.complete();
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async toggle(option: Region) {
@@ -76,26 +112,32 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.updateEnvironmentInfo();
-
+    /**
+     * Opens the self-hosted settings dialog.
+     *
+     * If the `UnauthenticatedExtensionUIRefresh` feature flag is enabled,
+     * the self-hosted settings dialog is opened directly. Otherwise, the
+     * `onOpenSelfHostedSettings` event is emitted.
+     */
     if (option === Region.SelfHosted) {
-      this.onOpenSelfHostedSettings.emit();
+      if (await this.configService.getFeatureFlag(FeatureFlag.UnauthenticatedExtensionUIRefresh)) {
+        if (await SelfHostedEnvConfigDialogComponent.open(this.dialogService)) {
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("environmentSaved"),
+          });
+        }
+      } else {
+        this.onOpenSelfHostedSettings.emit();
+      }
       return;
     }
 
-    await this.environmentService.setRegion(option);
-    this.updateEnvironmentInfo();
-  }
-
-  async updateEnvironmentInfo() {
-    this.selectedEnvironment = this.environmentService.selectedRegion;
-    this.euServerFlagEnabled = await this.configService.getFeatureFlagBool(
-      FeatureFlag.DisplayEuEnvironmentFlag
-    );
+    await this.environmentService.setEnvironment(option);
   }
 
   close() {
     this.isOpen = false;
-    this.updateEnvironmentInfo();
   }
 }

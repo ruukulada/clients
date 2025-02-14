@@ -27,6 +27,9 @@ npm-debug.log
 dist
 build
 .angular/cache
+.flatpak
+.flatpak-repo
+.flatpak-builder
 
 # Testing
 coverage
@@ -42,3 +45,6 @@ junit.xml
 documentation.json
 .eslintcache
 storybook-static
+
+# Local app configuration
+apps/**/config/local.json

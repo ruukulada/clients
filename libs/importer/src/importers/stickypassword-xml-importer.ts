@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ImportResult } from "../models/import-result";
 
 import { BaseImporter } from "./base-importer";
@@ -31,7 +33,7 @@ export class StickyPasswordXmlImporter extends BaseImporter implements Importer 
         "root > Database > Accounts > Account > " +
           'LoginLinks > Login[SourceLoginID="' +
           accountId +
-          '"]'
+          '"]',
       );
       if (accountLogin != null) {
         const account = accountLogin.parentElement.parentElement;

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   ChangeDetectorRef,
   Component,
@@ -8,35 +10,41 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { first } from "rxjs/operators";
+import { firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
+import { filter, first, map, take } from "rxjs/operators";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { TotpService } from "@bitwarden/common/abstractions/totp.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { SyncService } from "@bitwarden/common/platform/sync";
+import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
-import { GeneratorComponent } from "../../../app/tools/generator.component";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
-import { CollectionsComponent } from "../../../vault/app/vault/collections.component";
 
 import { AddEditComponent } from "./add-edit.component";
 import { AttachmentsComponent } from "./attachments.component";
+import { CollectionsComponent } from "./collections.component";
+import { CredentialGeneratorDialogComponent } from "./credential-generator-dialog.component";
 import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { PasswordHistoryComponent } from "./password-history.component";
 import { ShareComponent } from "./share.component";
@@ -84,6 +92,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   activeFilter: VaultFilter = new VaultFilter();
 
   private modal: ModalRef = null;
+  private componentIsDestroyed$ = new Subject<boolean>();
 
   constructor(
     private route: ActivatedRoute,
@@ -99,15 +108,31 @@ export class VaultComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private totpService: TotpService,
     private passwordRepromptService: PasswordRepromptService,
-    private stateService: StateService,
     private searchBarService: SearchBarService,
     private apiService: ApiService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private toastService: ToastService,
+    private configService: ConfigService,
+    private accountService: AccountService,
+    private cipherService: CipherService,
   ) {}
 
   async ngOnInit() {
-    this.userHasPremiumAccess = await this.stateService.getCanAccessPremium();
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntil(this.componentIsDestroyed$),
+      )
+      .subscribe((canAccessPremium: boolean) => {
+        this.userHasPremiumAccess = canAccessPremium;
+      });
+
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         let detectChanges = true;
 
@@ -128,16 +153,10 @@ export class VaultComponent implements OnInit, OnDestroy {
             (document.querySelector("#search") as HTMLInputElement).select();
             detectChanges = false;
             break;
-          case "openGenerator":
-            await this.openGenerator(false);
-            break;
           case "syncCompleted":
             await this.vaultItemsComponent.reload(this.activeFilter.buildFilter());
             await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
             await this.vaultFilterComponent.reloadOrganizations();
-            break;
-          case "refreshCiphers":
-            this.vaultItemsComponent.refresh();
             break;
           case "modalShown":
             this.showingModal = true;
@@ -207,26 +226,39 @@ export class VaultComponent implements OnInit, OnDestroy {
     if (!this.syncService.syncInProgress) {
       await this.load();
     }
-    document.body.classList.remove("layout_frontend");
 
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    const approveLoginRequests = await this.stateService.getApproveLoginRequests();
-    if (approveLoginRequests) {
-      const authRequest = await this.apiService.getLastAuthRequest();
-      if (authRequest != null) {
-        this.messagingService.send("openLoginApproval", {
-          notificationId: authRequest.id,
-        });
-      }
+    const authRequest = await this.apiService.getLastAuthRequest();
+    if (authRequest != null) {
+      this.messagingService.send("openLoginApproval", {
+        notificationId: authRequest.id,
+      });
     }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    this.cipherService
+      .failedToDecryptCiphers$(activeUserId)
+      .pipe(
+        map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
+        filter((ciphers) => ciphers.length > 0),
+        take(1),
+        takeUntil(this.componentIsDestroyed$),
+      )
+      .subscribe((ciphers) => {
+        DecryptionFailureDialogComponent.open(this.dialogService, {
+          cipherIds: ciphers.map((c) => c.id as CipherId),
+        });
+      });
   }
 
   ngOnDestroy() {
     this.searchBarService.setEnabled(false);
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-    document.body.classList.add("layout_frontend");
+    this.componentIsDestroyed$.next(true);
+    this.componentIsDestroyed$.complete();
   }
 
   async load() {
@@ -244,6 +276,8 @@ export class VaultComponent implements OnInit, OnDestroy {
         }
       } else if (params.action === "add") {
         this.addType = Number(params.addType);
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.addCipher(this.addType);
       }
 
@@ -276,15 +310,25 @@ export class VaultComponent implements OnInit, OnDestroy {
         label: this.i18nService.t("view"),
         click: () =>
           this.functionWithChangeDetection(() => {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.viewCipher(cipher);
           }),
       },
     ];
+
+    if (cipher.decryptionFailure) {
+      invokeMenu(menu);
+      return;
+    }
+
     if (!cipher.isDeleted) {
       menu.push({
         label: this.i18nService.t("edit"),
         click: () =>
           this.functionWithChangeDetection(() => {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.editCipher(cipher);
           }),
       });
@@ -293,6 +337,8 @@ export class VaultComponent implements OnInit, OnDestroy {
           label: this.i18nService.t("clone"),
           click: () =>
             this.functionWithChangeDetection(() => {
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.cloneCipher(cipher);
             }),
         });
@@ -325,6 +371,8 @@ export class VaultComponent implements OnInit, OnDestroy {
             label: this.i18nService.t("copyPassword"),
             click: () => {
               this.copyValue(cipher, cipher.login.password, "password", "Password");
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, cipher.id);
             },
           });
@@ -354,6 +402,8 @@ export class VaultComponent implements OnInit, OnDestroy {
             label: this.i18nService.t("copySecurityCode"),
             click: () => {
               this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.eventCollectionService.collect(EventType.Cipher_ClientCopiedCardCode, cipher.id);
             },
           });
@@ -411,7 +461,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.addType = type;
+    this.addType = type || this.activeFilter.cipherType;
     this.action = "add";
     this.cipherId = null;
     this.prefillNewCipherFromFilter();
@@ -470,15 +520,25 @@ export class VaultComponent implements OnInit, OnDestroy {
     const [modal, childComponent] = await this.modalService.openViewRef(
       AttachmentsComponent,
       this.attachmentsModalRef,
-      (comp) => (comp.cipherId = cipher.id)
+      (comp) => (comp.cipherId = cipher.id),
     );
     this.modal = modal;
 
     let madeAttachmentChanges = false;
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onUploadedAttachment.subscribe(() => (madeAttachmentChanges = true));
+    childComponent.onUploadedAttachment.subscribe((cipher) => {
+      madeAttachmentChanges = true;
+      // Update the edit component cipher with the updated cipher,
+      // which is needed because the revision date is updated when an attachment is altered
+      this.addEditComponent.patchCipherAttachments(cipher);
+    });
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onDeletedAttachment.subscribe(() => (madeAttachmentChanges = true));
+    childComponent.onDeletedAttachment.subscribe((cipher) => {
+      madeAttachmentChanges = true;
+      // Update the edit component cipher with the updated cipher,
+      // which is needed because the revision date is updated when an attachment is altered
+      this.addEditComponent.patchCipherAttachments(cipher);
+    });
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.modal.onClosed.subscribe(async () => {
@@ -498,13 +558,15 @@ export class VaultComponent implements OnInit, OnDestroy {
     const [modal, childComponent] = await this.modalService.openViewRef(
       ShareComponent,
       this.shareModalRef,
-      (comp) => (comp.cipherId = cipher.id)
+      (comp) => (comp.cipherId = cipher.id),
     );
     this.modal = modal;
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     childComponent.onSharedCipher.subscribe(async () => {
       this.modal.close();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.viewCipher(cipher);
       await this.vaultItemsComponent.refresh();
     });
@@ -522,13 +584,15 @@ export class VaultComponent implements OnInit, OnDestroy {
     const [modal, childComponent] = await this.modalService.openViewRef(
       CollectionsComponent,
       this.collectionsModalRef,
-      (comp) => (comp.cipherId = cipher.id)
+      (comp) => (comp.cipherId = cipher.id),
     );
     this.modal = modal;
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     childComponent.onSavedCollections.subscribe(() => {
       this.modal.close();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.viewCipher(cipher);
     });
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
@@ -545,7 +609,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     [this.modal] = await this.modalService.openViewRef(
       PasswordHistoryComponent,
       this.passwordHistoryModalRef,
-      (comp) => (comp.cipherId = cipher.id)
+      (comp) => (comp.cipherId = cipher.id),
     );
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
@@ -562,12 +626,12 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async applyVaultFilter(vaultFilter: VaultFilter) {
     this.searchBarService.setPlaceholderText(
-      this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter))
+      this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
     );
     this.activeFilter = vaultFilter;
     await this.vaultItemsComponent.reload(
       this.activeFilter.buildFilter(),
-      vaultFilter.status === "trash"
+      vaultFilter.status === "trash",
     );
     this.go();
   }
@@ -598,46 +662,21 @@ export class VaultComponent implements OnInit, OnDestroy {
     return "searchVault";
   }
 
-  async openGenerator(comingFromAddEdit: boolean, passwordType = true) {
-    if (this.modal != null) {
-      this.modal.close();
-    }
-
-    const cipher = this.addEditComponent?.cipher;
-    const loginType = cipher != null && cipher.type === CipherType.Login && cipher.login != null;
-
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      GeneratorComponent,
-      this.generatorModalRef,
-      (comp) => {
-        comp.comingFromAddEdit = comingFromAddEdit;
-        if (comingFromAddEdit) {
-          comp.type = passwordType ? "password" : "username";
-          if (loginType && cipher.login.hasUris && cipher.login.uris[0].hostname != null) {
-            comp.usernameWebsite = cipher.login.uris[0].hostname;
+  async openGenerator(passwordType = true) {
+    CredentialGeneratorDialogComponent.open(this.dialogService, {
+      onCredentialGenerated: (value?: string) => {
+        if (this.addEditComponent != null) {
+          this.addEditComponent.markPasswordAsDirty();
+          if (passwordType) {
+            this.addEditComponent.cipher.login.password = value ?? "";
+          } else {
+            this.addEditComponent.cipher.login.username = value ?? "";
           }
         }
-      }
-    );
-    this.modal = modal;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onSelected.subscribe((value: string) => {
-      this.modal.close();
-      if (loginType) {
-        this.addEditComponent.markPasswordAsDirty();
-        if (passwordType) {
-          this.addEditComponent.cipher.login.password = value;
-        } else {
-          this.addEditComponent.cipher.login.username = value;
-        }
-      }
+      },
+      type: passwordType ? "password" : "username",
     });
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
+    return;
   }
 
   async addFolder() {
@@ -652,7 +691,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const [modal, childComponent] = await this.modalService.openViewRef(
       FolderAddEditComponent,
       this.folderAddEditModalRef,
-      (comp) => (comp.folderId = folderId)
+      (comp) => (comp.folderId = folderId),
     );
     this.modal = modal;
 
@@ -704,6 +743,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       };
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: queryParams,
@@ -726,11 +767,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
 
       this.platformUtilsService.copyToClipboard(value);
-      this.platformUtilsService.showToast(
-        "info",
-        null,
-        this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey))
-      );
+      this.toastService.showToast({
+        variant: "info",
+        title: null,
+        message: this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
+      });
       if (this.action === "view") {
         this.messagingService.send("minimizeOnCopy");
       }
@@ -747,7 +788,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private prefillNewCipherFromFilter() {
     if (this.activeFilter.selectedCollectionId != null) {
       const collection = this.vaultFilterComponent.collections.fullList.filter(
-        (c) => c.id === this.activeFilter.selectedCollectionId
+        (c) => c.id === this.activeFilter.selectedCollectionId,
       );
       if (collection.length > 0) {
         this.addOrganizationId = collection[0].organizationId;

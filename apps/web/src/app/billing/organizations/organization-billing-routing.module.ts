@@ -2,23 +2,20 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessBillingTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-import { OrganizationPermissionsGuard } from "../../admin-console/organizations/guards/org-permissions.guard";
-import { PaymentMethodComponent } from "../../billing/settings/payment-method.component";
+import { organizationPermissionsGuard } from "../../admin-console/organizations/guards/org-permissions.guard";
+import { organizationIsUnmanaged } from "../../billing/guards/organization-is-unmanaged.guard";
 import { WebPlatformUtilsService } from "../../core/web-platform-utils.service";
 
 import { OrgBillingHistoryViewComponent } from "./organization-billing-history-view.component";
-import { OrganizationBillingTabComponent } from "./organization-billing-tab.component";
 import { OrganizationSubscriptionCloudComponent } from "./organization-subscription-cloud.component";
 import { OrganizationSubscriptionSelfhostComponent } from "./organization-subscription-selfhost.component";
+import { OrganizationPaymentMethodComponent } from "./payment-method/organization-payment-method.component";
 
 const routes: Routes = [
   {
     path: "",
-    component: OrganizationBillingTabComponent,
-    canActivate: [OrganizationPermissionsGuard],
-    data: { organizationPermissions: canAccessBillingTab },
+    canActivate: [organizationPermissionsGuard(canAccessBillingTab)],
     children: [
       { path: "", pathMatch: "full", redirectTo: "subscription" },
       {
@@ -30,20 +27,24 @@ const routes: Routes = [
       },
       {
         path: "payment-method",
-        component: PaymentMethodComponent,
-        canActivate: [OrganizationPermissionsGuard],
+        component: OrganizationPaymentMethodComponent,
+        canActivate: [
+          organizationPermissionsGuard((org) => org.canEditPaymentMethods),
+          organizationIsUnmanaged,
+        ],
         data: {
           titleId: "paymentMethod",
-          organizationPermissions: (org: Organization) => org.canEditPaymentMethods,
         },
       },
       {
         path: "history",
         component: OrgBillingHistoryViewComponent,
-        canActivate: [OrganizationPermissionsGuard],
+        canActivate: [
+          organizationPermissionsGuard((org) => org.canViewBillingHistory),
+          organizationIsUnmanaged,
+        ],
         data: {
           titleId: "billingHistory",
-          organizationPermissions: (org: Organization) => org.canViewBillingHistory,
         },
       },
     ],

@@ -1,21 +1,26 @@
-import { Component, NgZone, OnDestroy } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { SetPasswordComponent as BaseSetPasswordComponent } from "@bitwarden/angular/components/set-password.component";
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { SetPasswordComponent as BaseSetPasswordComponent } from "@bitwarden/angular/auth/components/set-password.component";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 const BroadcasterSubscriptionId = "SetPasswordComponent";
 
@@ -23,13 +28,14 @@ const BroadcasterSubscriptionId = "SetPasswordComponent";
   selector: "app-set-password",
   templateUrl: "set-password.component.html",
 })
-export class SetPasswordComponent extends BaseSetPasswordComponent implements OnDestroy {
+export class SetPasswordComponent extends BaseSetPasswordComponent implements OnInit, OnDestroy {
   constructor(
+    accountService: AccountService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
     apiService: ApiService,
     i18nService: I18nService,
-    cryptoService: CryptoService,
+    keyService: KeyService,
     messagingService: MessagingService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
     platformUtilsService: PlatformUtilsService,
     policyApiService: PolicyApiServiceAbstraction,
     policyService: PolicyService,
@@ -38,16 +44,21 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
     route: ActivatedRoute,
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
-    stateService: StateService,
     organizationApiService: OrganizationApiServiceAbstraction,
-    organizationUserService: OrganizationUserService,
-    dialogService: DialogService
+    organizationUserApiService: OrganizationUserApiService,
+    userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
+    ssoLoginService: SsoLoginServiceAbstraction,
+    dialogService: DialogService,
+    kdfConfigService: KdfConfigService,
+    encryptService: EncryptService,
+    toastService: ToastService,
   ) {
     super(
+      accountService,
+      masterPasswordService,
       i18nService,
-      cryptoService,
+      keyService,
       messagingService,
-      passwordGenerationService,
       platformUtilsService,
       policyApiService,
       policyService,
@@ -55,10 +66,14 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
       apiService,
       syncService,
       route,
-      stateService,
       organizationApiService,
-      organizationUserService,
-      dialogService
+      organizationUserApiService,
+      userDecryptionOptionsService,
+      ssoLoginService,
+      dialogService,
+      kdfConfigService,
+      encryptService,
+      toastService,
     );
   }
 
@@ -82,5 +97,14 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
 
   onWindowHidden() {
     this.showPassword = false;
+  }
+
+  protected async onSetPasswordSuccess(
+    masterKey: MasterKey,
+    userKey: [UserKey, EncString],
+    keyPair: [string, EncString],
+  ): Promise<void> {
+    await super.onSetPasswordSuccess(masterKey, userKey, keyPair);
+    this.messagingService.send("redrawMenu");
   }
 }

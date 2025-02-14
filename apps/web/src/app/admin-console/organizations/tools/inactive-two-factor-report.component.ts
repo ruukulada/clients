@@ -1,39 +1,69 @@
-import { Component } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { firstValueFrom, map } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 // eslint-disable-next-line no-restricted-imports
-import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../../../reports/pages/inactive-two-factor-report.component";
+import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../../../tools/reports/pages/inactive-two-factor-report.component";
 
 @Component({
   selector: "app-inactive-two-factor-report",
-  templateUrl: "../../../reports/pages/inactive-two-factor-report.component.html",
+  templateUrl: "../../../tools/reports/pages/inactive-two-factor-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class InactiveTwoFactorReportComponent extends BaseInactiveTwoFactorReportComponent {
+export class InactiveTwoFactorReportComponent
+  extends BaseInactiveTwoFactorReportComponent
+  implements OnInit
+{
   constructor(
     cipherService: CipherService,
     modalService: ModalService,
-    messagingService: MessagingService,
     private route: ActivatedRoute,
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
-    private organizationService: OrganizationService
+    organizationService: OrganizationService,
+    accountService: AccountService,
+    i18nService: I18nService,
+    syncService: SyncService,
   ) {
-    super(cipherService, modalService, messagingService, logService, passwordRepromptService);
+    super(
+      cipherService,
+      organizationService,
+      accountService,
+      modalService,
+      logService,
+      passwordRepromptService,
+      i18nService,
+      syncService,
+    );
   }
 
   async ngOnInit() {
+    this.isAdminConsoleActive = true;
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
-      this.organization = await this.organizationService.get(params.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(params.organizationId)),
+      );
       await super.ngOnInit();
     });
   }

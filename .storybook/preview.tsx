@@ -48,7 +48,7 @@ const decorator = componentWrapperDecorator(
   },
   ({ globals }) => {
     return { theme: `${globals["theme"]}` };
-  }
+  },
 );
 
 const preview: Preview = {
@@ -92,7 +92,6 @@ const preview: Preview = {
     },
   },
   parameters: {
-    actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -107,6 +106,7 @@ const preview: Preview = {
     },
     docs: { source: { type: "dynamic", excludeDecorators: true } },
   },
+  tags: ["autodocs"],
 };
 
 export default preview;

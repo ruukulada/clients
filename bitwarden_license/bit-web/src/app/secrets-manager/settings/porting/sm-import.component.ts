@@ -1,14 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
   SecretsManagerImportErrorDialogComponent,
@@ -32,12 +33,11 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private i18nService: I18nService,
-    private organizationService: OrganizationService,
-    private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
     protected fileDownloadService: FileDownloadService,
     private logService: LogService,
     private secretsManagerPortingApiService: SecretsManagerPortingApiService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
@@ -55,48 +55,52 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
     const fileElement = document.getElementById("file") as HTMLInputElement;
     const importContents = await this.getImportContents(
       fileElement,
-      this.formGroup.get("pastedContents").value.trim()
+      this.formGroup.get("pastedContents").value.trim(),
     );
 
     if (importContents == null) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectFile")
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
       return;
     }
 
     try {
-      const error = await this.secretsManagerPortingApiService.import(this.orgId, importContents);
+      await this.secretsManagerPortingApiService.import(this.orgId, importContents);
 
-      if (error?.lines?.length > 0) {
-        this.openImportErrorDialog(error);
-        return;
-      } else if (error != null) {
-        this.platformUtilsService.showToast(
-          "error",
-          this.i18nService.t("errorOccurred"),
-          this.i18nService.t("errorReadingImportFile")
-        );
-        return;
-      }
-
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("importSuccess"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("importSuccess"),
+      });
       this.clearForm();
-    } catch (error) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("errorReadingImportFile")
-      );
-      this.logService.error(error);
+    } catch (error: unknown) {
+      if (error instanceof SecretsManagerImportError && error?.lines?.length > 0) {
+        this.openImportErrorDialog(error);
+      } else {
+        let message;
+        if (error instanceof Error && !Utils.isNullOrWhitespace(error?.message)) {
+          message = error.message;
+        } else {
+          message = this.i18nService.t("errorReadingImportFile");
+        }
+
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message,
+        });
+
+        this.logService.error(error);
+      }
     }
   };
 
   protected async getImportContents(
     fileElement: HTMLInputElement,
-    pastedContents: string
+    pastedContents: string,
   ): Promise<string> {
     const files = fileElement.files;
 
@@ -160,7 +164,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
         data: {
           error: error,
         },
-      }
+      },
     );
   }
 }

@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, Output } from "@angular/core";
 
-import { ITreeNodeObject } from "@bitwarden/common/models/domain/tree-node";
+import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { DynamicTreeNode } from "../models/dynamic-tree-node.model";

@@ -1,8 +1,9 @@
-import { FieldType, SecureNoteType } from "@bitwarden/common/enums";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CollectionView } from "@bitwarden/admin-console/common";
+import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
@@ -56,7 +57,7 @@ export class BitwardenCsvImporter extends BaseImporter implements Importer {
       try {
         cipher.reprompt = parseInt(
           this.getValueOrDefault(value.reprompt, CipherRepromptType.None.toString()),
-          10
+          10,
         );
       } catch (e) {
         // eslint-disable-next-line

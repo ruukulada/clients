@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -33,14 +35,14 @@ export class AccessTokenCreateDialogComponent implements OnInit {
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) public data: AccessTokenOperation,
     private dialogService: DialogService,
-    private accessService: AccessService
+    private accessService: AccessService,
   ) {}
 
   async ngOnInit() {
     if (!this.data.serviceAccountView) {
       this.dialogRef.close();
       throw new Error(
-        `The access token create dialog was not called with the appropriate operation values.`
+        `The access token create dialog was not called with the appropriate operation values.`,
       );
     }
   }
@@ -57,12 +59,12 @@ export class AccessTokenCreateDialogComponent implements OnInit {
     const accessToken = await this.accessService.createAccessToken(
       this.data.serviceAccountView.organizationId,
       this.data.serviceAccountView.id,
-      accessTokenView
+      accessTokenView,
     );
     this.openAccessTokenDialog(
       this.data.serviceAccountView.name,
       accessToken,
-      accessTokenView.expireAt
+      accessTokenView.expireAt,
     );
     this.dialogRef.close();
   };
@@ -70,7 +72,7 @@ export class AccessTokenCreateDialogComponent implements OnInit {
   private openAccessTokenDialog(
     serviceAccountName: string,
     accessToken: string,
-    expirationDate?: Date
+    expirationDate?: Date,
   ) {
     this.dialogService.open<unknown, AccessTokenDetails>(AccessTokenDialogComponent, {
       data: {
@@ -83,7 +85,7 @@ export class AccessTokenCreateDialogComponent implements OnInit {
 
   static openNewAccessTokenDialog(
     dialogService: DialogService,
-    serviceAccountView: ServiceAccountView
+    serviceAccountView: ServiceAccountView,
   ) {
     return dialogService.open<unknown, AccessTokenOperation>(AccessTokenCreateDialogComponent, {
       data: {

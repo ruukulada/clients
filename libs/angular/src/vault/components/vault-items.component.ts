@@ -1,12 +1,19 @@
-import { Directive, EventEmitter, Input, Output } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, Subject, firstValueFrom, from, map, switchMap, takeUntil } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 @Directive()
-export class VaultItemsComponent {
+export class VaultItemsComponent implements OnInit, OnDestroy {
   @Input() activeCipherId: string = null;
   @Output() onCipherClicked = new EventEmitter<CipherView>();
   @Output() onCipherRightClicked = new EventEmitter<CipherView>();
@@ -23,16 +30,51 @@ export class VaultItemsComponent {
 
   protected searchPending = false;
 
+  private destroy$ = new Subject<void>();
   private searchTimeout: any = null;
-  private _searchText: string = null;
+  private isSearchable: boolean = false;
+  private _searchText$ = new BehaviorSubject<string>("");
   get searchText() {
-    return this._searchText;
+    return this._searchText$.value;
   }
   set searchText(value: string) {
-    this._searchText = value;
+    this._searchText$.next(value);
   }
 
-  constructor(protected searchService: SearchService, protected cipherService: CipherService) {}
+  constructor(
+    protected searchService: SearchService,
+    protected cipherService: CipherService,
+    protected accountService: AccountService,
+  ) {
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.cipherService.cipherViews$(userId).pipe(map((ciphers) => ({ userId, ciphers }))),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(({ userId, ciphers }) => {
+        void this.doSearch(ciphers, userId);
+        this.loaded = true;
+      });
+  }
+
+  ngOnInit(): void {
+    this._searchText$
+      .pipe(
+        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((isSearchable) => {
+        this.isSearchable = isSearchable;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   async load(filter: (cipher: CipherView) => boolean = null, deleted = false) {
     this.deleted = deleted ?? false;
@@ -87,17 +129,29 @@ export class VaultItemsComponent {
   }
 
   isSearching() {
-    return !this.searchPending && this.searchService.isSearchable(this.searchText);
+    return !this.searchPending && this.isSearchable;
   }
 
   protected deletedFilter: (cipher: CipherView) => boolean = (c) => c.isDeleted === this.deleted;
 
-  protected async doSearch(indexedCiphers?: CipherView[]) {
-    indexedCiphers = indexedCiphers ?? (await this.cipherService.getAllDecrypted());
+  protected async doSearch(indexedCiphers?: CipherView[], userId?: UserId) {
+    // Get userId from activeAccount if not provided from parent stream
+    if (!userId) {
+      userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    }
+
+    indexedCiphers =
+      indexedCiphers ?? (await firstValueFrom(this.cipherService.cipherViews$(userId)));
+
+    const failedCiphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$(userId));
+    if (failedCiphers != null && failedCiphers.length > 0) {
+      indexedCiphers = [...failedCiphers, ...indexedCiphers];
+    }
+
     this.ciphers = await this.searchService.searchCiphers(
       this.searchText,
       [this.filter, this.deletedFilter],
-      indexedCiphers
+      indexedCiphers,
     );
   }
 }

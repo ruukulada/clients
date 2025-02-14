@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { AllowedFeatureFlagTypes, FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { IfFeatureDirective } from "./if-feature.directive";
@@ -39,35 +39,24 @@ class TestComponent {
 describe("IfFeatureDirective", () => {
   let fixture: ComponentFixture<TestComponent>;
   let content: HTMLElement;
-  let mockConfigService: MockProxy<ConfigServiceAbstraction>;
+  let mockConfigService: MockProxy<ConfigService>;
 
-  const mockConfigFlagValue = (flag: FeatureFlag, flagValue: any) => {
-    if (typeof flagValue === "boolean") {
-      mockConfigService.getFeatureFlagBool.mockImplementation((f, defaultValue = false) =>
-        flag == f ? Promise.resolve(flagValue) : Promise.resolve(defaultValue)
-      );
-    } else if (typeof flagValue === "string") {
-      mockConfigService.getFeatureFlagString.mockImplementation((f, defaultValue = "") =>
-        flag == f ? Promise.resolve(flagValue) : Promise.resolve(defaultValue)
-      );
-    } else if (typeof flagValue === "number") {
-      mockConfigService.getFeatureFlagNumber.mockImplementation((f, defaultValue = 0) =>
-        flag == f ? Promise.resolve(flagValue) : Promise.resolve(defaultValue)
-      );
-    }
+  const mockConfigFlagValue = (flag: FeatureFlag, flagValue: AllowedFeatureFlagTypes) => {
+    mockConfigService.getFeatureFlag.mockImplementation((f) => Promise.resolve(flagValue as any));
   };
+
   const queryContent = (testId: string) =>
     fixture.debugElement.query(By.css(`[data-testid="${testId}"]`))?.nativeElement;
 
   beforeEach(async () => {
-    mockConfigService = mock<ConfigServiceAbstraction>();
+    mockConfigService = mock<ConfigService>();
 
     await TestBed.configureTestingModule({
       declarations: [IfFeatureDirective, TestComponent],
       providers: [
         { provide: LogService, useValue: mock<LogService>() },
         {
-          provide: ConfigServiceAbstraction,
+          provide: ConfigService,
           useValue: mockConfigService,
         },
       ],
@@ -126,7 +115,7 @@ describe("IfFeatureDirective", () => {
   });
 
   it("hides content when the directive throws an unexpected exception", async () => {
-    mockConfigService.getFeatureFlagBool.mockImplementation(() => Promise.reject("Some error"));
+    mockConfigService.getFeatureFlag.mockImplementation(() => Promise.reject("Some error"));
     fixture.detectChanges();
     await fixture.whenStable();
 
